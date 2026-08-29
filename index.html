@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.2</title>
+<title>APAR - Admin Dashboard V14.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -35,6 +35,14 @@ h1{margin:0;font-size:29px}.subtitle{color:#64748b;margin-top:5px}
 .primary{background:#2563eb;color:#fff}.secondary{background:#6b7280;color:#fff}.danger{background:#dc2626;color:#fff}
 .action:disabled{opacity:.55;cursor:not-allowed}
 .search{width:100%;max-width:460px;border:1px solid #cbd5e1;border-radius:9px;padding:12px 13px;font-size:14px;outline:none}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800}
+.form-field input,.form-field select{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;outline:none;background:#fff}
+.form-field input:focus,.form-field select:focus{border-color:#2563eb}
+.form-field.full{grid-column:1/-1}
+.form-help{font-size:11px;color:#64748b;margin-top:5px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+@media(max-width:650px){.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}}
 .search:focus{border-color:#2563eb}
 .table-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px}
 table{width:100%;border-collapse:collapse;min-width:850px}
@@ -67,7 +75,7 @@ tr:last-child td{border-bottom:0}
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.2</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.3</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -117,8 +125,8 @@ tr:last-child td{border-bottom:0}
 <section id="dataAparView" class="hidden">
   <section class="card">
     <div class="toolbar">
-      <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.2 fokus pada lihat, cari, dan detail.</div></div>
-      <button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+      <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.3 menambahkan Tambah dan Edit data APAR.</div></div>
+      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
     </div>
     <div class="toolbar-left" style="margin-bottom:15px">
       <input id="aparSearch" class="search" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
@@ -140,10 +148,74 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.2...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.3...</div>
 </section>
 </div>
 </main>
+</div>
+
+
+<div id="aparFormModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="aparFormTitle">Tambah APAR</h2>
+      <button id="closeAparForm" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="aparFormStatus" class="status info hidden"></div>
+
+    <form id="aparForm">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="fAssetNumber">Asset Number *</label>
+          <input id="fAssetNumber" type="text" required placeholder="Contoh: APAR-0002">
+          <div id="assetHelp" class="form-help">Asset Number akan menjadi Document ID Firestore.</div>
+        </div>
+
+        <div class="form-field">
+          <label for="fBrand">Brand *</label>
+          <input id="fBrand" type="text" required placeholder="Contoh: ABC">
+        </div>
+
+        <div class="form-field">
+          <label for="fCapacity">Capacity *</label>
+          <input id="fCapacity" type="text" required placeholder="Contoh: 6 Kg">
+        </div>
+
+        <div class="form-field">
+          <label for="fLocation">Location ID *</label>
+          <input id="fLocation" type="text" required placeholder="Contoh: LOC-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fSerial">Serial Number *</label>
+          <input id="fSerial" type="text" required placeholder="Contoh: SN-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fType">Type ID *</label>
+          <input id="fType" type="text" required placeholder="Contoh: TYPE-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fStatus">Status *</label>
+          <select id="fStatus" required>
+            <option value="active">ACTIVE</option>
+            <option value="inactive">INACTIVE</option>
+          </select>
+        </div>
+
+        <div class="form-field full">
+          <div class="form-help">Untuk V14.3, Asset Number tidak dapat diubah saat Edit agar relasi QR dan riwayat pemeriksaan tetap aman.</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelAparForm" class="action secondary" type="button">Batal</button>
+        <button id="saveAparBtn" class="action primary" type="submit">Simpan APAR</button>
+      </div>
+    </form>
+  </div>
 </div>
 
 <div id="detailModal" class="modal hidden">
@@ -156,7 +228,7 @@ tr:last-child td{border-bottom:0}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,getDocs,doc,getDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
@@ -167,7 +239,7 @@ const firebaseConfig={
   appId:"1:692076938129:web:8583c9d30f47588c135030"
 };
 
-let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[];
+let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],aparFormMode="create",aparEditId=null;
 
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -234,9 +306,10 @@ function renderMasterApar(){
     <td><strong>${esc(x.assetNumber||x.id)}</strong></td>
     <td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td>
     <td>${esc(x.serialNumber)}</td><td>${esc(x.typeId)}</td><td>${badge(x.status)}</td>
-    <td><button class="small-btn" data-detail-id="${esc(x.id)}" type="button">Detail</button></td>
+    <td><div class="toolbar-left"><button class="small-btn" data-detail-id="${esc(x.id)}" type="button">Detail</button><button class="small-btn" data-edit-id="${esc(x.id)}" type="button">Edit</button></div></td>
   </tr>`).join("");
   b.querySelectorAll("[data-detail-id]").forEach(btn=>btn.addEventListener("click",()=>showDetail(btn.dataset.detailId)));
+  b.querySelectorAll("[data-edit-id]").forEach(btn=>btn.addEventListener("click",()=>openAparForm("edit",btn.dataset.editId)));
 }
 
 async function loadInspections(){
@@ -264,6 +337,136 @@ async function loadAll(){
   }finally{$("reloadBtn").disabled=false;$("reloadAparBtn").disabled=false}
 }
 
+
+function setAparFormStatus(message,type="info"){
+  const e=$("aparFormStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function resetAparForm(){
+  $("aparForm").reset();
+  $("fStatus").value="active";
+  $("fAssetNumber").readOnly=false;
+  $("assetHelp").textContent="Asset Number akan menjadi Document ID Firestore.";
+  $("aparFormStatus").classList.add("hidden");
+}
+
+function openAparForm(mode="create",id=null){
+  aparFormMode=mode;
+  aparEditId=id;
+  resetAparForm();
+
+  if(mode==="edit"){
+    const x=aparRows.find(r=>r.id===id);
+    if(!x)return;
+
+    $("aparFormTitle").textContent="Edit APAR";
+    $("saveAparBtn").textContent="Simpan Perubahan";
+    $("fAssetNumber").value=x.assetNumber||x.id||"";
+    $("fAssetNumber").readOnly=true;
+    $("assetHelp").textContent="Asset Number dikunci agar QR dan riwayat pemeriksaan tetap terhubung.";
+    $("fBrand").value=x.brand||"";
+    $("fCapacity").value=x.capacity||"";
+    $("fLocation").value=x.locationId||"";
+    $("fSerial").value=x.serialNumber||"";
+    $("fType").value=x.typeId||"";
+    $("fStatus").value=String(x.status||"active").toLowerCase()==="inactive"?"inactive":"active";
+  }else{
+    $("aparFormTitle").textContent="Tambah APAR";
+    $("saveAparBtn").textContent="Simpan APAR";
+  }
+
+  $("aparFormModal").classList.remove("hidden");
+}
+
+function closeAparForm(){
+  $("aparFormModal").classList.add("hidden");
+  aparFormMode="create";
+  aparEditId=null;
+}
+
+function getAparFormData(){
+  const assetNumber=$("fAssetNumber").value.trim().toUpperCase();
+  return {
+    assetNumber,
+    brand:$("fBrand").value.trim(),
+    capacity:$("fCapacity").value.trim(),
+    locationId:$("fLocation").value.trim().toUpperCase(),
+    serialNumber:$("fSerial").value.trim(),
+    typeId:$("fType").value.trim().toUpperCase(),
+    status:$("fStatus").value
+  };
+}
+
+async function saveAparForm(event){
+  event.preventDefault();
+
+  if(!currentAdmin){
+    setAparFormStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");
+    return;
+  }
+
+  const data=getAparFormData();
+
+  if(!data.assetNumber||!data.brand||!data.capacity||!data.locationId||!data.serialNumber||!data.typeId){
+    setAparFormStatus("Semua field wajib diisi.","warning");
+    return;
+  }
+
+  const btn=$("saveAparBtn");
+  btn.disabled=true;
+  setAparFormStatus("Menyimpan data APAR ke Firestore...","info");
+
+  try{
+    if(aparFormMode==="create"){
+      const ref=doc(db,"apar",data.assetNumber);
+      const existing=await getDoc(ref);
+
+      if(existing.exists()){
+        throw new Error(`Asset Number ${data.assetNumber} sudah terdaftar.`);
+      }
+
+      await setDoc(ref,{
+        ...data,
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp(),
+        updatedBy:currentAdmin.email||currentAdmin.uid||"admin"
+      });
+
+      debug("APAR baru berhasil dibuat: "+data.assetNumber);
+      closeAparForm();
+      setStatus(`APAR ${data.assetNumber} berhasil ditambahkan.`,"success");
+    }else{
+      if(!aparEditId)throw new Error("Document ID APAR untuk edit tidak ditemukan.");
+
+      await updateDoc(doc(db,"apar",aparEditId),{
+        brand:data.brand,
+        capacity:data.capacity,
+        locationId:data.locationId,
+        serialNumber:data.serialNumber,
+        typeId:data.typeId,
+        status:data.status,
+        updatedAt:serverTimestamp(),
+        updatedBy:currentAdmin.email||currentAdmin.uid||"admin"
+      });
+
+      debug("APAR berhasil diperbarui: "+aparEditId);
+      closeAparForm();
+      setStatus(`APAR ${data.assetNumber} berhasil diperbarui.`,"success");
+    }
+
+    await loadApar();
+  }catch(e){
+    console.error(e);
+    setAparFormStatus(e.message||"Gagal menyimpan APAR.","error");
+    debug("SIMPAN APAR ERROR: "+(e.code||"-")+" "+(e.message||""));
+  }finally{
+    btn.disabled=false;
+  }
+}
+
 function showDetail(id){
   const x=aparRows.find(r=>r.id===id);
   if(!x)return;
@@ -283,11 +486,18 @@ function setView(view){
   views[view].classList.remove("hidden");
   ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory"].forEach(id=>$(id).classList.remove("active"));
   if(view==="dashboard"){$("navDashboard").classList.add("active");$("pageTitle").textContent="Admin Dashboard";$("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru"}
-  if(view==="data"){$("navDataApar").classList.add("active");$("pageTitle").textContent="Data APAR";$("pageSubtitle").textContent="Master data APAR dari Firestore"}
+  if(view==="data"){$("navDataApar").classList.add("active");$("pageTitle").textContent="Data APAR";$("pageSubtitle").textContent="Master data APAR + Tambah/Edit dari Firestore"}
 }
 function placeholder(title,text,id){
   setView("placeholder");$(id).classList.add("active");$("placeholderTitle").textContent=title;$("placeholderText").textContent=text;$("pageTitle").textContent=title;$("pageSubtitle").textContent="Modul berikutnya";
 }
+
+
+$("addAparBtn").addEventListener("click",()=>openAparForm("create"));
+$("closeAparForm").addEventListener("click",closeAparForm);
+$("cancelAparForm").addEventListener("click",closeAparForm);
+$("aparForm").addEventListener("submit",saveAparForm);
+$("aparFormModal").addEventListener("click",e=>{if(e.target===$("aparFormModal"))closeAparForm()});
 
 $("loginBtn").addEventListener("click",async()=>{
   const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
