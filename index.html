@@ -465,6 +465,114 @@
       margin-top: 10px;
     }
 
+    /* =========================================================
+       QR GENERATOR APAR
+    ========================================================== */
+    .qr-generator-box {
+      margin-top: 15px;
+      padding: 16px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .qr-generator-controls {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      align-items: end;
+    }
+
+    .qr-generator-controls select {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      font-size: 15px;
+      background: #ffffff;
+    }
+
+    .qr-generator-controls select:focus {
+      border-color: #2563eb;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .qr-preview {
+      margin-top: 16px;
+      padding: 18px;
+      background: #ffffff;
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      text-align: center;
+    }
+
+    .qr-preview-code {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 280px;
+      margin: 8px auto 14px;
+      overflow: hidden;
+    }
+
+    #qr-generator-canvas {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .qr-asset-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .qr-asset-meta {
+      margin-top: 6px;
+      color: #6b7280;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .qr-print-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .qr-print-item {
+      border: 1px solid #d1d5db;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      background: #ffffff;
+    }
+
+    .qr-print-item img {
+      width: 100%;
+      max-width: 180px;
+      height: auto;
+      display: block;
+      margin: 0 auto 8px;
+    }
+
+    .qr-print-item strong {
+      display: block;
+      font-size: 16px;
+    }
+
+    @media (max-width: 700px) {
+      .qr-generator-controls {
+        grid-template-columns: 1fr;
+      }
+
+      .qr-print-grid {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
     @media (max-width: 600px) {
 
       .container {
@@ -875,6 +983,91 @@
 
 
   <!-- =====================================================
+       QR GENERATOR APAR
+  ====================================================== -->
+
+  <div id="qrGeneratorCard" class="card hidden">
+
+    <h2>Generator QR Code APAR</h2>
+
+    <div id="qrGeneratorStatus" class="status status-info">
+      Pilih APAR untuk membuat QR Code.
+    </div>
+
+    <div class="qr-generator-box">
+
+      <div class="small">
+        QR Code akan berisi <strong>Asset Number</strong> APAR,
+        contoh: <strong>APAR-0001</strong>. QR ini nantinya dapat
+        dipindai oleh Inspector melalui fitur Scan QR Code APAR.
+      </div>
+
+      <div class="qr-generator-controls">
+        <div class="field" style="margin-bottom:0;">
+          <label for="qrAparSelect">Pilih APAR</label>
+          <select id="qrAparSelect">
+            <option value="">Memuat data APAR...</option>
+          </select>
+        </div>
+
+        <button
+          id="generateQrBtn"
+          class="btn-primary"
+          type="button"
+          disabled
+        >
+          Generate QR
+        </button>
+      </div>
+
+      <div id="qrPreview" class="qr-preview hidden">
+        <div class="small">QR Code APAR</div>
+        <div id="qrPreviewCode" class="qr-preview-code">
+          <canvas id="qr-generator-canvas" width="260" height="260"></canvas>
+        </div>
+        <div id="qrAssetTitle" class="qr-asset-title">-</div>
+        <div id="qrAssetMeta" class="qr-asset-meta">-</div>
+
+        <div style="margin-top:14px;">
+          <button
+            id="downloadQrBtn"
+            class="btn-success"
+            type="button"
+            disabled
+          >
+            Simpan PNG
+          </button>
+
+          <button
+            id="printQrBtn"
+            class="btn-primary"
+            type="button"
+            disabled
+          >
+            Print QR
+          </button>
+        </div>
+      </div>
+
+      <div style="margin-top:18px;">
+        <button
+          id="printAllQrBtn"
+          class="btn-secondary"
+          type="button"
+          disabled
+        >
+          Print Semua QR APAR
+        </button>
+      </div>
+
+      <div id="qrAllPreview" class="qr-print-grid hidden"></div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
        QR SCANNER APAR
   ====================================================== -->
 
@@ -1071,6 +1264,8 @@ Memulai Test Inspector V5 QR FIX...
 
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.4/build/qrcode.min.js"></script>
+
 <script type="module">
 
   import {
@@ -1240,6 +1435,43 @@ Memulai Test Inspector V5 QR FIX...
     );
 
 
+  const qrGeneratorCard =
+    document.getElementById("qrGeneratorCard");
+
+  const qrGeneratorStatus =
+    document.getElementById("qrGeneratorStatus");
+
+  const qrAparSelect =
+    document.getElementById("qrAparSelect");
+
+  const generateQrBtn =
+    document.getElementById("generateQrBtn");
+
+  const qrPreview =
+    document.getElementById("qrPreview");
+
+  const qrGeneratorCanvas =
+    document.getElementById("qr-generator-canvas");
+
+  const qrAssetTitle =
+    document.getElementById("qrAssetTitle");
+
+  const qrAssetMeta =
+    document.getElementById("qrAssetMeta");
+
+  const downloadQrBtn =
+    document.getElementById("downloadQrBtn");
+
+  const printQrBtn =
+    document.getElementById("printQrBtn");
+
+  const printAllQrBtn =
+    document.getElementById("printAllQrBtn");
+
+  const qrAllPreview =
+    document.getElementById("qrAllPreview");
+
+
   const selectedAparBox =
     document.getElementById(
       "selectedAparBox"
@@ -1292,6 +1524,10 @@ Memulai Test Inspector V5 QR FIX...
   let currentUser = null;
 
   let selectedApar = null;
+
+  let aparItems = [];
+
+  let generatedQrApar = null;
 
   let qrScanner = null;
 
@@ -2596,6 +2832,8 @@ Memulai Test Inspector V5 QR FIX...
         aparStatus.textContent = "Collection apar berhasil dibaca, tetapi belum ada data APAR.";
         aparStatus.className = "status status-warning";
         aparList.innerHTML = '<div class="apar-empty">Belum ada data APAR di Firestore.</div>';
+        aparItems = [];
+        initializeQrGenerator([]);
         return;
       }
 
@@ -2662,6 +2900,10 @@ Memulai Test Inspector V5 QR FIX...
 
       const items = Array.from(itemMap.values());
 
+      aparItems = items;
+
+      initializeQrGenerator(items);
+
       debug("Data APAR berhasil dibaca:");
       debug(JSON.stringify(items, null, 2));
 
@@ -2716,6 +2958,439 @@ Memulai Test Inspector V5 QR FIX...
       aparList.innerHTML = '<div class="apar-empty">Periksa Firestore Rules dan pastikan collection "apar" dapat dibaca oleh Inspector.</div>';
     }
   }
+
+
+
+  // =========================================================
+  // QR GENERATOR APAR
+  // =========================================================
+
+  function setQrGeneratorStatus(message, type = "info") {
+    qrGeneratorStatus.textContent = message;
+    qrGeneratorStatus.className = "status status-" + type;
+  }
+
+
+  function getAparMetaText(item) {
+    return
+      "Brand: " + item.brand +
+      " | Capacity: " + item.capacity +
+      " | Location: " + item.location +
+      " | Serial: " + item.serial;
+  }
+
+
+  function initializeQrGenerator(items) {
+
+    qrGeneratorCard.classList.remove("hidden");
+
+    qrAparSelect.innerHTML = "";
+
+    const placeholder = document.createElement("option");
+    placeholder.value = "";
+    placeholder.textContent = items.length
+      ? "-- Pilih APAR --"
+      : "Belum ada data APAR";
+    qrAparSelect.appendChild(placeholder);
+
+    items.forEach(function(item) {
+      const option = document.createElement("option");
+      option.value = item.id;
+      option.textContent = item.assetNumber;
+      qrAparSelect.appendChild(option);
+    });
+
+    generateQrBtn.disabled = items.length === 0;
+    printAllQrBtn.disabled = items.length === 0;
+
+    if (!items.length) {
+      qrPreview.classList.add("hidden");
+      qrAllPreview.classList.add("hidden");
+      setQrGeneratorStatus(
+        "Collection apar belum memiliki data untuk dibuat QR Code.",
+        "warning"
+      );
+      return;
+    }
+
+    setQrGeneratorStatus(
+      items.length + " APAR siap dibuatkan QR Code.",
+      "success"
+    );
+  }
+
+
+  function findAparItemById(id) {
+    return aparItems.find(function(item) {
+      return String(item.id) === String(id);
+    }) || null;
+  }
+
+
+  async function generateQrForItem(item) {
+
+    if (!window.QRCode) {
+      throw new Error(
+        "Library QR Code belum berhasil dimuat. Periksa koneksi internet."
+      );
+    }
+
+    if (!item || !item.assetNumber) {
+      throw new Error("Asset Number APAR tidak tersedia.");
+    }
+
+    const payload = String(item.assetNumber).trim();
+
+    if (!payload) {
+      throw new Error("Asset Number APAR kosong.");
+    }
+
+    await QRCode.toCanvas(
+      qrGeneratorCanvas,
+      payload,
+      {
+        width: 260,
+        margin: 2,
+        errorCorrectionLevel: "H"
+      }
+    );
+
+    generatedQrApar = item;
+
+    qrAssetTitle.textContent = item.assetNumber;
+    qrAssetMeta.textContent = getAparMetaText(item);
+
+    qrPreview.classList.remove("hidden");
+    downloadQrBtn.disabled = false;
+    printQrBtn.disabled = false;
+
+    setQrGeneratorStatus(
+      "QR Code " + item.assetNumber + " berhasil dibuat.",
+      "success"
+    );
+
+    debug("================================");
+    debug("GENERATE QR CODE APAR");
+    debug("================================");
+    debug("Asset Number: " + payload);
+    debug("Document ID: " + item.id);
+    debug("Payload QR: " + payload);
+  }
+
+
+  function canvasToDataUrl() {
+    return qrGeneratorCanvas.toDataURL("image/png");
+  }
+
+
+  generateQrBtn.addEventListener(
+    "click",
+    async function() {
+
+      const item = findAparItemById(qrAparSelect.value);
+
+      if (!item) {
+        setQrGeneratorStatus(
+          "Silakan pilih APAR terlebih dahulu.",
+          "warning"
+        );
+        return;
+      }
+
+      generateQrBtn.disabled = true;
+
+      try {
+        await generateQrForItem(item);
+      } catch (error) {
+        console.error(error);
+        debug("GAGAL GENERATE QR CODE");
+        debug("Message: " + (error.message || error));
+        setQrGeneratorStatus(
+          error.message || "QR Code gagal dibuat.",
+          "error"
+        );
+      } finally {
+        generateQrBtn.disabled = false;
+      }
+    }
+  );
+
+
+  qrAparSelect.addEventListener(
+    "change",
+    function() {
+      const item = findAparItemById(qrAparSelect.value);
+
+      if (!item) {
+        generatedQrApar = null;
+        qrPreview.classList.add("hidden");
+        downloadQrBtn.disabled = true;
+        printQrBtn.disabled = true;
+        return;
+      }
+
+      setQrGeneratorStatus(
+        "APAR " + item.assetNumber + " dipilih. Tekan Generate QR.",
+        "info"
+      );
+    }
+  );
+
+
+  downloadQrBtn.addEventListener(
+    "click",
+    function() {
+
+      if (!generatedQrApar) {
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = canvasToDataUrl();
+      link.download = generatedQrApar.assetNumber + "-QR.png";
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      debug(
+        "QR PNG disimpan: " +
+        generatedQrApar.assetNumber + "-QR.png"
+      );
+    }
+  );
+
+
+  function escapePrintText(value) {
+    return escapeHtml(value == null ? "" : value);
+  }
+
+
+  async function buildAllQrPreview() {
+
+    if (!window.QRCode) {
+      throw new Error(
+        "Library QR Code belum berhasil dimuat. Periksa koneksi internet."
+      );
+    }
+
+    qrAllPreview.innerHTML = "";
+
+    const dataUrls = [];
+
+    for (const item of aparItems) {
+      const dataUrl = await QRCode.toDataURL(
+        String(item.assetNumber),
+        {
+          width: 220,
+          margin: 2,
+          errorCorrectionLevel: "H"
+        }
+      );
+
+      dataUrls.push({
+        item: item,
+        dataUrl: dataUrl
+      });
+
+      const wrapper = document.createElement("div");
+      wrapper.className = "qr-print-item";
+
+      const img = document.createElement("img");
+      img.src = dataUrl;
+      img.alt = "QR Code " + item.assetNumber;
+
+      const strong = document.createElement("strong");
+      strong.textContent = item.assetNumber;
+
+      const meta = document.createElement("div");
+      meta.className = "small";
+      meta.textContent = item.brand + " | " + item.location;
+
+      wrapper.appendChild(img);
+      wrapper.appendChild(strong);
+      wrapper.appendChild(meta);
+      qrAllPreview.appendChild(wrapper);
+    }
+
+    qrAllPreview.classList.remove("hidden");
+
+    return dataUrls;
+  }
+
+
+  function openPrintWindow(title, bodyHtml) {
+
+    const printWindow = window.open(
+      "",
+      "_blank",
+      "width=900,height=700"
+    );
+
+    if (!printWindow) {
+      throw new Error(
+        "Popup diblokir browser. Izinkan popup untuk mencetak QR Code."
+      );
+    }
+
+    printWindow.document.open();
+    printWindow.document.write(
+      "<!DOCTYPE html>" +
+      "<html lang=\"id\"><head>" +
+      "<meta charset=\"UTF-8\">" +
+      "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
+      "<title>" + escapePrintText(title) + "</title>" +
+      "<style>" +
+      "@page{margin:10mm;}" +
+      "body{font-family:Arial,Helvetica,sans-serif;margin:0;color:#111827;}" +
+      ".sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm;}" +
+      ".label{border:1px solid #d1d5db;border-radius:8px;padding:6mm;text-align:center;page-break-inside:avoid;}" +
+      ".label img{width:100%;max-width:55mm;height:auto;display:block;margin:0 auto 4mm;}" +
+      ".asset{font-size:16pt;font-weight:700;}" +
+      ".meta{font-size:9pt;color:#4b5563;margin-top:2mm;line-height:1.4;}" +
+      "@media print{.label{border:1px solid #aaa;}}" +
+      "</style></head><body>" +
+      bodyHtml +
+      "</body></html>"
+    );
+    printWindow.document.close();
+
+    setTimeout(function() {
+      printWindow.focus();
+      printWindow.print();
+    }, 500);
+  }
+
+
+  printQrBtn.addEventListener(
+    "click",
+    function() {
+
+      if (!generatedQrApar) {
+        return;
+      }
+
+      try {
+        const dataUrl = canvasToDataUrl();
+        const item = generatedQrApar;
+
+        const body =
+          '<div class="sheet">' +
+          '<div class="label">' +
+          '<img src="' + dataUrl + '" alt="QR Code">' +
+          '<div class="asset">' + escapePrintText(item.assetNumber) + '</div>' +
+          '<div class="meta">' + escapePrintText(getAparMetaText(item)) + '</div>' +
+          '</div></div>';
+
+        openPrintWindow(
+          "QR " + item.assetNumber,
+          body
+        );
+
+      } catch (error) {
+        console.error(error);
+        setQrGeneratorStatus(
+          error.message || "QR gagal dicetak.",
+          "error"
+        );
+      }
+    }
+  );
+
+
+  printAllQrBtn.addEventListener(
+    "click",
+    async function() {
+
+      if (!aparItems.length) {
+        return;
+      }
+
+      printAllQrBtn.disabled = true;
+      setQrGeneratorStatus(
+        "Membuat QR Code untuk semua APAR...",
+        "info"
+      );
+
+      // Buka jendela print segera saat klik agar popup tidak diblokir browser.
+      const printWindow = window.open(
+        "",
+        "_blank",
+        "width=900,height=700"
+      );
+
+      if (!printWindow) {
+        printAllQrBtn.disabled = false;
+        setQrGeneratorStatus(
+          "Popup diblokir browser. Izinkan popup untuk mencetak QR Code.",
+          "error"
+        );
+        return;
+      }
+
+      printWindow.document.write(
+        "<p style=\"font-family:Arial;padding:30px\">Membuat QR Code APAR...</p>"
+      );
+
+      try {
+        const dataUrls = await buildAllQrPreview();
+
+        const labels = dataUrls.map(function(entry) {
+          return
+            '<div class="label">' +
+            '<img src="' + entry.dataUrl + '" alt="QR Code">' +
+            '<div class="asset">' + escapePrintText(entry.item.assetNumber) + '</div>' +
+            '<div class="meta">' + escapePrintText(getAparMetaText(entry.item)) + '</div>' +
+            '</div>';
+        }).join("");
+
+        const bodyHtml =
+          '<div class="sheet">' + labels + '</div>';
+
+        printWindow.document.open();
+        printWindow.document.write(
+          "<!DOCTYPE html>" +
+          "<html lang=\"id\"><head>" +
+          "<meta charset=\"UTF-8\">" +
+          "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
+          "<title>QR Semua APAR</title>" +
+          "<style>" +
+          "@page{margin:10mm;}" +
+          "body{font-family:Arial,Helvetica,sans-serif;margin:0;color:#111827;}" +
+          ".sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm;}" +
+          ".label{border:1px solid #d1d5db;border-radius:8px;padding:6mm;text-align:center;page-break-inside:avoid;}" +
+          ".label img{width:100%;max-width:55mm;height:auto;display:block;margin:0 auto 4mm;}" +
+          ".asset{font-size:16pt;font-weight:700;}" +
+          ".meta{font-size:9pt;color:#4b5563;margin-top:2mm;line-height:1.4;}" +
+          "</style></head><body>" +
+          bodyHtml +
+          "</body></html>"
+        );
+        printWindow.document.close();
+
+        setTimeout(function() {
+          printWindow.focus();
+          printWindow.print();
+        }, 500);
+
+        setQrGeneratorStatus(
+          dataUrls.length + " QR Code APAR siap dicetak.",
+          "success"
+        );
+
+      } catch (error) {
+        console.error(error);
+        debug("GAGAL PRINT SEMUA QR");
+        debug("Message: " + (error.message || error));
+        printWindow.close();
+        setQrGeneratorStatus(
+          error.message || "QR semua APAR gagal dibuat.",
+          "error"
+        );
+      } finally {
+        printAllQrBtn.disabled = aparItems.length === 0;
+      }
+    }
+  );
 
 
 
@@ -3193,6 +3868,10 @@ Memulai Test Inspector V5 QR FIX...
   function selectApar(item) {
 
     selectedApar = item;
+
+    if (qrAparSelect) {
+      qrAparSelect.value = item.id;
+    }
 
     document.getElementById("selectedAssetNumber").textContent = item.assetNumber;
     document.getElementById("selectedBrand").textContent = item.brand;
