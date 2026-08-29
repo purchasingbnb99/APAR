@@ -1,0 +1,1589 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>APAR - Admin Dashboard V14.9</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
+.app{min-height:100vh;display:flex}
+.sidebar{width:240px;background:#10233f;color:#fff;padding:24px 16px;position:fixed;left:0;top:0;bottom:0}
+.brand{font-size:23px;font-weight:800;padding:0 10px 24px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:18px}
+.brand small{display:block;font-size:12px;font-weight:400;opacity:.7;margin-top:5px}
+.nav button{width:100%;text-align:left;border:0;background:transparent;color:#fff;padding:12px 14px;border-radius:9px;margin-bottom:6px;cursor:pointer;font-size:14px;font-weight:700}
+.nav button.active,.nav button:hover{background:rgba(255,255,255,.12)}
+.main{margin-left:240px;width:calc(100% - 240px);padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}
+h1{margin:0;font-size:29px}.subtitle{color:#64748b;margin-top:5px}
+.admin-info{background:#fff;border:1px solid #dbe2ea;border-radius:12px;padding:10px 14px;font-size:13px}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#dcfce7;color:#087a3d;font-size:11px;font-weight:800}
+.status{border:1px solid;border-radius:10px;padding:13px 15px;margin-bottom:18px;font-weight:700}
+.success{color:#087a3d;background:#effdf4;border-color:#b7efcc}
+.error{color:#c51f1f;background:#fff1f2;border-color:#fecaca}
+.info{color:#1456c7;background:#eff6ff;border-color:#bfdbfe}
+.warning{color:#9a6700;background:#fff9e6;border-color:#f4d58a}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:19px}
+.stat-title{color:#64748b;font-size:13px;text-transform:uppercase;letter-spacing:.3px}
+.stat-value{font-size:32px;font-weight:800;margin-top:8px}
+.card{background:#fff;border-radius:16px;border:1px solid #dbe2ea;padding:22px;margin-bottom:20px}
+.card h2{margin:0 0 16px;font-size:20px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}
+.toolbar-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.action{border:0;border-radius:9px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer}
+.primary{background:#2563eb;color:#fff}.secondary{background:#6b7280;color:#fff}.danger{background:#dc2626;color:#fff}
+.action:disabled{opacity:.55;cursor:not-allowed}
+.search{width:100%;max-width:460px;border:1px solid #cbd5e1;border-radius:9px;padding:12px 13px;font-size:14px;outline:none}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800}
+.form-field input,.form-field select{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;outline:none;background:#fff}
+.form-field input:focus,.form-field select:focus{border-color:#2563eb}
+.form-field.full{grid-column:1/-1}
+.form-help{font-size:11px;color:#64748b;margin-top:5px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+@media(max-width:650px){.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}}
+.search:focus{border-color:#2563eb}
+.table-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:12px 13px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top;font-size:13px}
+th{background:#f8fafc;font-weight:800;color:#334155}
+tr:last-child td{border-bottom:0}
+.empty{text-align:center;color:#64748b;padding:30px}
+.small-btn{border:0;border-radius:7px;padding:7px 10px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;font-size:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.detail-item{border:1px solid #e2e8f0;border-radius:10px;padding:13px;background:#f8fafc}
+.detail-label{font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;margin-bottom:5px}
+.detail-value{font-size:14px;word-break:break-word}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal-box{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:22px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}
+.modal-head h2{margin:0}
+.close{border:0;background:#e5e7eb;border-radius:8px;padding:8px 11px;cursor:pointer;font-weight:800}
+.login-card{max-width:560px;margin:55px auto;background:#fff;border:1px solid #dbe2ea;border-radius:16px;padding:26px}
+.login-card h2{margin:0 0 7px;font-size:22px}
+.field{margin-bottom:15px}.field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800}
+.field input{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px 13px;font-size:14px;outline:none}
+.field input:focus{border-color:#2563eb}
+.login-actions{display:flex;gap:10px;align-items:center}.login-note{margin-top:15px;font-size:12px;color:#64748b}
+.debug{background:#101827;color:#e5edf8;border-radius:10px;padding:14px;min-height:120px;max-height:280px;overflow:auto;white-space:pre-wrap;font:12px/1.5 Consolas,monospace}
+.hidden{display:none!important}
+@media(max-width:900px){.sidebar{width:205px}.main{margin-left:205px;width:calc(100% - 205px);padding:20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:flex-start;flex-direction:column}}
+@media(max-width:650px){.app{display:block}.sidebar{position:static;width:100%;padding:14px}.brand{padding-bottom:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.nav button{margin:0}.main{margin:0;width:100%;padding:14px}.stats{grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px}.stat-value{font-size:27px}.detail-grid{grid-template-columns:1fr}}
+
+.history-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
+.history-filters input,.history-filters select{border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;outline:none;background:#fff}
+.history-filters input:focus,.history-filters select:focus{border-color:#2563eb}
+.history-count{font-size:12px;color:#64748b}
+
+</style>
+</head>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">APAR<small>Admin Dashboard V14.9</small></div>
+  <div class="nav">
+    <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
+    <button id="navDataApar" type="button">🧯 Data APAR</button>
+    <button id="navMonitoring" type="button">🔍 Monitoring</button>
+    <button id="navInspection" type="button">📋 Pemeriksaan</button>
+    <button id="navHistory" type="button">📜 Riwayat</button>
+    <button id="navUsers" type="button">👥 User Management</button>
+    <button id="logoutBtn" type="button">🚪 Logout</button>
+  </div>
+</aside>
+
+<main class="main">
+<section id="loginCard" class="login-card hidden">
+  <h2>Login Admin</h2>
+  <div class="subtitle">Masuk menggunakan akun Admin yang terdaftar di Firebase Authentication.</div>
+  <div id="loginStatus" class="status info hidden"></div>
+  <div class="field"><label for="loginEmail">Email Admin</label><input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test"></div>
+  <div class="field"><label for="loginPassword">Password Admin</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></div>
+  <div class="login-actions"><button id="loginBtn" class="action primary" type="button">Login Admin</button></div>
+  <div class="login-note">Setelah logout, form login akan muncul kembali.</div>
+</section>
+
+<div id="dashboardContent" class="hidden">
+<div class="topbar">
+  <div><h1 id="pageTitle">Admin Dashboard</h1><div id="pageSubtitle" class="subtitle">Monitoring data APAR dan pemeriksaan terbaru</div></div>
+  <div class="admin-info">Admin: <strong id="adminEmail">-</strong> &nbsp;<span class="badge">ADMIN</span></div>
+</div>
+
+<div id="pageStatus" class="status info">Menyiapkan dashboard...</div>
+
+<section id="dashboardView">
+  <div class="stats">
+    <div class="stat"><div class="stat-title">Total APAR</div><div id="totalApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">Active</div><div id="activeApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">Inactive</div><div id="inactiveApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">PASS Terakhir</div><div id="passApar" class="stat-value">-</div></div>
+  </div>
+  <section class="card">
+    <div class="toolbar"><div><h2>Ringkasan Status APAR</h2><div class="subtitle">Data APAR yang tersimpan di Firestore.</div></div><button id="reloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Status</th></tr></thead><tbody id="aparTableBody"><tr><td colspan="6" class="empty">Memuat data APAR...</td></tr></tbody></table></div>
+  </section>
+  <section class="card">
+    <div class="toolbar"><div><h2>Pemeriksaan Terbaru</h2><div class="subtitle">Data dari collection <b>inspections</b>.</div></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectionTableBody"><tr><td colspan="5" class="empty">Memuat pemeriksaan...</td></tr></tbody></table></div>
+  </section>
+</section>
+
+<section id="dataAparView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.3 menambahkan Tambah dan Edit data APAR.</div></div>
+      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
+    </div>
+    <div class="toolbar-left" style="margin-bottom:15px">
+      <input id="aparSearch" class="search" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
+    </div>
+    <div id="dataAparStatus" class="status info hidden"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody id="masterAparBody"><tr><td colspan="8" class="empty">Memuat data APAR...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+
+<section id="monitoringView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>Monitoring APAR</h2>
+        <div class="subtitle">Ringkasan status APAR berdasarkan data <b>apar</b> dan pemeriksaan terbaru dari <b>inspections</b>.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="reloadMonitoringBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-title">PASS</div><div id="monitorPass" class="stat-value">-</div></div>
+      <div class="stat"><div class="stat-title">FAIL</div><div id="monitorFail" class="stat-value">-</div></div>
+      <div class="stat"><div class="stat-title">Belum Diperiksa</div><div id="monitorNever" class="stat-value">-</div></div>
+      <div class="stat"><div class="stat-title">Perlu Perhatian</div><div id="monitorAttention" class="stat-value">-</div></div>
+    </div>
+
+    <div id="monitoringStatus" class="status info hidden"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Asset Number</th>
+            <th>Status APAR</th>
+            <th>Hasil Terakhir</th>
+            <th>Tanggal Terakhir</th>
+            <th>Inspector Terakhir</th>
+            <th>Kondisi</th>
+          </tr>
+        </thead>
+        <tbody id="monitoringBody">
+          <tr><td colspan="6" class="empty">Memuat monitoring...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+
+<section id="historyView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>Riwayat Pemeriksaan Admin</h2>
+        <div class="subtitle">Seluruh riwayat pemeriksaan dari collection <b>inspections</b>.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="reloadHistoryBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+        <button id="printHistoryBtn" class="action primary" type="button">🖨️ Print</button>
+      </div>
+    </div>
+
+    <div class="history-filters">
+      <input id="historySearch" type="search" placeholder="Cari Asset Number, Inspector, hasil, catatan...">
+      <select id="historyResult">
+        <option value="">Semua Hasil</option>
+        <option value="pass">PASS</option>
+        <option value="fail">FAIL</option>
+      </select>
+      <input id="historyFrom" type="date" title="Tanggal mulai">
+      <input id="historyTo" type="date" title="Tanggal akhir">
+      <span id="historyCount" class="history-count">0 data</span>
+    </div>
+
+    <div id="historyStatus" class="status info hidden"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Asset Number</th>
+            <th>Inspector</th>
+            <th>Hasil</th>
+            <th>Tanggal</th>
+            <th>Catatan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="6" class="empty">Memuat riwayat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+
+<section id="usersView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>User Management</h2>
+        <div class="subtitle">Daftar profil pengguna dari collection <b>users</b>.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="addUserBtn" class="action primary" type="button">➕ Tambah User</button>
+        <button id="reloadUsersBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+      </div>
+    </div>
+
+    <div class="history-filters">
+      <input id="userSearch" type="search" placeholder="Cari email, nama, UID...">
+      <select id="userRoleFilter">
+        <option value="">Semua Role</option>
+        <option value="admin">Admin</option>
+        <option value="inspector">Inspector</option>
+      </select>
+      <select id="userStatusFilter">
+        <option value="">Semua Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <span id="userCount" class="history-count">0 user</span>
+    </div>
+
+    <div id="usersStatus" class="status info hidden"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Nama</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>UID</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="6" class="empty">Memuat user...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
+<section id="placeholderView" class="card hidden">
+  <h2 id="placeholderTitle">Menu</h2>
+  <div id="placeholderText" class="subtitle">Menu ini akan dibangun pada tahap berikutnya.</div>
+</section>
+
+<section class="card">
+  <h2>Debug Information</h2>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.9...</div>
+</section>
+</div>
+</main>
+</div>
+
+
+<div id="aparFormModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="aparFormTitle">Tambah APAR</h2>
+      <button id="closeAparForm" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="aparFormStatus" class="status info hidden"></div>
+
+    <form id="aparForm">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="fAssetNumber">Asset Number *</label>
+          <input id="fAssetNumber" type="text" required placeholder="Contoh: APAR-0002">
+          <div id="assetHelp" class="form-help">Asset Number akan menjadi Document ID Firestore.</div>
+        </div>
+
+        <div class="form-field">
+          <label for="fBrand">Brand *</label>
+          <input id="fBrand" type="text" required placeholder="Contoh: ABC">
+        </div>
+
+        <div class="form-field">
+          <label for="fCapacity">Capacity *</label>
+          <input id="fCapacity" type="text" required placeholder="Contoh: 6 Kg">
+        </div>
+
+        <div class="form-field">
+          <label for="fLocation">Location ID *</label>
+          <input id="fLocation" type="text" required placeholder="Contoh: LOC-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fSerial">Serial Number *</label>
+          <input id="fSerial" type="text" required placeholder="Contoh: SN-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fType">Type ID *</label>
+          <input id="fType" type="text" required placeholder="Contoh: TYPE-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fStatus">Status *</label>
+          <select id="fStatus" required>
+            <option value="active">ACTIVE</option>
+            <option value="inactive">INACTIVE</option>
+          </select>
+        </div>
+
+        <div class="form-field full">
+          <div class="form-help">Untuk V14.3, Asset Number tidak dapat diubah saat Edit agar relasi QR dan riwayat pemeriksaan tetap aman.</div>
+        </div>
+      </div>
+
+      <div class="modal-actions">
+        <button id="cancelAparForm" class="action secondary" type="button">Batal</button>
+        <button id="saveAparBtn" class="action primary" type="submit">Simpan APAR</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div id="detailModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h2>Detail APAR</h2><button id="closeDetail" class="close" type="button">✕ Tutup</button></div>
+    <div id="detailContent"></div>
+  </div>
+</div>
+
+<script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig={
+  apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
+  authDomain:"apar-7a343.firebaseapp.com",
+  projectId:"apar-7a343",
+  storageBucket:"apar-7a343.firebasestorage.app",
+  messagingSenderId:"692076938129",
+  appId:"1:692076938129:web:8583c9d30f47588c135030"
+};
+
+const userCreationApp=initializeApp(firebaseConfig,"userCreationApp");
+const userCreationAuth=getAuth(userCreationApp);
+
+let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
+let changingPasswordUserId=null;
+
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function debug(m){const b=$("debugBox"),t=new Date().toLocaleTimeString("id-ID",{hour12:false});b.textContent+=`[${t}] ${m}\n`;b.scrollTop=b.scrollHeight}
+function setStatus(m,type="info"){const e=$("pageStatus");e.textContent=m;e.className=`status ${type}`}
+function setLoginStatus(m,type="info"){const e=$("loginStatus");e.textContent=m;e.className=`status ${type}`}
+function badge(v){const x=String(v||"-").toLowerCase();return (x==="active"||x==="pass")?`<span class="badge">${esc(String(v).toUpperCase())}</span>`:esc(v||"-")}
+function dateValue(v){try{if(v?.toDate)return v.toDate().getTime();const d=new Date(v||0);return Number.isNaN(d.getTime())?0:d.getTime()}catch{return 0}}
+function formatDate(v){try{if(v?.toDate)return v.toDate().toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"});const d=new Date(v);if(!Number.isNaN(d.getTime()))return d.toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"})}catch{}return esc(v||"-")}
+
+function showLogin(){
+  $("loginCard").classList.remove("hidden");
+  $("dashboardContent").classList.add("hidden");
+}
+function showDashboard(){
+  $("loginCard").classList.add("hidden");
+  $("dashboardContent").classList.remove("hidden");
+}
+
+async function validateAdmin(user){
+  debug("Memeriksa users/"+user.uid);
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists())throw new Error("Profil users/"+user.uid+" tidak ditemukan.");
+  const data=snap.data()||{};
+  const role=String(data.role||"").trim().toLowerCase();
+  const status=String(data.status||"").trim().toLowerCase();
+  debug("Role: "+role);debug("Status: "+status);
+  if(role!=="admin")throw new Error("Akun bukan Admin. Role: "+role);
+  if(status!=="active")throw new Error("Akun Admin tidak aktif. Status: "+status);
+  currentAdmin={...data,uid:user.uid};
+  $("adminEmail").textContent=data.email||user.email||"-";
+}
+
+async function loadApar(){
+  debug("Membaca collection apar...");
+  const snap=await getDocs(collection(db,"apar"));
+  aparRows=[];
+  snap.forEach(s=>aparRows.push({id:s.id,...(s.data()||{})}));
+  aparRows.sort((a,b)=>String(a.assetNumber||a.id).localeCompare(String(b.assetNumber||b.id),undefined,{numeric:true,sensitivity:"base"}));
+  const active=aparRows.filter(x=>String(x.status||"").toLowerCase()==="active").length;
+  const inactive=aparRows.filter(x=>String(x.status||"").toLowerCase()==="inactive").length;
+  $("totalApar").textContent=aparRows.length;
+  $("activeApar").textContent=active;
+  $("inactiveApar").textContent=inactive;
+  renderDashboardApar();
+  renderMasterApar();
+  debug(`APAR ditemukan: ${aparRows.length}`);
+}
+function renderDashboardApar(){
+  const b=$("aparTableBody");
+  if(!aparRows.length){b.innerHTML='<tr><td colspan="6" class="empty">Belum ada data APAR.</td></tr>';return}
+  b.innerHTML=aparRows.map(x=>`<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td></tr>`).join("");
+}
+function renderMasterApar(){
+  const q=String($("aparSearch").value||"").trim().toLowerCase();
+  const rows=aparRows.filter(x=>{
+    if(!q)return true;
+    return [x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id]
+      .some(v=>String(v??"").toLowerCase().includes(q));
+  });
+  const b=$("masterAparBody");
+  if(!rows.length){b.innerHTML='<tr><td colspan="8" class="empty">Data APAR tidak ditemukan.</td></tr>';return}
+  b.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.assetNumber||x.id)}</strong></td>
+    <td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td>
+    <td>${esc(x.serialNumber)}</td><td>${esc(x.typeId)}</td><td>${badge(x.status)}</td>
+    <td><div class="toolbar-left"><button class="small-btn" data-detail-id="${esc(x.id)}" type="button">Detail</button><button class="small-btn" data-edit-id="${esc(x.id)}" type="button">Edit</button></div></td>
+  </tr>`).join("");
+  b.querySelectorAll("[data-detail-id]").forEach(btn=>btn.addEventListener("click",()=>showDetail(btn.dataset.detailId)));
+  b.querySelectorAll("[data-edit-id]").forEach(btn=>btn.addEventListener("click",()=>openAparForm("edit",btn.dataset.editId)));
+}
+
+async function loadInspections(){
+  debug("Membaca collection inspections...");
+  const snap=await getDocs(collection(db,"inspections"));
+  inspectionRows=[];
+  snap.forEach(s=>inspectionRows.push({id:s.id,...(s.data()||{})}));
+  inspectionRows.sort((a,b)=>dateValue(b.inspectionDate||b.createdAt)-dateValue(a.inspectionDate||a.createdAt));
+  $("passApar").textContent=inspectionRows.filter(x=>String(x.result||"").toLowerCase()==="pass").length;
+  const b=$("inspectionTableBody");
+  if(!inspectionRows.length){b.innerHTML='<tr><td colspan="5" class="empty">Belum ada data pemeriksaan.</td></tr>';return}
+  b.innerHTML=inspectionRows.slice(0,10).map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId)}</strong></td><td>${esc(x.inspectorPhone||x.inspectorId)}</td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes)}</td></tr>`).join("");
+  debug(`Pemeriksaan ditemukan: ${inspectionRows.length}`);
+}
+
+async function loadAll(){
+  try{
+    $("reloadBtn").disabled=true;$("reloadAparBtn").disabled=true;
+    setStatus("Memuat data Dashboard dari Firestore...","info");
+    await Promise.all([loadApar(),loadInspections()]);
+    renderMonitoring();
+    if(!$("historyView").classList.contains("hidden")) renderHistory();
+    setStatus("Dashboard Admin berhasil dimuat dari Firestore.","success");
+  }catch(e){
+    console.error(e);setStatus("Gagal membaca data Dashboard dari Firestore.","error");
+    debug("ERROR: "+(e.code||"-"));debug("MESSAGE: "+(e.message||"-"));
+  }finally{$("reloadBtn").disabled=false;$("reloadAparBtn").disabled=false}
+}
+
+
+function setAparFormStatus(message,type="info"){
+  const e=$("aparFormStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function resetAparForm(){
+  $("aparForm").reset();
+  $("fStatus").value="active";
+  $("fAssetNumber").readOnly=false;
+  $("assetHelp").textContent="Asset Number akan menjadi Document ID Firestore.";
+  $("aparFormStatus").classList.add("hidden");
+}
+
+function openAparForm(mode="create",id=null){
+  aparFormMode=mode;
+  aparEditId=id;
+  resetAparForm();
+
+  if(mode==="edit"){
+    const x=aparRows.find(r=>r.id===id);
+    if(!x)return;
+
+    $("aparFormTitle").textContent="Edit APAR";
+    $("saveAparBtn").textContent="Simpan Perubahan";
+    $("fAssetNumber").value=x.assetNumber||x.id||"";
+    $("fAssetNumber").readOnly=true;
+    $("assetHelp").textContent="Asset Number dikunci agar QR dan riwayat pemeriksaan tetap terhubung.";
+    $("fBrand").value=x.brand||"";
+    $("fCapacity").value=x.capacity||"";
+    $("fLocation").value=x.locationId||"";
+    $("fSerial").value=x.serialNumber||"";
+    $("fType").value=x.typeId||"";
+    $("fStatus").value=String(x.status||"active").toLowerCase()==="inactive"?"inactive":"active";
+  }else{
+    $("aparFormTitle").textContent="Tambah APAR";
+    $("saveAparBtn").textContent="Simpan APAR";
+  }
+
+  $("aparFormModal").classList.remove("hidden");
+}
+
+function closeAparForm(){
+  $("aparFormModal").classList.add("hidden");
+  aparFormMode="create";
+  aparEditId=null;
+}
+
+function getAparFormData(){
+  const assetNumber=$("fAssetNumber").value.trim().toUpperCase();
+  return {
+    assetNumber,
+    brand:$("fBrand").value.trim(),
+    capacity:$("fCapacity").value.trim(),
+    locationId:$("fLocation").value.trim().toUpperCase(),
+    serialNumber:$("fSerial").value.trim(),
+    typeId:$("fType").value.trim().toUpperCase(),
+    status:$("fStatus").value
+  };
+}
+
+async function saveAparForm(event){
+  event.preventDefault();
+
+  if(!currentAdmin){
+    setAparFormStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");
+    return;
+  }
+
+  const data=getAparFormData();
+
+  if(!data.assetNumber||!data.brand||!data.capacity||!data.locationId||!data.serialNumber||!data.typeId){
+    setAparFormStatus("Semua field wajib diisi.","warning");
+    return;
+  }
+
+  const btn=$("saveAparBtn");
+  btn.disabled=true;
+  setAparFormStatus("Menyimpan data APAR ke Firestore...","info");
+
+  try{
+    if(aparFormMode==="create"){
+      const ref=doc(db,"apar",data.assetNumber);
+      const existing=await getDoc(ref);
+
+      if(existing.exists()){
+        throw new Error(`Asset Number ${data.assetNumber} sudah terdaftar.`);
+      }
+
+      await setDoc(ref,{
+        ...data,
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp(),
+        updatedBy:currentAdmin.email||currentAdmin.uid||"admin"
+      });
+
+      debug("APAR baru berhasil dibuat: "+data.assetNumber);
+      closeAparForm();
+      setStatus(`APAR ${data.assetNumber} berhasil ditambahkan.`,"success");
+    }else{
+      if(!aparEditId)throw new Error("Document ID APAR untuk edit tidak ditemukan.");
+
+      await updateDoc(doc(db,"apar",aparEditId),{
+        brand:data.brand,
+        capacity:data.capacity,
+        locationId:data.locationId,
+        serialNumber:data.serialNumber,
+        typeId:data.typeId,
+        status:data.status,
+        updatedAt:serverTimestamp(),
+        updatedBy:currentAdmin.email||currentAdmin.uid||"admin"
+      });
+
+      debug("APAR berhasil diperbarui: "+aparEditId);
+      closeAparForm();
+      setStatus(`APAR ${data.assetNumber} berhasil diperbarui.`,"success");
+    }
+
+    await loadApar();
+  }catch(e){
+    console.error(e);
+    setAparFormStatus(e.message||"Gagal menyimpan APAR.","error");
+    debug("SIMPAN APAR ERROR: "+(e.code||"-")+" "+(e.message||""));
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+
+function setMonitoringStatus(message,type="info"){
+  const e=$("monitoringStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function inspectionAssetKey(x){
+  return String(x.aparAssetNumber || x.aparId || "").trim();
+}
+
+function inspectorLabel(x){
+  return x.inspectorPhone || x.inspectorId || x.inspectorEmail || "-";
+}
+
+function buildMonitoringRows(){
+  const byAsset=new Map();
+
+  inspectionRows.forEach(ins=>{
+    const key=inspectionAssetKey(ins);
+    if(!key)return;
+    const time=dateValue(ins.inspectionDate||ins.createdAt);
+    const existing=byAsset.get(key);
+    if(!existing || time > existing._time){
+      byAsset.set(key,{...ins,_time:time});
+    }
+  });
+
+  monitorRows=aparRows.map(apar=>{
+    const asset=String(apar.assetNumber||apar.id||"").trim();
+    const latest=byAsset.get(asset);
+    const result=String(latest?.result||"").trim().toLowerCase();
+
+    let condition="Belum diperiksa";
+    if(result==="fail") condition="PERLU PERHATIAN";
+    else if(result==="pass") condition="Baik";
+
+    return {
+      apar,
+      latest,
+      result,
+      condition
+    };
+  });
+
+  monitorRows.sort((a,b)=>{
+    const priority={ "PERLU PERHATIAN":0, "Belum diperiksa":1, "Baik":2 };
+    const pa=priority[a.condition]??3, pb=priority[b.condition]??3;
+    if(pa!==pb)return pa-pb;
+    return String(a.apar.assetNumber||a.apar.id).localeCompare(
+      String(b.apar.assetNumber||b.apar.id),
+      undefined,{numeric:true,sensitivity:"base"}
+    );
+  });
+}
+
+function renderMonitoring(){
+  buildMonitoringRows();
+
+  const pass=monitorRows.filter(x=>x.result==="pass").length;
+  const fail=monitorRows.filter(x=>x.result==="fail").length;
+  const never=monitorRows.filter(x=>x.condition==="Belum diperiksa").length;
+  const attention=monitorRows.filter(x=>x.condition==="PERLU PERHATIAN").length;
+
+  $("monitorPass").textContent=pass;
+  $("monitorFail").textContent=fail;
+  $("monitorNever").textContent=never;
+  $("monitorAttention").textContent=attention;
+
+  const body=$("monitoringBody");
+  if(!monitorRows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Belum ada data APAR.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=monitorRows.map(x=>{
+    const apar=x.apar, latest=x.latest;
+    let conditionHtml=esc(x.condition);
+    if(x.condition==="PERLU PERHATIAN") conditionHtml='<span class="status error" style="display:inline-block;padding:5px 8px;margin:0;font-size:11px">PERLU PERHATIAN</span>';
+    else if(x.condition==="Baik") conditionHtml='<span class="badge">BAIK</span>';
+    else conditionHtml='<span style="color:#64748b;font-weight:700">BELUM DIPERIKSA</span>';
+
+    return `<tr>
+      <td><strong>${esc(apar.assetNumber||apar.id)}</strong></td>
+      <td>${badge(apar.status)}</td>
+      <td>${latest ? badge(latest.result) : "-"}</td>
+      <td>${latest ? formatDate(latest.inspectionDate||latest.createdAt) : "-"}</td>
+      <td>${latest ? esc(inspectorLabel(latest)) : "-"}</td>
+      <td>${conditionHtml}</td>
+    </tr>`;
+  }).join("");
+}
+
+function loadMonitoring(){
+  try{
+    setMonitoringStatus("Menghitung monitoring dari data APAR dan pemeriksaan terbaru...","info");
+    renderMonitoring();
+    setMonitoringStatus("Monitoring berhasil diperbarui.","success");
+    debug("Monitoring berhasil dihitung.");
+  }catch(e){
+    console.error(e);
+    setMonitoringStatus("Gagal menghitung monitoring: "+(e.message||"Unknown error"),"error");
+    debug("MONITORING ERROR: "+(e.message||""));
+  }
+}
+
+function showDetail(id){
+  const x=aparRows.find(r=>r.id===id);
+  if(!x)return;
+  const fields=[
+    ["Asset Number",x.assetNumber],["Brand",x.brand],["Capacity",x.capacity],
+    ["Location ID",x.locationId],["Serial Number",x.serialNumber],["Type ID",x.typeId],
+    ["Status",x.status],["Document ID",x.id]
+  ];
+  $("detailContent").innerHTML=`<div class="detail-grid">${fields.map(([l,v])=>`<div class="detail-item"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v)}</div></div>`).join("")}</div>`;
+  $("detailModal").classList.remove("hidden");
+}
+function closeDetail(){$("detailModal").classList.add("hidden")}
+
+
+function setHistoryStatus(message,type="info"){
+  const e=$("historyStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function getHistoryRows(){
+  const q=String($("historySearch").value||"").trim().toLowerCase();
+  const result=String($("historyResult").value||"").trim().toLowerCase();
+  const from=$("historyFrom").value;
+  const to=$("historyTo").value;
+
+  const fromTime=from ? new Date(from+"T00:00:00").getTime() : null;
+  const toTime=to ? new Date(to+"T23:59:59.999").getTime() : null;
+
+  return inspectionRows.filter(x=>{
+    const asset=inspectionAssetKey(x).toLowerCase();
+    const inspector=inspectorLabel(x).toLowerCase();
+    const res=String(x.result||"").toLowerCase();
+    const notes=String(x.notes||"").toLowerCase();
+    const haystack=[asset,inspector,res,notes,String(x.id||"").toLowerCase()].join(" ");
+
+    if(q && !haystack.includes(q)) return false;
+    if(result && res!==result) return false;
+
+    const t=dateValue(x.inspectionDate||x.createdAt);
+    if(fromTime!==null && t<fromTime) return false;
+    if(toTime!==null && t>toTime) return false;
+
+    return true;
+  });
+}
+
+function renderHistory(){
+  const rows=getHistoryRows();
+  $("historyCount").textContent=`${rows.length} data`;
+
+  const body=$("historyBody");
+  if(!rows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Tidak ada riwayat yang sesuai filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.aparAssetNumber||x.aparId||"-")}</strong></td>
+    <td>${esc(inspectorLabel(x))}</td>
+    <td>${badge(x.result)}</td>
+    <td>${formatDate(x.inspectionDate||x.createdAt)}</td>
+    <td>${esc(x.notes||"-")}</td>
+    <td><button class="small-btn" data-history-id="${esc(x.id)}" type="button">Detail</button></td>
+  </tr>`).join("");
+
+  body.querySelectorAll("[data-history-id]").forEach(btn=>{
+    btn.addEventListener("click",()=>showInspectionDetail(btn.dataset.historyId));
+  });
+}
+
+function showInspectionDetail(id){
+  const x=inspectionRows.find(r=>r.id===id);
+  if(!x)return;
+
+  const fields=[
+    ["Document ID",x.id],
+    ["Asset Number",x.aparAssetNumber||x.aparId],
+    ["Inspector",inspectorLabel(x)],
+    ["Hasil",x.result],
+    ["Tanggal Pemeriksaan",formatDate(x.inspectionDate||x.createdAt)],
+    ["Catatan",x.notes],
+    ["Created At",formatDate(x.createdAt)],
+    ["Updated At",formatDate(x.updatedAt)]
+  ];
+
+  $("detailContent").innerHTML=`<div class="detail-grid">${fields.map(([l,v])=>`<div class="detail-item"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v)}</div></div>`).join("")}</div>`;
+  $("detailModal").classList.remove("hidden");
+}
+
+function printHistory(){
+  const rows=getHistoryRows();
+  if(!rows.length){
+    setHistoryStatus("Tidak ada data yang bisa dicetak.","warning");
+    return;
+  }
+
+  const win=window.open("","_blank","width=1200,height=800");
+  if(!win){
+    setHistoryStatus("Popup diblokir browser. Izinkan popup untuk mencetak.","error");
+    return;
+  }
+
+  const generatedAt=new Date().toLocaleString("id-ID");
+  const body=rows.map(x=>`<tr>
+    <td>${esc(x.aparAssetNumber||x.aparId||"-")}</td>
+    <td>${esc(inspectorLabel(x))}</td>
+    <td>${esc(String(x.result||"-").toUpperCase())}</td>
+    <td>${formatDate(x.inspectionDate||x.createdAt)}</td>
+    <td>${esc(x.notes||"-")}</td>
+  </tr>`).join("");
+
+  win.document.write(`<!doctype html><html><head><title>Riwayat Pemeriksaan APAR</title>
+  <style>
+  body{font-family:Arial,sans-serif;padding:25px;color:#111}
+  h1{font-size:22px;margin:0 0 5px}
+  p{font-size:12px;color:#555}
+  table{width:100%;border-collapse:collapse;margin-top:18px}
+  th,td{border:1px solid #ccc;padding:8px;font-size:11px;text-align:left}
+  th{background:#f3f4f6}
+  @media print{button{display:none}}
+  </style></head><body>
+  <h1>Riwayat Pemeriksaan APAR</h1>
+  <p>Dicetak: ${esc(generatedAt)} | Jumlah data: ${rows.length}</p>
+  <table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead>
+  <tbody>${body}</tbody></table>
+  <script>window.onload=function(){window.print()}<\/script>
+  
+
+
+</body></html>`);
+  win.document.close();
+}
+
+
+function setUsersStatus(message,type="info"){
+  const e=$("usersStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+async function loadUsers(){
+  try{
+    setUsersStatus("Membaca collection users dari Firestore...","info");
+    const snap=await getDocs(collection(db,"users"));
+    userRows=[];
+    snap.forEach(s=>userRows.push({id:s.id,...(s.data()||{})}));
+    userRows.sort((a,b)=>String(a.name||a.email||a.id).localeCompare(String(b.name||b.email||b.id),undefined,{sensitivity:"base"}));
+    renderUsers();
+    setUsersStatus("Data user berhasil dimuat.","success");
+    debug(`Users ditemukan: ${userRows.length}`);
+  }catch(e){
+    console.error(e);
+    setUsersStatus("Gagal membaca collection users: "+(e.message||"Unknown error"),"error");
+    debug("USERS ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }
+}
+
+function renderUsers(){
+  const q=String($("userSearch").value||"").trim().toLowerCase();
+  const role=String($("userRoleFilter").value||"").toLowerCase();
+  const status=String($("userStatusFilter").value||"").toLowerCase();
+
+  const rows=userRows.filter(x=>{
+    const hay=[x.email,x.name,x.id,x.phone].map(v=>String(v??"").toLowerCase()).join(" ");
+    const r=String(x.role||"").toLowerCase();
+    const s=String(x.status||"").toLowerCase();
+    return (!q||hay.includes(q)) && (!role||r===role) && (!status||s===status);
+  });
+
+  $("userCount").textContent=`${rows.length} user`;
+  const body=$("usersBody");
+
+  if(!rows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Tidak ada user yang sesuai filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.email||"-")}</strong></td>
+    <td>${esc(x.name||"-")}</td>
+    <td>${esc(String(x.role||"-").toUpperCase())}</td>
+    <td>${badge(x.status)}</td>
+    <td title="${esc(x.id)}">${esc(x.id)}</td>
+    <td>
+      <button class="small-btn" data-edit-user="${esc(x.id)}" type="button">Edit</button>
+      <button class="small-btn" data-change-password="${esc(x.id)}" type="button">🔐 Ubah Password</button>
+      <button class="small-btn" data-reset-user="${esc(x.id)}" type="button">✉️ Reset Email</button>
+      ${String(x.status||"").toLowerCase()==="active"
+        ? `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔒 Nonaktifkan</button>`
+        : `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔓 Aktifkan</button>`}
+    </td>
+  </tr>`).join("");
+
+  body.querySelectorAll("[data-edit-user]").forEach(btn=>{
+    btn.addEventListener("click",()=>openUserEdit(btn.dataset.editUser));
+  });
+  body.querySelectorAll("[data-change-password]").forEach(btn=>{
+    btn.addEventListener("click",()=>openPasswordChange(btn.dataset.changePassword));
+  });
+  body.querySelectorAll("[data-reset-user]").forEach(btn=>{
+    btn.addEventListener("click",()=>resetUserPassword(btn.dataset.resetUser));
+  });
+  body.querySelectorAll("[data-toggle-status]").forEach(btn=>{
+    btn.addEventListener("click",()=>toggleUserStatus(btn.dataset.toggleStatus));
+  });
+}
+
+function openUserEdit(id){
+  const x=userRows.find(u=>u.id===id);
+  if(!x)return;
+
+  editingUserId=id;
+  $("editUserUid").textContent=id;
+  $("editUserEmail").textContent=x.email||"-";
+  $("editUserName").value=x.name||"";
+  $("editUserRole").value=String(x.role||"inspector").toLowerCase();
+  $("editUserStatus").value=String(x.status||"active").toLowerCase();
+  $("userEditStatus").classList.add("hidden");
+  $("userEditModal").classList.remove("hidden");
+}
+
+function closeUserEdit(){
+  editingUserId=null;
+  $("userEditModal").classList.add("hidden");
+}
+
+async function saveUserEdit(){
+  if(!editingUserId)return;
+
+  const role=String($("editUserRole").value).toLowerCase();
+  const status=String($("editUserStatus").value).toLowerCase();
+  const name=$("editUserName").value.trim();
+
+  if(!["admin","inspector"].includes(role)){
+    $("userEditStatus").textContent="Role tidak valid.";
+    $("userEditStatus").className="status error";
+    $("userEditStatus").classList.remove("hidden");
+    return;
+  }
+
+  if(!["active","inactive"].includes(status)){
+    $("userEditStatus").textContent="Status tidak valid.";
+    $("userEditStatus").className="status error";
+    $("userEditStatus").classList.remove("hidden");
+    return;
+  }
+
+  // Jangan izinkan Admin menonaktifkan dirinya sendiri.
+  if(editingUserId===currentAdmin?.uid && status==="inactive"){
+    $("userEditStatus").textContent="Admin yang sedang login tidak boleh dinonaktifkan dari sesi ini.";
+    $("userEditStatus").className="status warning";
+    $("userEditStatus").classList.remove("hidden");
+    return;
+  }
+
+  $("saveUserBtn").disabled=true;
+  $("userEditStatus").textContent="Menyimpan perubahan...";
+  $("userEditStatus").className="status info";
+  $("userEditStatus").classList.remove("hidden");
+
+  try{
+    await updateDoc(doc(db,"users",editingUserId),{
+      name,
+      role,
+      status,
+      updatedAt:serverTimestamp(),
+      updatedBy:currentAdmin?.email||currentAdmin?.uid||"admin"
+    });
+
+    const idx=userRows.findIndex(u=>u.id===editingUserId);
+    if(idx>=0) userRows[idx]={...userRows[idx],name,role,status,updatedAt:new Date()};
+
+    renderUsers();
+    $("userEditStatus").textContent="Perubahan user berhasil disimpan.";
+    $("userEditStatus").className="status success";
+    debug("User diperbarui: "+editingUserId);
+    setTimeout(closeUserEdit,600);
+  }catch(e){
+    console.error(e);
+    $("userEditStatus").textContent="Gagal menyimpan: "+(e.message||"Unknown error");
+    $("userEditStatus").className="status error";
+    debug("UPDATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }finally{
+    $("saveUserBtn").disabled=false;
+  }
+}
+
+
+async function toggleUserStatus(id){
+  const target=userRows.find(u=>u.id===id);
+  if(!target){
+    setUsersStatus("User tidak ditemukan.","error");
+    return;
+  }
+
+  const currentStatus=String(target.status||"").trim().toLowerCase();
+  const nextStatus=currentStatus==="active"?"inactive":"active";
+
+  // Admin yang sedang login tidak boleh dinonaktifkan dari sesi ini.
+  if(id===currentAdmin?.uid && nextStatus==="inactive"){
+    setUsersStatus("Admin yang sedang login tidak boleh dinonaktifkan dari sesi ini.","warning");
+    debug("BLOK STATUS SELF-INACTIVE: "+id);
+    return;
+  }
+
+  const targetName=target.name||target.email||id;
+  const actionText=nextStatus==="inactive"?"menonaktifkan":"mengaktifkan";
+  const confirmText=nextStatus==="inactive"
+    ? `Nonaktifkan user ${targetName}? User akan ditolak saat proses login yang memeriksa status Firestore.`
+    : `Aktifkan kembali user ${targetName}?`;
+
+  if(!confirm(confirmText)) return;
+
+  try{
+    setUsersStatus(`${actionText[0].toUpperCase()+actionText.slice(1)} user...`,"info");
+
+    await updateDoc(doc(db,"users",id),{
+      status:nextStatus,
+      updatedAt:serverTimestamp(),
+      updatedBy:currentAdmin?.email||currentAdmin?.uid||"admin"
+    });
+
+    const idx=userRows.findIndex(u=>u.id===id);
+    if(idx>=0){
+      userRows[idx]={...userRows[idx],status:nextStatus};
+    }
+
+    renderUsers();
+    setUsersStatus(
+      nextStatus==="inactive"
+        ? `User ${targetName} berhasil dinonaktifkan.`
+        : `User ${targetName} berhasil diaktifkan kembali.`,
+      "success"
+    );
+    debug(`STATUS USER DIUBAH: ${id} -> ${nextStatus}`);
+  }catch(e){
+    console.error(e);
+    setUsersStatus("Gagal mengubah status user: "+(e.message||"Unknown error"),"error");
+    debug("TOGGLE STATUS ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }
+}
+
+
+function setUserAddStatus(message,type="info"){
+  const e=$("userAddStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function openUserAdd(){
+  $("newUserName").value="";
+  $("newUserEmail").value="";
+  $("newUserPhone").value="";
+  $("newUserRole").value="inspector";
+  $("newUserStatus").value="active";
+  $("newUserPassword").value="";
+  $("newUserPassword2").value="";
+  $("userAddStatus").classList.add("hidden");
+  $("saveNewUserBtn").disabled=false;
+  $("userAddModal").classList.remove("hidden");
+  setTimeout(()=>$("newUserName").focus(),50);
+}
+
+function closeUserAdd(){
+  $("userAddModal").classList.add("hidden");
+}
+
+function firebaseAuthErrorMessage(e){
+  const code=String(e?.code||"");
+  const map={
+    "auth/email-already-in-use":"Email tersebut sudah terdaftar di Firebase Authentication.",
+    "auth/invalid-email":"Format email tidak valid.",
+    "auth/weak-password":"Password terlalu lemah. Gunakan minimal 6 karakter.",
+    "auth/operation-not-allowed":"Email/Password Authentication belum diaktifkan di Firebase.",
+    "auth/network-request-failed":"Koneksi internet bermasalah. Coba lagi.",
+    "permission-denied":"Firestore menolak akses. Pastikan rule users mengizinkan Admin aktif membuat user."
+  };
+  return map[code] || e?.message || "Gagal membuat user.";
+}
+
+
+async function resetUserPassword(id){
+  const x=userRows.find(u=>u.id===id);
+  if(!x || !x.email){
+    setUsersStatus("Email user tidak ditemukan.","error");
+    return;
+  }
+
+  if(!confirm(`Kirim email reset password ke ${x.email}?`)) return;
+
+  try{
+    await sendPasswordResetEmail(auth,x.email);
+    setUsersStatus(`Email reset password berhasil dikirim ke ${x.email}.`,"success");
+    debug("RESET PASSWORD EMAIL DIKIRIM: "+x.email);
+  }catch(e){
+    console.error(e);
+    const code=String(e?.code||"");
+    const msg={
+      "auth/user-not-found":"User tidak ditemukan di Firebase Authentication.",
+      "auth/invalid-email":"Email user tidak valid.",
+      "auth/too-many-requests":"Terlalu banyak permintaan. Coba lagi nanti.",
+      "auth/network-request-failed":"Koneksi internet bermasalah."
+    }[code] || e?.message || "Gagal mengirim email reset password.";
+    setUsersStatus(msg,"error");
+    debug("RESET PASSWORD ERROR: "+code+" | "+(e.message||""));
+  }
+}
+
+
+function setPasswordChangeStatus(message,type="info"){
+  const e=$("passwordChangeStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function openPasswordChange(id){
+  const x=userRows.find(u=>u.id===id);
+  if(!x)return;
+
+  changingPasswordUserId=id;
+  $("passwordUserName").textContent=x.name||"-";
+  $("passwordUserEmail").textContent=x.email||"-";
+  $("passwordUserUid").textContent=id;
+  $("passwordUserRole").textContent=String(x.role||"-").toUpperCase();
+  $("newPasswordDirect").value="";
+  $("newPasswordDirect2").value="";
+  $("passwordChangeStatus").classList.add("hidden");
+  $("savePasswordDirectBtn").disabled=false;
+  $("passwordChangeModal").classList.remove("hidden");
+  setTimeout(()=>$("newPasswordDirect").focus(),50);
+}
+
+function closePasswordChange(){
+  changingPasswordUserId=null;
+  $("passwordChangeModal").classList.add("hidden");
+}
+
+async function changeUserPassword(){
+  if(!changingPasswordUserId)return;
+
+  const password=$("newPasswordDirect").value;
+  const password2=$("newPasswordDirect2").value;
+
+  if(password.length<6){
+    setPasswordChangeStatus("Password minimal 6 karakter.","error");
+    $("newPasswordDirect").focus();
+    return;
+  }
+  if(password!==password2){
+    setPasswordChangeStatus("Konfirmasi password tidak sama.","error");
+    $("newPasswordDirect2").focus();
+    return;
+  }
+
+  const target=userRows.find(u=>u.id===changingPasswordUserId);
+  if(!target){
+    setPasswordChangeStatus("User tidak ditemukan.","error");
+    return;
+  }
+
+  const btn=$("savePasswordDirectBtn");
+  btn.disabled=true;
+  setPasswordChangeStatus("Memverifikasi Admin dan mengubah password...","info");
+
+  try{
+    const token=await auth.currentUser.getIdToken();
+    const response=await fetch("/api/admin-user-password",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({
+        uid:changingPasswordUserId,
+        password
+      })
+    });
+
+    let data={};
+    try{data=await response.json()}catch(_){}
+
+    if(!response.ok){
+      throw new Error(data.message||`Server error (${response.status})`);
+    }
+
+    $("newPasswordDirect").value="";
+    $("newPasswordDirect2").value="";
+    setPasswordChangeStatus("Password user berhasil diubah.","success");
+    setUsersStatus(`Password untuk ${target.name||target.email||target.id} berhasil diubah.`,"success");
+    debug("PASSWORD USER DIUBAH: "+target.id);
+    setTimeout(closePasswordChange,900);
+  }catch(e){
+    console.error(e);
+    setPasswordChangeStatus(e.message||"Gagal mengubah password.","error");
+    debug("CHANGE PASSWORD ERROR: "+(e.message||""));
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+async function createNewUser(){
+  const name=$("newUserName").value.trim();
+  const email=$("newUserEmail").value.trim().toLowerCase();
+  const phone=$("newUserPhone").value.trim();
+  const role=String($("newUserRole").value||"").toLowerCase();
+  const status=String($("newUserStatus").value||"").toLowerCase();
+  const password=$("newUserPassword").value;
+  const password2=$("newUserPassword2").value;
+
+  if(!name){
+    setUserAddStatus("Nama wajib diisi.","error"); $("newUserName").focus(); return;
+  }
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    setUserAddStatus("Email tidak valid.","error"); $("newUserEmail").focus(); return;
+  }
+  if(!["admin","inspector"].includes(role)){
+    setUserAddStatus("Role tidak valid.","error"); return;
+  }
+  if(!["active","inactive"].includes(status)){
+    setUserAddStatus("Status tidak valid.","error"); return;
+  }
+  if(password.length<6){
+    setUserAddStatus("Password minimal 6 karakter.","error"); $("newUserPassword").focus(); return;
+  }
+  if(password!==password2){
+    setUserAddStatus("Konfirmasi password tidak sama.","error"); $("newUserPassword2").focus(); return;
+  }
+
+  const btn=$("saveNewUserBtn");
+  btn.disabled=true;
+  setUserAddStatus("Membuat akun Firebase Authentication...","info");
+
+  let createdUser=null;
+  try{
+    // Secondary Auth: sesi Admin utama tetap aman dan tidak ikut logout.
+    const credential=await createUserWithEmailAndPassword(userCreationAuth,email,password);
+    createdUser=credential.user;
+
+    setUserAddStatus("Akun Authentication berhasil. Membuat profil Firestore...","info");
+
+    const profile={
+      email,
+      name,
+      phone,
+      role,
+      status,
+      createdAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
+    };
+
+    await setDoc(doc(db,"users",createdUser.uid),profile);
+
+    userRows.push({
+      id:createdUser.uid,
+      email,name,phone,role,status
+    });
+    userRows.sort((a,b)=>String(a.name||a.email||a.id).localeCompare(
+      String(b.name||b.email||b.id),undefined,{sensitivity:"base"}
+    ));
+    renderUsers();
+
+    await signOut(userCreationAuth);
+    createdUser=null;
+
+    setUserAddStatus("User berhasil dibuat dan siap digunakan untuk login.","success");
+    debug("USER BARU DIBUAT: "+email+" | UID: "+credential.user.uid+" | ROLE: "+role);
+    setTimeout(closeUserAdd,900);
+
+  }catch(e){
+    console.error(e);
+    debug("CREATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
+
+    // Jika Auth berhasil tetapi Firestore gagal, coba rollback akun baru.
+    if(createdUser){
+      try{
+        await deleteUser(createdUser);
+        debug("Rollback Authentication berhasil untuk user baru: "+email);
+      }catch(rollbackError){
+        console.error("Rollback gagal:",rollbackError);
+        debug("ROLLBACK AUTH GAGAL: "+(rollbackError.code||"-")+" | "+(rollbackError.message||""));
+      }
+    }
+
+    setUserAddStatus(firebaseAuthErrorMessage(e),"error");
+  }finally{
+    btn.disabled=false;
+  }
+}
+
+function setView(view){
+  const views={
+    dashboard:$("dashboardView"),
+    data:$("dataAparView"),
+    monitoring:$("monitoringView"),
+    history:$("historyView"),
+    users:$("usersView"),
+    placeholder:$("placeholderView")
+  };
+  Object.values(views).forEach(v=>v.classList.add("hidden"));
+  views[view].classList.remove("hidden");
+  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navUsers"].forEach(id=>$(id).classList.remove("active"));
+
+  if(view==="dashboard"){
+    $("navDashboard").classList.add("active");
+    $("pageTitle").textContent="Admin Dashboard";
+    $("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru";
+  }
+  if(view==="data"){
+    $("navDataApar").classList.add("active");
+    $("pageTitle").textContent="Data APAR";
+    $("pageSubtitle").textContent="Master data APAR + Tambah/Edit dari Firestore";
+  }
+  if(view==="monitoring"){
+    $("navMonitoring").classList.add("active");
+    $("pageTitle").textContent="Monitoring APAR";
+    $("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";
+    loadMonitoring();
+  }
+  if(view==="history"){
+    $("navHistory").classList.add("active");
+    $("pageTitle").textContent="Riwayat Pemeriksaan";
+    $("pageSubtitle").textContent="Riwayat pemeriksaan APAR dari Firestore";
+    renderHistory();
+  }
+  if(view==="users"){
+    $("pageTitle").textContent="User Management";
+    $("pageSubtitle").textContent="Kelola profil dan hak akses pengguna";
+    loadUsers();
+  }
+}
+function placeholder(title,text,id){
+  setView("placeholder");$(id).classList.add("active");$("placeholderTitle").textContent=title;$("placeholderText").textContent=text;$("pageTitle").textContent=title;$("pageSubtitle").textContent="Modul berikutnya";
+}
+
+
+$("addAparBtn").addEventListener("click",()=>openAparForm("create"));
+$("closeAparForm").addEventListener("click",closeAparForm);
+$("cancelAparForm").addEventListener("click",closeAparForm);
+$("aparForm").addEventListener("submit",saveAparForm);
+$("aparFormModal").addEventListener("click",e=>{if(e.target===$("aparFormModal"))closeAparForm()});
+
+$("loginBtn").addEventListener("click",async()=>{
+  const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+  if(!email||!password){setLoginStatus("Email dan password wajib diisi.","warning");return}
+  $("loginBtn").disabled=true;setLoginStatus("Sedang login dan memeriksa akun Admin...","info");
+  try{await signInWithEmailAndPassword(auth,email,password);setLoginStatus("Authentication berhasil.","success")}
+  catch(e){console.error(e);setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error")}
+  finally{$("loginBtn").disabled=false}
+});
+$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+$("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
+$("reloadBtn").addEventListener("click",loadAll);
+$("reloadAparBtn").addEventListener("click",loadAll);
+$("reloadMonitoringBtn").addEventListener("click",async()=>{await loadAll();loadMonitoring();});
+$("reloadHistoryBtn").addEventListener("click",async()=>{await loadAll();renderHistory();});
+$("printHistoryBtn").addEventListener("click",printHistory);
+$("historySearch").addEventListener("input",renderHistory);
+$("historyResult").addEventListener("change",renderHistory);
+$("historyFrom").addEventListener("change",renderHistory);
+$("historyTo").addEventListener("change",renderHistory);
+$("aparSearch").addEventListener("input",renderMasterApar);
+$("closeDetail").addEventListener("click",closeDetail);
+$("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeDetail()});
+$("navDashboard").addEventListener("click",()=>setView("dashboard"));
+$("navDataApar").addEventListener("click",()=>setView("data"));
+$("navMonitoring").addEventListener("click",()=>setView("monitoring"));
+$("navInspection").addEventListener("click",()=>placeholder("Pemeriksaan","Modul Pemeriksaan Admin akan dibangun pada tahap berikutnya.","navInspection"));
+$("navHistory").addEventListener("click",()=>setView("history"));
+$("navUsers").addEventListener("click",()=>{
+  $("navUsers").classList.add("active");
+  setView("users");
+});
+$("reloadUsersBtn").addEventListener("click",loadUsers);
+$("userSearch").addEventListener("input",renderUsers);
+$("userRoleFilter").addEventListener("change",renderUsers);
+$("userStatusFilter").addEventListener("change",renderUsers);
+$("closeUserEdit").addEventListener("click",closeUserEdit);
+$("userEditModal").addEventListener("click",e=>{if(e.target===$("userEditModal"))closeUserEdit()});
+$("saveUserBtn").addEventListener("click",saveUserEdit);
+$("closePasswordChange").addEventListener("click",closePasswordChange);
+$("passwordChangeModal").addEventListener("click",e=>{if(e.target===$("passwordChangeModal"))closePasswordChange()});
+$("savePasswordDirectBtn").addEventListener("click",changeUserPassword);
+
+$("addUserBtn").addEventListener("click",openUserAdd);
+$("closeUserAdd").addEventListener("click",closeUserAdd);
+$("userAddModal").addEventListener("click",e=>{if(e.target===$("userAddModal"))closeUserAdd()});
+$("saveNewUserBtn").addEventListener("click",createNewUser);
+
+
+
+try{
+  debug("Menginisialisasi Firebase...");
+  const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+  debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
+  onAuthStateChanged(auth,async user=>{
+    if(!user){showLogin();setStatus("Belum login. Silakan login menggunakan akun Admin.","warning");debug("Tidak ada user Firebase yang login.");return}
+    try{
+      debug("User login ditemukan: "+user.email);
+      await validateAdmin(user);
+      showDashboard();
+      await loadAll();
+    }catch(e){
+      setStatus("Akses ditolak. Akun ini bukan Admin aktif.","error");debug("VALIDASI ADMIN GAGAL: "+e.message);
+      try{await signOut(auth)}catch(_){}
+      showLogin();
+    }
+  });
+}catch(e){
+  console.error(e);setStatus("Gagal menginisialisasi Firebase.","error");debug("Firebase INIT ERROR: "+e.message);showLogin();
+}
+</script>
+
+<div id="userEditModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit User</h2>
+      <button id="closeUserEdit" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="userEditStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">UID</div><div id="editUserUid" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Email</div><div id="editUserEmail" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="editUserName">Nama</label>
+      <input id="editUserName" type="text" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px">
+    </div>
+    <div class="field">
+      <label for="editUserRole">Role</label>
+      <select id="editUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editUserStatus">Status</label>
+      <select id="editUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="login-note" style="margin-top:8px">User <b>Inactive</b> tidak dapat digunakan untuk login ke aplikasi jika pemeriksaan status user diterapkan pada proses login.</div>
+    </div>
+    <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
+  </div>
+</div>
+
+
+<div id="userAddModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Tambah User Baru</h2>
+      <button id="closeUserAdd" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="userAddStatus" class="status info hidden"></div>
+
+    <div class="field">
+      <label for="newUserName">Nama</label>
+      <input id="newUserName" type="text" autocomplete="name" placeholder="Contoh: Inspector B">
+    </div>
+
+    <div class="field">
+      <label for="newUserEmail">Email Login</label>
+      <input id="newUserEmail" type="email" autocomplete="email" placeholder="contoh@apar.test">
+    </div>
+
+    <div class="field">
+      <label for="newUserPhone">Nomor HP</label>
+      <input id="newUserPhone" type="tel" autocomplete="tel" placeholder="+6281234567890">
+    </div>
+
+    <div class="field">
+      <label for="newUserRole">Role</label>
+      <select id="newUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="newUserStatus">Status</label>
+      <select id="newUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="newUserPassword">Password Awal</label>
+      <input id="newUserPassword" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+    </div>
+
+    <div class="field">
+      <label for="newUserPassword2">Konfirmasi Password</label>
+      <input id="newUserPassword2" type="password" autocomplete="new-password" placeholder="Ulangi password">
+    </div>
+
+    <div class="login-note" style="margin-bottom:15px">
+      Akun dibuat di Firebase Authentication dan profilnya otomatis dibuat di Firestore <b>users/{UID}</b>.
+      Password tidak disimpan di Firestore.
+    </div>
+
+    <button id="saveNewUserBtn" class="action primary" type="button">💾 Buat User</button>
+  </div>
+</div>
+
+
+<div id="passwordChangeModal" class="modal hidden">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-head">
+      <h2>Ubah Password User</h2>
+      <button id="closePasswordChange" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="passwordChangeStatus" class="status info hidden"></div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Nama</div>
+        <div id="passwordUserName" class="detail-value">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Email</div>
+        <div id="passwordUserEmail" class="detail-value">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">UID</div>
+        <div id="passwordUserUid" class="detail-value">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Role</div>
+        <div id="passwordUserRole" class="detail-value">-</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px">
+      <label for="newPasswordDirect">Password Baru</label>
+      <input id="newPasswordDirect" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+    </div>
+    <div class="field">
+      <label for="newPasswordDirect2">Konfirmasi Password Baru</label>
+      <input id="newPasswordDirect2" type="password" autocomplete="new-password" placeholder="Ulangi password baru">
+    </div>
+
+    <div class="login-note" style="margin-bottom:15px">
+      Password akan diubah langsung pada <b>Firebase Authentication</b> melalui backend aman.
+      Password tidak disimpan di Firestore.
+    </div>
+
+    <button id="savePasswordDirectBtn" class="action primary" type="button">🔐 Simpan Password Baru</button>
+  </div>
+</div>
+
+</body>
+</html>
