@@ -801,6 +801,24 @@
       display: none;
     }
 
+/* V13 MONITORING */
+.monitoring-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
+.monitoring-stat{border:1px solid #e5e7eb;border-radius:12px;padding:13px;background:#fff}
+.monitoring-label{font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase}
+.monitoring-value{font-size:24px;font-weight:800;margin-top:4px}
+.monitoring-table-wrap{overflow-x:auto;margin-top:12px}
+.monitoring-table{width:100%;border-collapse:collapse;min-width:760px}
+.monitoring-table th,.monitoring-table td{border:1px solid #e5e7eb;padding:9px 10px;font-size:12px;text-align:left;vertical-align:top}
+.monitoring-table th{background:#f9fafb}
+.monitoring-badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap}
+.monitoring-active{background:#dcfce7;color:#166534}
+.monitoring-inactive{background:#f3f4f6;color:#4b5563}
+.monitoring-pass{background:#dcfce7;color:#166534}
+.monitoring-fail{background:#fee2e2;color:#991b1b}
+.monitoring-unchecked{background:#fef3c7;color:#92400e}
+@media(max-width:900px){.monitoring-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:600px){.monitoring-summary{grid-template-columns:1fr}}
+
 </style>
 </head>
 
@@ -815,7 +833,7 @@
   <div class="card">
 
     <h1>
-      APAR - Test Inspector V12 DASHBOARD APAR
+      APAR - Test Inspector V13 MONITORING STATUS
     </h1>
 
     <div class="subtitle">
@@ -1287,7 +1305,24 @@
     <div class="dashboard-section"><h3>⚠️ APAR Perlu Perhatian</h3><div id="dashboardAttentionWrap"></div></div>
   </div>
 
-  <!-- =====================================================
+  <!-- V13 MONITORING & STATUS APAR -->
+<div id="monitoringCard" class="card hidden">
+  <h2>Monitoring &amp; Status APAR</h2>
+  <div id="monitoringStatus" class="status status-info">Memuat monitoring APAR...</div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
+    <button id="refreshMonitoringBtn" class="btn-secondary" type="button">🔄 Muat Ulang</button>
+  </div>
+  <div class="monitoring-summary">
+    <div class="monitoring-stat"><div class="monitoring-label">Active</div><div id="monitorActive" class="monitoring-value">0</div></div>
+    <div class="monitoring-stat"><div class="monitoring-label">Inactive</div><div id="monitorInactive" class="monitoring-value">0</div></div>
+    <div class="monitoring-stat"><div class="monitoring-label">PASS Terakhir</div><div id="monitorPass" class="monitoring-value">0</div></div>
+    <div class="monitoring-stat"><div class="monitoring-label">FAIL Terakhir</div><div id="monitorFail" class="monitoring-value">0</div></div>
+  </div>
+  <div class="small" style="margin-top:8px;">Hasil pemeriksaan yang ditampilkan adalah hasil <strong>terakhir</strong> untuk setiap Asset Number. APAR INACTIVE tidak dapat diperiksa.</div>
+  <div class="monitoring-table-wrap"><div id="monitoringTableWrap"></div></div>
+</div>
+
+<!-- =====================================================
        QR SCANNER APAR
   ====================================================== -->
 
@@ -1589,7 +1624,7 @@
       id="debugBox"
       class="debug"
     >
-Memulai Test Inspector V12 DASHBOARD APAR...
+Memulai Test Inspector V13 MONITORING STATUS...
     </div>
 
   </div>
@@ -1920,6 +1955,16 @@ Memulai Test Inspector V12 DASHBOARD APAR...
   const dashAttention = document.getElementById("dashAttention");
   const dashboardTableWrap = document.getElementById("dashboardTableWrap");
   const dashboardAttentionWrap = document.getElementById("dashboardAttentionWrap");
+
+  const monitoringCard = document.getElementById("monitoringCard");
+  const monitoringStatusEl = document.getElementById("monitoringStatus");
+  const refreshMonitoringBtn = document.getElementById("refreshMonitoringBtn");
+  const monitorActive = document.getElementById("monitorActive");
+  const monitorInactive = document.getElementById("monitorInactive");
+  const monitorPass = document.getElementById("monitorPass");
+  const monitorFail = document.getElementById("monitorFail");
+  const monitoringTableWrap = document.getElementById("monitoringTableWrap");
+
 
 
   let currentUser = null;
@@ -3106,6 +3151,11 @@ Memulai Test Inspector V12 DASHBOARD APAR...
         dashboardCard.classList.remove("hidden");
         await loadDashboard();
 
+        await loadInspectionHistory();
+
+        monitoringCard.classList.remove("hidden");
+        await loadV13Monitoring();
+
         scannerCard.classList.remove("hidden");
 
         setScannerStatus(
@@ -4036,6 +4086,159 @@ Memulai Test Inspector V12 DASHBOARD APAR...
 
 
   // =========================================================
+
+  // =========================================================
+  // V13 MONITORING & STATUS APAR
+  // =========================================================
+
+  function v13Asset(data, id) {
+    return data.assetNumber || data.asset_number || data.assetNo ||
+      data.asset_no || data.kode || data.code || id || "-";
+  }
+
+  function v13Key(value) {
+    return String(value || "").trim().toUpperCase();
+  }
+
+  function v13Millis(value) {
+    if (!value) return 0;
+    if (typeof value.toMillis === "function") return value.toMillis();
+    if (value instanceof Date) return value.getTime();
+    if (typeof value === "number") return value;
+    const n = new Date(value).getTime();
+    return Number.isNaN(n) ? 0 : n;
+  }
+
+  function v13Date(value) {
+    const n = v13Millis(value);
+    if (!n) return "-";
+    return new Intl.DateTimeFormat("id-ID", {
+      dateStyle: "medium", timeStyle: "short"
+    }).format(new Date(n));
+  }
+
+  function v13Latest(docs) {
+    const map = new Map();
+    docs.forEach(snapshot => {
+      const data = snapshot.data() || {};
+      const key = v13Key(data.aparId || data.aparAssetNumber || data.assetNumber);
+      if (!key) return;
+      const candidate = {
+        id: snapshot.id,
+        data,
+        time: v13Millis(data.inspectionDate || data.updatedAt || data.createdAt)
+      };
+      const old = map.get(key);
+      if (!old || candidate.time > old.time) map.set(key, candidate);
+    });
+    return map;
+  }
+
+  async function loadV13Monitoring() {
+    if (!db) return;
+    monitoringStatusEl.textContent = "Memuat monitoring APAR...";
+    monitoringStatusEl.className = "status status-info";
+
+    try {
+      const [aparSnap, inspectionSnap] = await Promise.all([
+        getDocs(collection(db, "apar")),
+        getDocs(collection(db, "inspections"))
+      ]);
+
+      const aparMap = new Map();
+
+      aparSnap.docs.forEach(snapshot => {
+        const data = snapshot.data() || {};
+        const asset = v13Asset(data, snapshot.id);
+        const key = v13Key(asset);
+        const item = {
+          id: snapshot.id,
+          assetNumber: asset,
+          key,
+          brand: data.brand || data.merk || "-",
+          location: data.location || data.lokasi || data.locationName ||
+            data.lokasiNama || data.locationId || "-",
+          status: data.status || "active"
+        };
+        const old = aparMap.get(key);
+        if (!old || v13Key(item.id) === key) aparMap.set(key, item);
+      });
+
+      const aparItems = Array.from(aparMap.values()).sort((a,b) =>
+        String(a.assetNumber).localeCompare(String(b.assetNumber), undefined,
+          {numeric:true, sensitivity:"base"})
+      );
+
+      const latest = v13Latest(inspectionSnap.docs);
+      let active=0, inactive=0, pass=0, fail=0;
+
+      const rows = aparItems.map(item => {
+        const inactiveState = ["INACTIVE","NONAKTIF","NON-ACTIVE"].includes(v13Key(item.status));
+        if (inactiveState) inactive++; else active++;
+
+        const inspection = latest.get(item.key);
+        let result="Belum Diperiksa", resultClass="monitoring-unchecked";
+        if (inspection) {
+          const r=v13Key(inspection.data.result);
+          if(r==="PASS"){result="PASS";resultClass="monitoring-pass";pass++;}
+          else if(r==="FAIL"){result="FAIL";resultClass="monitoring-fail";fail++;}
+        }
+
+        const statusClass=inactiveState?"monitoring-inactive":"monitoring-active";
+        const date=inspection?v13Date(inspection.data.inspectionDate||inspection.data.updatedAt||inspection.data.createdAt):"-";
+        const notes=inspection?.data?.notes||"-";
+        const detail=inspection
+          ? `<button type="button" class="btn-secondary v13-detail-btn" data-inspection-id="${escapePrintHtml(inspection.id)}">Detail</button>`
+          : "";
+
+        return `<tr>
+          <td><strong>${escapePrintHtml(item.assetNumber)}</strong></td>
+          <td>${escapePrintHtml(item.brand)}</td>
+          <td>${escapePrintHtml(item.location)}</td>
+          <td><span class="monitoring-badge ${statusClass}">${inactiveState?"INACTIVE":"ACTIVE"}</span></td>
+          <td><span class="monitoring-badge ${resultClass}">${escapePrintHtml(result)}</span></td>
+          <td>${escapePrintHtml(date)}</td>
+          <td>${escapePrintHtml(notes)}</td>
+          <td>${detail}</td>
+        </tr>`;
+      }).join("");
+
+      monitorActive.textContent=active;
+      monitorInactive.textContent=inactive;
+      monitorPass.textContent=pass;
+      monitorFail.textContent=fail;
+
+      monitoringTableWrap.innerHTML=rows
+        ? `<table class="monitoring-table"><thead><tr>
+          <th>Asset Number</th><th>Brand</th><th>Location</th><th>Status APAR</th>
+          <th>Hasil Terakhir</th><th>Tanggal Pemeriksaan</th><th>Catatan Terakhir</th><th>Aksi</th>
+        </tr></thead><tbody>${rows}</tbody></table>`
+        : `<div class="dashboard-empty">Belum ada data APAR.</div>`;
+
+      monitoringTableWrap.querySelectorAll(".v13-detail-btn").forEach(button=>{
+        button.addEventListener("click",()=>{
+          const item=inspectionHistory.find(x=>x.id===button.dataset.inspectionId);
+          if(item) showHistoryDetail(item);
+        });
+      });
+
+      monitoringStatusEl.textContent=`Monitoring berhasil diperbarui. ${aparItems.length} APAR ditemukan.`;
+      monitoringStatusEl.className="status status-success";
+      debug(`V13 Monitoring: Active=${active}, Inactive=${inactive}, PASS=${pass}, FAIL=${fail}`);
+
+    } catch(error) {
+      console.error(error);
+      monitoringStatusEl.textContent="Gagal memuat Monitoring APAR: "+(error.message||error);
+      monitoringStatusEl.className="status status-error";
+      debug("V13 Monitoring error: "+(error.code||"-")+" | "+(error.message||error));
+    }
+  }
+
+  refreshMonitoringBtn.addEventListener("click", async()=>{
+    await loadInspectionHistory();
+    await loadV13Monitoring();
+  });
+
   // DASHBOARD APAR
   // =========================================================
   function dashMillis(v){
@@ -4916,6 +5119,7 @@ Memulai Test Inspector V12 DASHBOARD APAR...
 
       aparCard.classList.add("hidden");
       dashboardCard.classList.add("hidden");
+      monitoringCard.classList.add("hidden");
       scannerCard.classList.add("hidden");
       inspectionCard.classList.add("hidden");
       selectedApar = null;
@@ -5738,6 +5942,10 @@ Memulai Test Inspector V12 DASHBOARD APAR...
 
 
         dashboardCard.classList.add(
+          "hidden"
+        );
+
+        monitoringCard.classList.add(
           "hidden"
         );
 
