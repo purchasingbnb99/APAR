@@ -3,192 +3,339 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>APAR - Test Admin V1</title>
+  <title>APAR - Admin Dashboard V14.1</title>
   <style>
-    * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f1f3f5;
-      color: #10233f;
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:Arial,Helvetica,sans-serif;
+      background:#f1f3f5;
+      color:#10233f;
     }
-    .container {
-      width: min(760px, calc(100% - 24px));
-      margin: 24px auto;
+    .app{
+      min-height:100vh;
+      display:flex;
     }
-    .card {
-      background: #fff;
-      border-radius: 18px;
-      padding: 28px;
-      margin-bottom: 20px;
-      box-shadow: 0 8px 28px rgba(0,0,0,.07);
+    .sidebar{
+      width:240px;
+      background:#10233f;
+      color:#fff;
+      padding:24px 16px;
+      position:fixed;
+      left:0;
+      top:0;
+      bottom:0;
     }
-    h1, h2 { margin-top: 0; }
-    h1 { font-size: 30px; margin-bottom: 6px; }
-    h2 { font-size: 22px; }
-    .subtitle {
-      color: #60708a;
-      margin-bottom: 22px;
+    .brand{
+      font-size:23px;
+      font-weight:800;
+      padding:0 10px 24px;
+      border-bottom:1px solid rgba(255,255,255,.15);
+      margin-bottom:18px;
     }
-    .status {
-      border: 1px solid;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin: 14px 0;
-      font-weight: 700;
+    .brand small{
+      display:block;
+      font-size:12px;
+      font-weight:400;
+      opacity:.7;
+      margin-top:5px;
     }
-    .info { color: #1456c7; background: #eff6ff; border-color: #bfdbfe; }
-    .success { color: #087a3d; background: #effdf4; border-color: #b7efcc; }
-    .error { color: #c51f1f; background: #fff1f2; border-color: #fecaca; }
-    .warning { color: #9a6700; background: #fff9e6; border-color: #f4d58a; }
-    label {
-      display: block;
-      font-weight: 700;
-      margin: 16px 0 8px;
+    .nav button{
+      width:100%;
+      text-align:left;
+      border:0;
+      background:transparent;
+      color:#fff;
+      padding:12px 14px;
+      border-radius:9px;
+      margin-bottom:6px;
+      cursor:pointer;
+      font-size:14px;
+      font-weight:700;
     }
-    input {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #cbd5e1;
-      border-radius: 10px;
-      font-size: 16px;
-      outline: none;
+    .nav button.active,.nav button:hover{
+      background:rgba(255,255,255,.12);
     }
-    input:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37,99,235,.12);
+    .main{
+      margin-left:240px;
+      width:calc(100% - 240px);
+      padding:28px;
     }
-    button {
-      border: 0;
-      border-radius: 10px;
-      padding: 13px 18px;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      margin-top: 16px;
+    .topbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      margin-bottom:22px;
     }
-    .primary { background: #2563eb; color: white; }
-    .secondary { background: #6b7280; color: white; }
-    .danger { background: #dc2626; color: white; }
-    button:disabled { opacity: .55; cursor: not-allowed; }
-    .hidden { display: none !important; }
-    .profile {
-      display: grid;
-      grid-template-columns: 150px 1fr;
-      gap: 10px 16px;
-      margin-top: 18px;
+    h1{margin:0;font-size:29px}
+    .subtitle{color:#64748b;margin-top:5px}
+    .admin-info{
+      background:#fff;
+      border:1px solid #dbe2ea;
+      border-radius:12px;
+      padding:10px 14px;
+      font-size:13px;
     }
-    .profile .label { font-weight: 700; color: #52627a; }
-    .badge {
-      display: inline-block;
-      padding: 5px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      background: #dcfce7;
-      color: #087a3d;
+    .badge{
+      display:inline-block;
+      padding:5px 10px;
+      border-radius:999px;
+      background:#dcfce7;
+      color:#087a3d;
+      font-size:11px;
+      font-weight:800;
     }
-    .debug {
-      background: #101827;
-      color: #e5edf8;
-      border-radius: 10px;
-      padding: 16px;
-      min-height: 190px;
-      max-height: 360px;
-      overflow: auto;
-      white-space: pre-wrap;
-      font: 13px/1.55 Consolas, monospace;
+    .status{
+      border:1px solid;
+      border-radius:10px;
+      padding:13px 15px;
+      margin-bottom:18px;
+      font-weight:700;
     }
-    .small {
-      color: #64748b;
-      font-size: 13px;
-      margin-top: 7px;
+    .success{color:#087a3d;background:#effdf4;border-color:#b7efcc}
+    .error{color:#c51f1f;background:#fff1f2;border-color:#fecaca}
+    .info{color:#1456c7;background:#eff6ff;border-color:#bfdbfe}
+    .warning{color:#9a6700;background:#fff9e6;border-color:#f4d58a}
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:16px;
+      margin-bottom:20px;
     }
-    @media (max-width: 600px) {
-      .card { padding: 20px; }
-      h1 { font-size: 25px; }
-      .profile { grid-template-columns: 1fr; gap: 4px; }
+    .stat{
+      background:#fff;
+      border:1px solid #dbe2ea;
+      border-radius:14px;
+      padding:19px;
+    }
+    .stat-title{
+      color:#64748b;
+      font-size:13px;
+      text-transform:uppercase;
+      letter-spacing:.3px;
+    }
+    .stat-value{
+      font-size:32px;
+      font-weight:800;
+      margin-top:8px;
+    }
+    .card{
+      background:#fff;
+      border-radius:16px;
+      border:1px solid #dbe2ea;
+      padding:22px;
+      margin-bottom:20px;
+    }
+    .card h2{margin:0 0 16px;font-size:20px}
+    .toolbar{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:12px;
+      margin-bottom:15px;
+      flex-wrap:wrap;
+    }
+    button.action{
+      border:0;
+      border-radius:9px;
+      padding:11px 16px;
+      font-size:14px;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .primary{background:#2563eb;color:#fff}
+    .secondary{background:#6b7280;color:#fff}
+    .danger{background:#dc2626;color:#fff}
+    button:disabled{opacity:.55;cursor:not-allowed}
+    .table-wrap{
+      overflow-x:auto;
+      border:1px solid #e2e8f0;
+      border-radius:10px;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:720px;
+    }
+    th,td{
+      padding:12px 13px;
+      border-bottom:1px solid #e5e7eb;
+      text-align:left;
+      vertical-align:top;
+      font-size:13px;
+    }
+    th{
+      background:#f8fafc;
+      font-weight:800;
+      color:#334155;
+    }
+    tr:last-child td{border-bottom:0}
+    .empty{
+      text-align:center;
+      color:#64748b;
+      padding:30px;
+    }
+    .loading{
+      color:#64748b;
+      padding:16px 0;
+    }
+    .debug{
+      background:#101827;
+      color:#e5edf8;
+      border-radius:10px;
+      padding:14px;
+      min-height:150px;
+      max-height:300px;
+      overflow:auto;
+      white-space:pre-wrap;
+      font:12px/1.5 Consolas,monospace;
+    }
+    .hidden{display:none!important}
+    @media(max-width:900px){
+      .sidebar{width:205px}
+      .main{margin-left:205px;width:calc(100% - 205px);padding:20px}
+      .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+      .topbar{align-items:flex-start;flex-direction:column}
+    }
+    @media(max-width:650px){
+      .app{display:block}
+      .sidebar{
+        position:static;
+        width:100%;
+        padding:14px;
+      }
+      .brand{padding-bottom:14px}
+      .nav{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}
+      .nav button{margin:0}
+      .main{margin:0;width:100%;padding:14px}
+      .stats{grid-template-columns:1fr 1fr;gap:10px}
+      .stat{padding:14px}
+      .stat-value{font-size:27px}
     }
   </style>
 </head>
 
 <body>
-<div class="container">
+<div class="app">
 
-  <div class="card">
-    <h1>APAR - Test Admin V1</h1>
-    <div class="subtitle">Pengujian Firebase Authentication + Firestore + Role Admin</div>
-
-    <div id="globalStatus" class="status info">
-      Menyiapkan Firebase...
+  <aside class="sidebar">
+    <div class="brand">
+      APAR
+      <small>Admin Dashboard V14.1</small>
     </div>
 
-    <div class="status info">
-      Alur pengujian: Login Admin → baca <b>users/{UID}</b> → validasi
-      <b>role = admin</b> dan <b>status = active</b>.
+    <div class="nav">
+      <button class="active" type="button">📊 Dashboard</button>
+      <button type="button" id="dataAparBtn">🧯 Data APAR</button>
+      <button type="button" id="monitoringBtn">🔍 Monitoring</button>
+      <button type="button" id="inspectionBtn">📋 Pemeriksaan</button>
+      <button type="button" id="historyBtn">📜 Riwayat</button>
+      <button type="button" id="logoutBtn">🚪 Logout</button>
     </div>
-  </div>
+  </aside>
 
-  <div id="loginCard" class="card">
-    <h2>Login Admin</h2>
+  <main class="main">
 
-    <label for="email">Email Admin</label>
-    <input
-      id="email"
-      type="email"
-      value="admin@apar.test"
-      autocomplete="username"
-    >
+    <div class="topbar">
+      <div>
+        <h1>Admin Dashboard</h1>
+        <div class="subtitle">Monitoring data APAR dan pemeriksaan terbaru</div>
+      </div>
 
-    <label for="password">Password Admin</label>
-    <input
-      id="password"
-      type="password"
-      autocomplete="current-password"
-      placeholder="Masukkan password Admin"
-    >
-
-    <button id="loginBtn" class="primary" type="button">
-      Login Admin
-    </button>
-
-    <div id="loginStatus" class="status info hidden"></div>
-  </div>
-
-  <div id="profileCard" class="card hidden">
-    <h2>Hasil Pemeriksaan Admin</h2>
-
-    <div id="profileStatus" class="status success">
-      Login berhasil.
+      <div class="admin-info">
+        Admin:
+        <strong id="adminEmail">-</strong>
+        &nbsp;
+        <span class="badge">ADMIN</span>
+      </div>
     </div>
 
-    <div class="profile">
-      <div class="label">Firebase UID</div>
-      <div id="uidValue">-</div>
-
-      <div class="label">Email</div>
-      <div id="emailValue">-</div>
-
-      <div class="label">Nama</div>
-      <div id="nameValue">-</div>
-
-      <div class="label">Role</div>
-      <div id="roleValue">-</div>
-
-      <div class="label">Status</div>
-      <div id="statusValue">-</div>
+    <div id="pageStatus" class="status info">
+      Menyiapkan dashboard...
     </div>
 
-    <button id="logoutBtn" class="danger" type="button">
-      Logout
-    </button>
-  </div>
+    <section class="stats">
+      <div class="stat">
+        <div class="stat-title">Total APAR</div>
+        <div id="totalApar" class="stat-value">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Active</div>
+        <div id="activeApar" class="stat-value">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">Inactive</div>
+        <div id="inactiveApar" class="stat-value">-</div>
+      </div>
+      <div class="stat">
+        <div class="stat-title">PASS Terakhir</div>
+        <div id="passApar" class="stat-value">-</div>
+      </div>
+    </section>
 
-  <div class="card">
-    <h2>Debug Information</h2>
-    <div id="debugBox" class="debug">Memulai Test Admin V1...</div>
-  </div>
+    <section class="card">
+      <div class="toolbar">
+        <div>
+          <h2>Ringkasan Status APAR</h2>
+          <div class="subtitle">Data APAR yang tersimpan di Firestore.</div>
+        </div>
+        <button id="reloadBtn" class="action secondary" type="button">
+          🔄 Muat Ulang
+        </button>
+      </div>
 
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset Number</th>
+              <th>Brand</th>
+              <th>Capacity</th>
+              <th>Location</th>
+              <th>Serial Number</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="aparTableBody">
+            <tr><td colspan="6" class="empty">Memuat data APAR...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <div>
+          <h2>Pemeriksaan Terbaru</h2>
+          <div class="subtitle">Data dari collection <b>inspections</b>.</div>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset Number</th>
+              <th>Inspector</th>
+              <th>Hasil</th>
+              <th>Tanggal</th>
+              <th>Catatan</th>
+            </tr>
+          </thead>
+          <tbody id="inspectionTableBody">
+            <tr><td colspan="5" class="empty">Memuat pemeriksaan...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Debug Information</h2>
+      <div id="debugBox" class="debug">Memulai Admin Dashboard V14.1...</div>
+    </section>
+
+  </main>
 </div>
 
 <script type="module">
@@ -197,13 +344,14 @@
 
   import {
     getAuth,
-    signInWithEmailAndPassword,
     onAuthStateChanged,
     signOut
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
   import {
     getFirestore,
+    collection,
+    getDocs,
     doc,
     getDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -217,300 +365,315 @@
     appId: "1:692076938129:web:8583c9d30f47588c135030"
   };
 
-  let app;
   let auth;
   let db;
+  let currentAdmin = null;
 
-  const $ = (id) => document.getElementById(id);
+  const $ = id => document.getElementById(id);
 
   function debug(message) {
     const box = $("debugBox");
-    const time = new Date().toLocaleTimeString("id-ID", { hour12: false });
-    box.textContent += `[${time}] ${message}\n`;
+    const now = new Date().toLocaleTimeString("id-ID", {hour12:false});
+    box.textContent += `[${now}] ${message}\n`;
     box.scrollTop = box.scrollHeight;
   }
 
-  function setGlobalStatus(message, type = "info") {
-    const el = $("globalStatus");
+  function setStatus(message, type="info") {
+    const el = $("pageStatus");
     el.textContent = message;
     el.className = `status ${type}`;
   }
 
-  function setLoginStatus(message, type = "info") {
-    const el = $("loginStatus");
-    el.textContent = message;
-    el.className = `status ${type}`;
-    el.classList.remove("hidden");
+  function esc(value) {
+    return String(value ?? "-")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
   }
 
-  function setProfileStatus(message, type = "success") {
-    const el = $("profileStatus");
-    el.textContent = message;
-    el.className = `status ${type}`;
-  }
-
-  function formatRole(role) {
-    const value = String(role || "-").toLowerCase();
-    if (value === "admin") {
-      return '<span class="badge">ADMIN</span>';
+  function badge(value) {
+    const v = String(value || "-").toLowerCase();
+    if (v === "active" || v === "pass") {
+      return `<span class="badge">${esc(String(value).toUpperCase())}</span>`;
     }
-    return value || "-";
+    return esc(value || "-");
   }
 
-  function formatStatus(status) {
-    const value = String(status || "-").toLowerCase();
-    if (value === "active") {
-      return '<span class="badge">ACTIVE</span>';
-    }
-    return value || "-";
-  }
-
-  async function loadAdminProfile(user) {
-    $("profileCard").classList.remove("hidden");
-
-    $("uidValue").textContent = user.uid;
-    $("emailValue").textContent = user.email || "-";
-
-    debug("--------------------------------");
-    debug("MEMERIKSA PROFIL ADMIN");
-    debug("--------------------------------");
-    debug(`Collection: users`);
-    debug(`Document ID: ${user.uid}`);
+  function formatDate(value) {
+    if (!value) return "-";
 
     try {
-      const ref = doc(db, "users", user.uid);
-      const snap = await getDoc(ref);
-
-      if (!snap.exists()) {
-        setProfileStatus(
-          "Authentication berhasil, tetapi users/{UID} belum ditemukan.",
-          "warning"
-        );
-
-        $("nameValue").textContent = "-";
-        $("roleValue").textContent = "BELUM ADA";
-        $("statusValue").textContent = "BELUM ADA";
-
-        debug("GAGAL VALIDASI: users/" + user.uid + " tidak ada.");
-        return;
+      if (value?.toDate) {
+        return value.toDate().toLocaleString("id-ID", {
+          dateStyle:"medium",
+          timeStyle:"short"
+        });
       }
 
-      const data = snap.data() || {};
-
-      debug("Profil Firestore ditemukan.");
-      debug(JSON.stringify(data, null, 2));
-
-      const name = data.name || "-";
-      const email = data.email || user.email || "-";
-      const role = data.role || "-";
-      const status = data.status || "-";
-
-      $("nameValue").textContent = name;
-      $("emailValue").textContent = email;
-      $("roleValue").innerHTML = formatRole(role);
-      $("statusValue").innerHTML = formatStatus(status);
-
-      const isAdmin =
-        String(role).trim().toLowerCase() === "admin";
-
-      const isActive =
-        String(status).trim().toLowerCase() === "active";
-
-      debug("Role: " + role);
-      debug("Status: " + status);
-      debug("isAdmin = " + isAdmin);
-      debug("isActive = " + isActive);
-
-      if (isAdmin && isActive) {
-        setProfileStatus(
-          "LOGIN ADMIN BERHASIL — AKUN VALID.",
-          "success"
-        );
-
-        setGlobalStatus(
-          "Authentication + Firestore Admin berhasil.",
-          "success"
-        );
-
-        debug("================================");
-        debug("ADMIN VALID");
-        debug("================================");
-        debug("role = admin");
-        debug("status = active");
-        debug("Admin siap digunakan untuk tahap Dashboard.");
-      } else {
-        setProfileStatus(
-          "Login berhasil, tetapi role/status Admin belum sesuai.",
-          "error"
-        );
-
-        setGlobalStatus(
-          "Login berhasil, tetapi validasi Admin gagal.",
-          "error"
-        );
-
-        debug("================================");
-        debug("ADMIN TIDAK VALID");
-        debug("================================");
-        debug("Role yang diperlukan: admin");
-        debug("Status yang diperlukan: active");
+      const d = new Date(value);
+      if (!Number.isNaN(d.getTime())) {
+        return d.toLocaleString("id-ID", {
+          dateStyle:"medium",
+          timeStyle:"short"
+        });
       }
+    } catch (_) {}
 
-    } catch (error) {
-      console.error(error);
-
-      setProfileStatus(
-        "Tidak dapat membaca profil Admin dari Firestore.",
-        "error"
-      );
-
-      setGlobalStatus(
-        "Authentication berhasil, tetapi Firestore gagal dibaca.",
-        "error"
-      );
-
-      debug("================================");
-      debug("GAGAL MEMBACA FIRESTORE");
-      debug("================================");
-      debug("Code: " + (error.code || "-"));
-      debug("Message: " + (error.message || "-"));
-
-      if (error.code === "permission-denied") {
-        debug("Security Rules menolak users/{UID}.");
-      }
-    }
+    return esc(value);
   }
 
-  async function loginAdmin() {
-    const email = $("email").value.trim();
-    const password = $("password").value;
+  async function validateAdmin(user) {
+    debug("Memeriksa users/" + user.uid);
 
-    if (!email || !password) {
-      setLoginStatus(
-        "Email dan password wajib diisi.",
-        "warning"
-      );
+    const ref = doc(db, "users", user.uid);
+    const snap = await getDoc(ref);
+
+    if (!snap.exists()) {
+      throw new Error("Profil users/" + user.uid + " tidak ditemukan.");
+    }
+
+    const data = snap.data() || {};
+    const role = String(data.role || "").trim().toLowerCase();
+    const status = String(data.status || "").trim().toLowerCase();
+
+    debug("Role: " + role);
+    debug("Status: " + status);
+
+    if (role !== "admin") {
+      throw new Error("Akun bukan Admin. Role: " + role);
+    }
+
+    if (status !== "active") {
+      throw new Error("Akun Admin tidak aktif. Status: " + status);
+    }
+
+    currentAdmin = data;
+    $("adminEmail").textContent = data.email || user.email || "-";
+
+    debug("VALIDASI ADMIN BERHASIL.");
+  }
+
+  async function loadApar() {
+    debug("Membaca collection apar...");
+    const snap = await getDocs(collection(db, "apar"));
+
+    const rows = [];
+    let active = 0;
+    let inactive = 0;
+
+    snap.forEach(item => {
+      const data = item.data() || {};
+      const status = String(data.status || "").toLowerCase();
+
+      if (status === "active") active++;
+      else if (status === "inactive") inactive++;
+
+      rows.push({
+        id: item.id,
+        ...data
+      });
+    });
+
+    $("totalApar").textContent = rows.length;
+    $("activeApar").textContent = active;
+    $("inactiveApar").textContent = inactive;
+
+    const body = $("aparTableBody");
+
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="6" class="empty">Belum ada data APAR.</td></tr>`;
+      return rows;
+    }
+
+    rows.sort((a,b) =>
+      String(a.assetNumber || a.id).localeCompare(
+        String(b.assetNumber || b.id),
+        undefined,
+        {numeric:true,sensitivity:"base"}
+      )
+    );
+
+    body.innerHTML = rows.map(item => `
+      <tr>
+        <td><strong>${esc(item.assetNumber || item.id)}</strong></td>
+        <td>${esc(item.brand)}</td>
+        <td>${esc(item.capacity)}</td>
+        <td>${esc(item.locationId)}</td>
+        <td>${esc(item.serialNumber)}</td>
+        <td>${badge(item.status)}</td>
+      </tr>
+    `).join("");
+
+    debug(`APAR ditemukan: ${rows.length}`);
+    return rows;
+  }
+
+  async function loadInspections() {
+    debug("Membaca collection inspections...");
+    const snap = await getDocs(collection(db, "inspections"));
+
+    const rows = [];
+
+    snap.forEach(item => {
+      const data = item.data() || {};
+      rows.push({
+        id:item.id,
+        ...data
+      });
+    });
+
+    rows.sort((a,b) => {
+      const ad = a.inspectionDate?.toDate
+        ? a.inspectionDate.toDate().getTime()
+        : new Date(a.inspectionDate || a.createdAt || 0).getTime();
+
+      const bd = b.inspectionDate?.toDate
+        ? b.inspectionDate.toDate().getTime()
+        : new Date(b.inspectionDate || b.createdAt || 0).getTime();
+
+      return bd - ad;
+    });
+
+    const latest = rows[0];
+    $("passApar").textContent =
+      rows.filter(x => String(x.result || "").toLowerCase() === "pass").length;
+
+    const body = $("inspectionTableBody");
+
+    if (!rows.length) {
+      body.innerHTML = `<tr><td colspan="5" class="empty">Belum ada data pemeriksaan.</td></tr>`;
       return;
     }
 
-    $("loginBtn").disabled = true;
-    setLoginStatus("Sedang login ke Firebase Authentication...", "info");
+    body.innerHTML = rows.slice(0,10).map(item => `
+      <tr>
+        <td><strong>${esc(item.aparAssetNumber || item.aparId)}</strong></td>
+        <td>${esc(item.inspectorPhone || item.inspectorId)}</td>
+        <td>${badge(item.result)}</td>
+        <td>${formatDate(item.inspectionDate || item.createdAt)}</td>
+        <td>${esc(item.notes)}</td>
+      </tr>
+    `).join("");
 
-    debug("================================");
-    debug("LOGIN ADMIN");
-    debug("================================");
-    debug("Email: " + email);
-    debug("Memanggil signInWithEmailAndPassword()...");
+    debug(`Pemeriksaan ditemukan: ${rows.length}`);
+    if (latest) {
+      debug("Pemeriksaan terbaru: " + (latest.aparAssetNumber || latest.aparId || "-"));
+    }
+  }
 
+  async function loadDashboard() {
     try {
-      const result = await signInWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
+      setStatus("Memuat data Dashboard dari Firestore...", "info");
 
-      debug("Authentication berhasil.");
-      debug("Firebase UID: " + result.user.uid);
+      $("reloadBtn").disabled = true;
 
-      setLoginStatus(
-        "Authentication berhasil. Memeriksa profil Admin...",
+      await Promise.all([
+        loadApar(),
+        loadInspections()
+      ]);
+
+      setStatus(
+        "Dashboard Admin berhasil dimuat dari Firestore.",
         "success"
       );
+
+      debug("================================");
+      debug("DASHBOARD ADMIN SIAP");
+      debug("================================");
 
     } catch (error) {
       console.error(error);
 
-      setLoginStatus(
-        "Login Admin gagal.",
+      setStatus(
+        "Gagal membaca data Dashboard dari Firestore.",
         "error"
       );
 
-      debug("LOGIN GAGAL");
-      debug("Code: " + (error.code || "-"));
-      debug("Message: " + (error.message || "-"));
+      debug("ERROR: " + (error.code || "-"));
+      debug("MESSAGE: " + (error.message || "-"));
 
-      if (error.code === "auth/invalid-credential") {
-        debug("Email atau password tidak benar.");
-      }
-
-      if (error.code === "auth/user-not-found") {
-        debug("Akun Admin tidak ditemukan.");
-      }
-
-      if (error.code === "auth/wrong-password") {
-        debug("Password Admin salah.");
+      if (error.code === "permission-denied") {
+        debug("Firestore Rules menolak akses.");
       }
     } finally {
-      $("loginBtn").disabled = false;
+      $("reloadBtn").disabled = false;
     }
   }
 
-  async function logoutAdmin() {
+  $("reloadBtn").addEventListener("click", loadDashboard);
+
+  $("logoutBtn").addEventListener("click", async () => {
     try {
       await signOut(auth);
-      debug("Admin berhasil logout.");
-
-      $("profileCard").classList.add("hidden");
-      $("loginStatus").classList.add("hidden");
-      $("password").value = "";
-
-      setGlobalStatus(
-        "Logout berhasil. Silakan login kembali.",
-        "info"
-      );
+      location.reload();
     } catch (error) {
-      debug("Logout gagal: " + (error.message || "-"));
+      debug("Logout gagal: " + error.message);
     }
-  }
+  });
 
-  $("loginBtn").addEventListener("click", loginAdmin);
-  $("logoutBtn").addEventListener("click", logoutAdmin);
+  $("dataAparBtn").addEventListener("click", () => {
+    alert("Menu Data APAR akan kita bangun pada tahap berikutnya.");
+  });
 
-  $("password").addEventListener("keydown", (event) => {
-    if (event.key === "Enter") {
-      loginAdmin();
-    }
+  $("monitoringBtn").addEventListener("click", () => {
+    alert("Menu Monitoring akan kita bangun pada tahap berikutnya.");
+  });
+
+  $("inspectionBtn").addEventListener("click", () => {
+    alert("Menu Pemeriksaan akan kita bangun pada tahap berikutnya.");
+  });
+
+  $("historyBtn").addEventListener("click", () => {
+    alert("Menu Riwayat akan kita bangun pada tahap berikutnya.");
   });
 
   try {
     debug("Menginisialisasi Firebase...");
-    app = initializeApp(firebaseConfig);
+
+    const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
     db = getFirestore(app);
 
-    setGlobalStatus(
-      "Firebase berhasil diinisialisasi. Siap login Admin.",
-      "success"
-    );
-
     debug("Firebase berhasil diinisialisasi.");
     debug("Project ID: apar-7a343");
-    debug("Auth Domain: apar-7a343.firebaseapp.com");
 
-    onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        debug("Auth state: user sedang login.");
-        await loadAdminProfile(user);
-      } else {
-        debug("Auth state: belum ada user login.");
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        setStatus(
+          "Belum login. Silakan login menggunakan akun Admin.",
+          "warning"
+        );
+        debug("Tidak ada user Firebase yang login.");
+        return;
+      }
+
+      debug("User login ditemukan: " + user.email);
+
+      try {
+        await validateAdmin(user);
+        await loadDashboard();
+      } catch (error) {
+        setStatus(
+          "Akses ditolak. Akun ini bukan Admin aktif.",
+          "error"
+        );
+
+        debug("VALIDASI ADMIN GAGAL.");
+        debug(error.message);
+
+        setTimeout(async () => {
+          try { await signOut(auth); } catch (_) {}
+        }, 2500);
       }
     });
 
   } catch (error) {
     console.error(error);
-
-    setGlobalStatus(
-      "Gagal menginisialisasi Firebase.",
-      "error"
-    );
-
-    debug("================================");
-    debug("FIREBASE INIT GAGAL");
-    debug("================================");
-    debug("Code: " + (error.code || "-"));
-    debug("Message: " + (error.message || "-"));
+    setStatus("Gagal menginisialisasi Firebase.", "error");
+    debug("Firebase INIT ERROR: " + error.message);
   }
 </script>
-
 </body>
 </html>
