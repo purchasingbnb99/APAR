@@ -1,9 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
+<!-- V14.9.1: Perbaikan pesan login untuk akun INACTIVE/Non-Admin. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.9</title>
+<title>APAR - Admin Dashboard V14.9.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -419,8 +420,16 @@ async function validateAdmin(user){
   const role=String(data.role||"").trim().toLowerCase();
   const status=String(data.status||"").trim().toLowerCase();
   debug("Role: "+role);debug("Status: "+status);
-  if(role!=="admin")throw new Error("Akun bukan Admin. Role: "+role);
-  if(status!=="active")throw new Error("Akun Admin tidak aktif. Status: "+status);
+  if(role!=="admin"){
+    const err=new Error("Akun bukan Admin. Role: "+role);
+    err.code="NOT_ADMIN";
+    throw err;
+  }
+  if(status!=="active"){
+    const err=new Error("Akun Admin tidak aktif. Status: "+status);
+    err.code="ADMIN_INACTIVE";
+    throw err;
+  }
   currentAdmin={...data,uid:user.uid};
   $("adminEmail").textContent=data.email||user.email||"-";
 }
@@ -1378,8 +1387,16 @@ $("loginBtn").addEventListener("click",async()=>{
   const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
   if(!email||!password){setLoginStatus("Email dan password wajib diisi.","warning");return}
   $("loginBtn").disabled=true;setLoginStatus("Sedang login dan memeriksa akun Admin...","info");
-  try{await signInWithEmailAndPassword(auth,email,password);setLoginStatus("Authentication berhasil.","success")}
-  catch(e){console.error(e);setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error")}
+  try{
+    await signInWithEmailAndPassword(auth,email,password);
+    // onAuthStateChanged akan memeriksa role + status sebelum menampilkan dashboard.
+    // Jangan menampilkan "Authentication berhasil" di sini karena akun INACTIVE/Non-Admin
+    // juga dapat lolos tahap Firebase Authentication tetapi harus ditolak oleh aplikasi.
+  }
+  catch(e){
+    console.error(e);
+    setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error");
+  }
   finally{$("loginBtn").disabled=false}
 });
 $("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
@@ -1435,7 +1452,17 @@ try{
       showDashboard();
       await loadAll();
     }catch(e){
-      setStatus("Akses ditolak. Akun ini bukan Admin aktif.","error");debug("VALIDASI ADMIN GAGAL: "+e.message);
+      debug("VALIDASI ADMIN GAGAL: "+e.message);
+      if(e.code==="ADMIN_INACTIVE"){
+        setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");
+        setStatus("Akun INACTIVE. Akses Admin ditolak.","error");
+      }else if(e.code==="NOT_ADMIN"){
+        setLoginStatus("Akun ini bukan Admin. Akses Admin ditolak.","error");
+        setStatus("Akses ditolak. Akun ini bukan Admin.","error");
+      }else{
+        setLoginStatus("Akses ditolak. "+(e.message||"Akun tidak dapat digunakan."),"error");
+        setStatus("Akses ditolak. Akun ini bukan Admin aktif.","error");
+      }
       try{await signOut(auth)}catch(_){}
       showLogin();
     }
