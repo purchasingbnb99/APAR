@@ -1,6141 +1,715 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
-
-  <title>APAR - Test Inspector V9 QR AUTO SELECT</title>
-
-  <style>
-
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      font-family:
-        Arial,
-        Helvetica,
-        sans-serif;
-
-      background: #f3f4f6;
-      color: #1f2937;
-    }
-
-    .container {
-      width: 100%;
-      max-width: 760px;
-
-      margin: 40px auto;
-      padding: 20px;
-    }
-
-    .card {
-      background: #ffffff;
-
-      border-radius: 16px;
-
-      padding: 28px;
-
-      margin-bottom: 20px;
-
-      box-shadow:
-        0 8px 30px
-        rgba(0, 0, 0, 0.08);
-    }
-
-    h1 {
-      margin: 0 0 8px;
-
-      font-size: 28px;
-    }
-
-    h2 {
-      margin-top: 0;
-
-      font-size: 20px;
-    }
-
-    .subtitle {
-      color: #6b7280;
-
-      margin-bottom: 24px;
-    }
-
-    .field {
-      margin-bottom: 18px;
-    }
-
-    label {
-      display: block;
-
-      font-weight: 600;
-
-      margin-bottom: 7px;
-    }
-
-    input {
-      width: 100%;
-
-      padding: 13px 14px;
-
-      border:
-        1px solid #d1d5db;
-
-      border-radius: 9px;
-
-      font-size: 15px;
-
-      outline: none;
-    }
-
-    input:focus {
-      border-color: #2563eb;
-
-      box-shadow:
-        0 0 0 3px
-        rgba(37, 99, 235, 0.12);
-    }
-
-    button {
-      border: none;
-
-      border-radius: 9px;
-
-      padding: 13px 18px;
-
-      font-size: 15px;
-
-      font-weight: 600;
-
-      cursor: pointer;
-
-      margin-right: 8px;
-
-      margin-bottom: 8px;
-    }
-
-    button:disabled {
-      opacity: 0.55;
-
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: #2563eb;
-
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #1d4ed8;
-    }
-
-    .btn-success {
-      background: #16a34a;
-
-      color: white;
-    }
-
-    .btn-danger {
-      background: #dc2626;
-
-      color: white;
-    }
-
-    .btn-secondary {
-      background: #6b7280;
-
-      color: white;
-    }
-
-    .status {
-      padding: 14px 16px;
-
-      border-radius: 10px;
-
-      margin-bottom: 18px;
-
-      font-weight: 600;
-    }
-
-    .status-info {
-      background: #eff6ff;
-
-      color: #1d4ed8;
-
-      border:
-        1px solid #bfdbfe;
-    }
-
-    .status-success {
-      background: #f0fdf4;
-
-      color: #15803d;
-
-      border:
-        1px solid #bbf7d0;
-    }
-
-    .status-error {
-      background: #fef2f2;
-
-      color: #b91c1c;
-
-      border:
-        1px solid #fecaca;
-    }
-
-    .status-warning {
-      background: #fffbeb;
-
-      color: #b45309;
-
-      border:
-        1px solid #fde68a;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .step {
-      padding: 10px 0;
-
-      border-bottom:
-        1px solid #e5e7eb;
-    }
-
-    .step:last-child {
-      border-bottom: none;
-    }
-
-    .step-number {
-      display: inline-flex;
-
-      width: 28px;
-      height: 28px;
-
-      align-items: center;
-      justify-content: center;
-
-      background: #2563eb;
-
-      color: white;
-
-      border-radius: 50%;
-
-      font-weight: bold;
-
-      margin-right: 8px;
-    }
-
-    .small {
-      font-size: 13px;
-
-      color: #6b7280;
-
-      margin-top: 6px;
-
-      line-height: 1.5;
-    }
-
-    .info-grid {
-      display: grid;
-
-      grid-template-columns:
-        170px 1fr;
-
-      gap: 11px 15px;
-
-      margin-top: 15px;
-    }
-
-    .info-label {
-      font-weight: 700;
-
-      color: #4b5563;
-    }
-
-    .info-value {
-      word-break: break-all;
-    }
-
-    .badge {
-      display: inline-block;
-
-      padding: 5px 10px;
-
-      border-radius: 999px;
-
-      font-size: 13px;
-
-      font-weight: 700;
-    }
-
-    .badge-success {
-      background: #dcfce7;
-
-      color: #166534;
-    }
-
-    .badge-danger {
-      background: #fee2e2;
-
-      color: #991b1b;
-    }
-
-    .badge-warning {
-      background: #fef3c7;
-
-      color: #92400e;
-    }
-
-    .debug {
-      background: #111827;
-
-      color: #d1d5db;
-
-      padding: 16px;
-
-      border-radius: 10px;
-
-      font-family:
-        Consolas,
-        "Courier New",
-        monospace;
-
-      font-size: 13px;
-
-      line-height: 1.6;
-
-      white-space: pre-wrap;
-
-      word-break: break-word;
-
-      max-height: 360px;
-
-      overflow-y: auto;
-    }
-
-    .test-info {
-      background: #f9fafb;
-
-      border:
-        1px solid #e5e7eb;
-
-      padding: 14px;
-
-      border-radius: 10px;
-
-      margin-top: 15px;
-    }
-
-    .test-info strong {
-      color: #111827;
-    }
-
-    .apar-item {
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 14px;
-      margin-bottom: 10px;
-      background: #f9fafb;
-    }
-
-    .apar-item-title {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 6px;
-    }
-
-    .apar-item-meta {
-      font-size: 13px;
-      color: #6b7280;
-      line-height: 1.6;
-      margin-bottom: 10px;
-    }
-
-    .apar-empty {
-      padding: 16px;
-      border: 1px dashed #d1d5db;
-      border-radius: 10px;
-      text-align: center;
-      color: #6b7280;
-    }
-
-
-
-    .inspection-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 15px;
-    }
-
-    .inspection-item {
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      padding: 14px;
-    }
-
-    .inspection-item label {
-      margin-bottom: 8px;
-    }
-
-    .inspection-item select,
-    .inspection-item textarea {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 9px;
-      font-size: 15px;
-      outline: none;
-      background: #ffffff;
-      font-family: inherit;
-    }
-
-    .inspection-item select:focus,
-    .inspection-item textarea:focus {
-      border-color: #2563eb;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    .inspection-item textarea {
-      min-height: 110px;
-      resize: vertical;
-    }
-
-    .inspection-summary {
-      background: #eff6ff;
-      border: 1px solid #bfdbfe;
-      border-radius: 10px;
-      padding: 14px;
-      margin-top: 15px;
-    }
-
-    .inspection-full {
-      grid-column: 1 / -1;
-    }
-
-
-    /* =========================================================
-       QR SCANNER
-    ========================================================== */
-    .scanner-box {
-      margin-top: 15px;
-      padding: 14px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-    }
-
-    #qr-reader {
-      width: 100%;
-      max-width: 520px;
-      margin: 12px auto;
-      overflow: hidden;
-      border-radius: 10px;
-      background: #111827;
-    }
-
-    #qr-reader video {
-      border-radius: 10px;
-      width: 100% !important;
-    }
-
-    .scan-result {
-      margin-top: 12px;
-      padding: 12px 14px;
-      border-radius: 10px;
-      background: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      color: #15803d;
-      font-weight: 600;
-      word-break: break-word;
-    }
-
-    .scanner-actions {
-      margin-top: 10px;
-    }
-
-    /* =========================================================
-       QR GENERATOR APAR
-    ========================================================== */
-    .qr-generator-box {
-      margin-top: 15px;
-      padding: 16px;
-      background: #f9fafb;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-    }
-
-    .qr-generator-controls {
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) auto;
-      gap: 10px;
-      align-items: end;
-    }
-
-    .qr-generator-controls select {
-      width: 100%;
-      padding: 13px 14px;
-      border: 1px solid #d1d5db;
-      border-radius: 9px;
-      font-size: 15px;
-      background: #ffffff;
-    }
-
-    .qr-generator-controls select:focus {
-      border-color: #2563eb;
-      outline: none;
-      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
-    }
-
-    .qr-preview {
-      margin-top: 16px;
-      padding: 18px;
-      background: #ffffff;
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      text-align: center;
-    }
-
-    .qr-preview-code {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 280px;
-      margin: 8px auto 14px;
-      overflow: hidden;
-    }
-
-    #qr-generator-canvas {
-      display: block;
-      max-width: 100%;
-      height: auto;
-    }
-
-    .qr-asset-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin-top: 8px;
-    }
-
-    .qr-asset-meta {
-      margin-top: 6px;
-      color: #6b7280;
-      font-size: 13px;
-      line-height: 1.5;
-    }
-
-    .qr-print-grid {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 16px;
-    }
-
-    .qr-print-item {
-      border: 1px solid #d1d5db;
-      border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-      background: #ffffff;
-    }
-
-    .qr-print-item img {
-      width: 100%;
-      max-width: 180px;
-      height: auto;
-      display: block;
-      margin: 0 auto 8px;
-    }
-
-    .qr-print-item strong {
-      display: block;
-      font-size: 16px;
-    }
-
-    @media (max-width: 700px) {
-      .qr-generator-controls {
-        grid-template-columns: 1fr;
-      }
-
-      .qr-print-grid {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-
-    /* =========================================================
-       RIWAYAT PEMERIKSAAN
-    ========================================================== */
-    .history-toolbar {
-      display: grid;
-      grid-template-columns: 1.3fr 1fr 1fr auto;
-      gap: 10px;
-      margin-top: 12px;
-    }
-
-    .history-table-wrap {
-      overflow-x: auto;
-      margin-top: 14px;
-    }
-
-    .history-table {
-      width: 100%;
-      border-collapse: collapse;
-      min-width: 760px;
-    }
-
-    .history-table th,
-    .history-table td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 10px 8px;
-      text-align: left;
-      vertical-align: top;
-      font-size: 13px;
-    }
-
-    .history-table th {
-      background: #f9fafb;
-      font-weight: 700;
-    }
-
-    .history-badge {
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      font-size: 11px;
-      font-weight: 700;
-    }
-
-    .history-badge.pass {
-      background: #dcfce7;
-      color: #166534;
-    }
-
-    .history-badge.fail {
-      background: #fee2e2;
-      color: #991b1b;
-    }
-
-    .history-badge.other {
-      background: #f3f4f6;
-      color: #374151;
-    }
-
-    .history-detail {
-      margin-top: 14px;
-      padding: 14px;
-      border: 1px solid #e5e7eb;
-      border-radius: 10px;
-      background: #fafafa;
-    }
-
-    .history-detail-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .history-detail-actions {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .history-detail-grid {
-      display: grid;
-      grid-template-columns: 170px 1fr;
-      gap: 7px 12px;
-      margin-top: 10px;
-    }
-
-    @media (max-width: 700px) {
-      .history-toolbar {
-        grid-template-columns: 1fr;
-      }
-
-      .history-detail-grid {
-        grid-template-columns: 1fr;
-        gap: 3px;
-      }
-
-      .history-detail-actions {
-        width: 100%;
-      }
-
-      .history-detail-actions button {
-        flex: 1 1 auto;
-      }
-    }
-
-    @media (max-width: 600px) {
-
-      .container {
-        margin: 15px auto;
-
-        padding: 12px;
-      }
-
-      .card {
-        padding: 20px;
-      }
-
-      .info-grid {
-        grid-template-columns: 1fr;
-
-        gap: 4px;
-      }
-
-      .inspection-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .inspection-full {
-        grid-column: auto;
-      }
-
-    }
-
-  
-
-    /* DASHBOARD APAR */
-    .dashboard-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:12px}
-    .dashboard-stat{border:1px solid #e5e7eb;border-radius:12px;padding:15px;background:#fff}
-    .dashboard-stat .stat-label{font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase}
-    .dashboard-stat .stat-value{font-size:28px;font-weight:800;margin-top:6px}
-    .dashboard-stat .stat-note{margin-top:4px;font-size:11px;color:#6b7280}
-    .dashboard-section{margin-top:18px}
-    .dashboard-table-wrap{overflow-x:auto;margin-top:10px}
-    .dashboard-table{width:100%;border-collapse:collapse;min-width:700px}
-    .dashboard-table th,.dashboard-table td{border:1px solid #e5e7eb;padding:9px 10px;text-align:left;font-size:12px;vertical-align:top}
-    .dashboard-table th{background:#f9fafb;font-weight:700}
-    .dashboard-empty{padding:16px;border:1px dashed #d1d5db;border-radius:10px;color:#6b7280;text-align:center;margin-top:10px}
-    .dashboard-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
-    .dashboard-toolbar .small{margin-right:auto}
-    @media(max-width:900px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-    @media(max-width:600px){.dashboard-grid{grid-template-columns:1fr}.dashboard-stat .stat-value{font-size:24px}}
-
-    /* =========================================================
-       PRINT PEMERIKSAAN
-    ========================================================== */
-    @media print {
-      body {
-        background: #ffffff !important;
-      }
-
-      body > * {
-        display: none !important;
-      }
-
-      #printArea {
-        display: block !important;
-      }
-
-      .print-report {
-        font-family: Arial, sans-serif;
-        color: #111827;
-        padding: 24px;
-        max-width: 900px;
-        margin: 0 auto;
-      }
-
-      .print-report h1 {
-        font-size: 22px;
-        margin: 0 0 5px;
-        text-align: center;
-      }
-
-      .print-report .print-subtitle {
-        text-align: center;
-        font-size: 12px;
-        margin-bottom: 20px;
-        color: #4b5563;
-      }
-
-      .print-report table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 10px;
-      }
-
-      .print-report th,
-      .print-report td {
-        border: 1px solid #d1d5db;
-        padding: 8px;
-        text-align: left;
-        vertical-align: top;
-        font-size: 12px;
-      }
-
-      .print-report th {
-        width: 34%;
-      }
-
-      .print-report .print-section {
-        margin-top: 18px;
-        font-weight: 700;
-        font-size: 14px;
-        border-bottom: 2px solid #111827;
-        padding-bottom: 5px;
-      }
-
-      .print-report .print-result {
-        font-weight: 700;
-        font-size: 15px;
-      }
-    }
-
-    #printArea {
-      display: none;
-    }
-
-/* V13 MONITORING */
-.monitoring-summary{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px}
-.monitoring-stat{border:1px solid #e5e7eb;border-radius:12px;padding:13px;background:#fff}
-.monitoring-label{font-size:11px;color:#6b7280;font-weight:700;text-transform:uppercase}
-.monitoring-value{font-size:24px;font-weight:800;margin-top:4px}
-.monitoring-table-wrap{overflow-x:auto;margin-top:12px}
-.monitoring-table{width:100%;border-collapse:collapse;min-width:760px}
-.monitoring-table th,.monitoring-table td{border:1px solid #e5e7eb;padding:9px 10px;font-size:12px;text-align:left;vertical-align:top}
-.monitoring-table th{background:#f9fafb}
-.monitoring-badge{display:inline-block;padding:4px 8px;border-radius:999px;font-size:10px;font-weight:800;white-space:nowrap}
-.monitoring-active{background:#dcfce7;color:#166534}
-.monitoring-inactive{background:#f3f4f6;color:#4b5563}
-.monitoring-pass{background:#dcfce7;color:#166534}
-.monitoring-fail{background:#fee2e2;color:#991b1b}
-.monitoring-unchecked{background:#fef3c7;color:#92400e}
-@media(max-width:900px){.monitoring-summary{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:600px){.monitoring-summary{grid-template-columns:1fr}}
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>APAR - Admin Dashboard V14.6</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
+.app{min-height:100vh;display:flex}
+.sidebar{width:240px;background:#10233f;color:#fff;padding:24px 16px;position:fixed;left:0;top:0;bottom:0}
+.brand{font-size:23px;font-weight:800;padding:0 10px 24px;border-bottom:1px solid rgba(255,255,255,.15);margin-bottom:18px}
+.brand small{display:block;font-size:12px;font-weight:400;opacity:.7;margin-top:5px}
+.nav button{width:100%;text-align:left;border:0;background:transparent;color:#fff;padding:12px 14px;border-radius:9px;margin-bottom:6px;cursor:pointer;font-size:14px;font-weight:700}
+.nav button.active,.nav button:hover{background:rgba(255,255,255,.12)}
+.main{margin-left:240px;width:calc(100% - 240px);padding:28px}
+.topbar{display:flex;justify-content:space-between;align-items:center;gap:18px;margin-bottom:22px}
+h1{margin:0;font-size:29px}.subtitle{color:#64748b;margin-top:5px}
+.admin-info{background:#fff;border:1px solid #dbe2ea;border-radius:12px;padding:10px 14px;font-size:13px}
+.badge{display:inline-block;padding:5px 10px;border-radius:999px;background:#dcfce7;color:#087a3d;font-size:11px;font-weight:800}
+.status{border:1px solid;border-radius:10px;padding:13px 15px;margin-bottom:18px;font-weight:700}
+.success{color:#087a3d;background:#effdf4;border-color:#b7efcc}
+.error{color:#c51f1f;background:#fff1f2;border-color:#fecaca}
+.info{color:#1456c7;background:#eff6ff;border-color:#bfdbfe}
+.warning{color:#9a6700;background:#fff9e6;border-color:#f4d58a}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px;margin-bottom:20px}
+.stat{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:19px}
+.stat-title{color:#64748b;font-size:13px;text-transform:uppercase;letter-spacing:.3px}
+.stat-value{font-size:32px;font-weight:800;margin-top:8px}
+.card{background:#fff;border-radius:16px;border:1px solid #dbe2ea;padding:22px;margin-bottom:20px}
+.card h2{margin:0 0 16px;font-size:20px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:15px;flex-wrap:wrap}
+.toolbar-left{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+.action{border:0;border-radius:9px;padding:11px 16px;font-size:14px;font-weight:700;cursor:pointer}
+.primary{background:#2563eb;color:#fff}.secondary{background:#6b7280;color:#fff}.danger{background:#dc2626;color:#fff}
+.action:disabled{opacity:.55;cursor:not-allowed}
+.search{width:100%;max-width:460px;border:1px solid #cbd5e1;border-radius:9px;padding:12px 13px;font-size:14px;outline:none}
+.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.form-field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800}
+.form-field input,.form-field select{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;outline:none;background:#fff}
+.form-field input:focus,.form-field select:focus{border-color:#2563eb}
+.form-field.full{grid-column:1/-1}
+.form-help{font-size:11px;color:#64748b;margin-top:5px}
+.modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:20px}
+@media(max-width:650px){.form-grid{grid-template-columns:1fr}.form-field.full{grid-column:auto}}
+.search:focus{border-color:#2563eb}
+.table-wrap{overflow-x:auto;border:1px solid #e2e8f0;border-radius:10px}
+table{width:100%;border-collapse:collapse;min-width:850px}
+th,td{padding:12px 13px;border-bottom:1px solid #e5e7eb;text-align:left;vertical-align:top;font-size:13px}
+th{background:#f8fafc;font-weight:800;color:#334155}
+tr:last-child td{border-bottom:0}
+.empty{text-align:center;color:#64748b;padding:30px}
+.small-btn{border:0;border-radius:7px;padding:7px 10px;background:#2563eb;color:#fff;font-weight:700;cursor:pointer;font-size:12px}
+.detail-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.detail-item{border:1px solid #e2e8f0;border-radius:10px;padding:13px;background:#f8fafc}
+.detail-label{font-size:11px;color:#64748b;font-weight:800;text-transform:uppercase;margin-bottom:5px}
+.detail-value{font-size:14px;word-break:break-word}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:flex;align-items:center;justify-content:center;padding:20px;z-index:20}
+.modal-box{width:min(760px,100%);max-height:90vh;overflow:auto;background:#fff;border-radius:16px;padding:22px}
+.modal-head{display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:18px}
+.modal-head h2{margin:0}
+.close{border:0;background:#e5e7eb;border-radius:8px;padding:8px 11px;cursor:pointer;font-weight:800}
+.login-card{max-width:560px;margin:55px auto;background:#fff;border:1px solid #dbe2ea;border-radius:16px;padding:26px}
+.login-card h2{margin:0 0 7px;font-size:22px}
+.field{margin-bottom:15px}.field label{display:block;margin-bottom:7px;font-size:13px;font-weight:800}
+.field input{width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px 13px;font-size:14px;outline:none}
+.field input:focus{border-color:#2563eb}
+.login-actions{display:flex;gap:10px;align-items:center}.login-note{margin-top:15px;font-size:12px;color:#64748b}
+.debug{background:#101827;color:#e5edf8;border-radius:10px;padding:14px;min-height:120px;max-height:280px;overflow:auto;white-space:pre-wrap;font:12px/1.5 Consolas,monospace}
+.hidden{display:none!important}
+@media(max-width:900px){.sidebar{width:205px}.main{margin-left:205px;width:calc(100% - 205px);padding:20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:flex-start;flex-direction:column}}
+@media(max-width:650px){.app{display:block}.sidebar{position:static;width:100%;padding:14px}.brand{padding-bottom:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.nav button{margin:0}.main{margin:0;width:100%;padding:14px}.stats{grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px}.stat-value{font-size:27px}.detail-grid{grid-template-columns:1fr}}
 </style>
 </head>
-
 <body>
-
-<div class="container">
-
-  <!-- =====================================================
-       HEADER
-  ====================================================== -->
-
-  <div class="card">
-
-    <h1>
-      APAR - Test Inspector V14.5 STATUS PROTECTION
-    </h1>
-
-    <div class="subtitle">
-      Firebase Authentication + QR Code APAR + Pemeriksaan + Riwayat + Detail + Print
-    </div>
-
-
-    <div
-      id="globalStatus"
-      class="status status-info"
-    >
-      Menyiapkan Firebase...
-    </div>
-
-
-    <div class="step">
-
-      <span class="step-number">
-        1
-      </span>
-
-      Masukkan nomor HP Inspector
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="step-number">
-        2
-      </span>
-
-      Kirim OTP
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="step-number">
-        3
-      </span>
-
-      Masukkan OTP
-
-    </div>
-
-
-    <div class="step">
-
-      <span class="step-number">
-        4
-      </span>
-
-      Sistem membaca profil Inspector dari Firestore
-
-    </div>
-
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">APAR<small>Admin Dashboard V14.6</small></div>
+  <div class="nav">
+    <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
+    <button id="navDataApar" type="button">🧯 Data APAR</button>
+    <button id="navMonitoring" type="button">🔍 Monitoring</button>
+    <button id="navInspection" type="button">📋 Pemeriksaan</button>
+    <button id="navHistory" type="button">📜 Riwayat</button>
+    <button id="logoutBtn" type="button">🚪 Logout</button>
   </div>
+</aside>
 
+<main class="main">
+<section id="loginCard" class="login-card hidden">
+  <h2>Login Admin</h2>
+  <div class="subtitle">Masuk menggunakan akun Admin yang terdaftar di Firebase Authentication.</div>
+  <div id="loginStatus" class="status info hidden"></div>
+  <div class="field"><label for="loginEmail">Email Admin</label><input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test"></div>
+  <div class="field"><label for="loginPassword">Password Admin</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></div>
+  <div class="login-actions"><button id="loginBtn" class="action primary" type="button">Login Admin</button></div>
+  <div class="login-note">Setelah logout, form login akan muncul kembali.</div>
+</section>
 
-  <!-- =====================================================
-       LOGIN
-  ====================================================== -->
+<div id="dashboardContent" class="hidden">
+<div class="topbar">
+  <div><h1 id="pageTitle">Admin Dashboard</h1><div id="pageSubtitle" class="subtitle">Monitoring data APAR dan pemeriksaan terbaru</div></div>
+  <div class="admin-info">Admin: <strong id="adminEmail">-</strong> &nbsp;<span class="badge">ADMIN</span></div>
+</div>
 
-  <div
-    id="loginCard"
-    class="card"
-  >
+<div id="pageStatus" class="status info">Menyiapkan dashboard...</div>
 
-    <h2>
-      Login Inspector
-    </h2>
-
-
-    <div class="field">
-
-      <label for="phoneNumber">
-        Nomor HP
-      </label>
-
-
-      <input
-        type="tel"
-        id="phoneNumber"
-        value="+6281234567890"
-        autocomplete="tel"
-      >
-
-
-      <div class="small">
-
-        Nomor testing Firebase:
-
-        <strong>
-          +62 812-3456-7890
-        </strong>
-
-        <br>
-
-        Jangan masukkan kode OTP di kolom ini.
-
-      </div>
-
-    </div>
-
-
-    <!--
-      Container reCAPTCHA hanya akan digunakan
-      ketika tombol Kirim OTP ditekan.
-    -->
-
-    <div
-      id="recaptcha-container"
-    ></div>
-
-
-    <button
-      id="sendOtpBtn"
-      class="btn-primary"
-      type="button"
-    >
-      Kirim OTP
-    </button>
-
-
-    <div class="test-info">
-
-      <strong>
-        Data Testing
-      </strong>
-
-      <br><br>
-
-      Nomor:
-
-      <strong>
-        +62 812-3456-7890
-      </strong>
-
-      <br>
-
-      OTP:
-
-      <strong>
-        123456
-      </strong>
-
-    </div>
-
+<section id="dashboardView">
+  <div class="stats">
+    <div class="stat"><div class="stat-title">Total APAR</div><div id="totalApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">Active</div><div id="activeApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">Inactive</div><div id="inactiveApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">PASS Terakhir</div><div id="passApar" class="stat-value">-</div></div>
   </div>
+  <section class="card">
+    <div class="toolbar"><div><h2>Ringkasan Status APAR</h2><div class="subtitle">Data APAR yang tersimpan di Firestore.</div></div><button id="reloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Status</th></tr></thead><tbody id="aparTableBody"><tr><td colspan="6" class="empty">Memuat data APAR...</td></tr></tbody></table></div>
+  </section>
+  <section class="card">
+    <div class="toolbar"><div><h2>Pemeriksaan Terbaru</h2><div class="subtitle">Data dari collection <b>inspections</b>.</div></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectionTableBody"><tr><td colspan="5" class="empty">Memuat pemeriksaan...</td></tr></tbody></table></div>
+  </section>
+</section>
 
-
-  <!-- =====================================================
-       OTP
-  ====================================================== -->
-
-  <div
-    id="otpCard"
-    class="card hidden"
-  >
-
-    <h2>
-      Verifikasi OTP
-    </h2>
-
-
-    <div class="field">
-
-      <label for="otpCode">
-        Kode OTP
-      </label>
-
-
-      <input
-        type="text"
-        id="otpCode"
-        placeholder="123456"
-        maxlength="6"
-        inputmode="numeric"
-        autocomplete="one-time-code"
-      >
-
+<section id="dataAparView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.3 menambahkan Tambah dan Edit data APAR.</div></div>
+      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
     </div>
-
-
-    <button
-      id="verifyOtpBtn"
-      class="btn-success"
-      type="button"
-    >
-      Verifikasi OTP
-    </button>
-
-
-    <button
-      id="resetLoginBtn"
-      class="btn-secondary"
-      type="button"
-    >
-      Kembali
-    </button>
-
-  </div>
-
-
-  <!-- =====================================================
-       PROFILE
-  ====================================================== -->
-
-  <div
-    id="profileCard"
-    class="card hidden"
-  >
-
-    <h2>
-      Hasil Pemeriksaan Inspector
-    </h2>
-
-
-    <div
-      id="profileStatus"
-      class="status status-info"
-    >
-      Memeriksa profil...
+    <div class="toolbar-left" style="margin-bottom:15px">
+      <input id="aparSearch" class="search" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
     </div>
-
-
-    <div class="info-grid">
-
-
-      <div class="info-label">
-        Firebase UID
-      </div>
-
-      <div
-        id="uidValue"
-        class="info-value"
-      >
-        -
-      </div>
-
-
-      <div class="info-label">
-        Nomor HP
-      </div>
-
-      <div
-        id="phoneValue"
-        class="info-value"
-      >
-        -
-      </div>
-
-
-      <div class="info-label">
-        Nama
-      </div>
-
-      <div
-        id="nameValue"
-        class="info-value"
-      >
-        -
-      </div>
-
-
-      <div class="info-label">
-        Email
-      </div>
-
-      <div
-        id="emailValue"
-        class="info-value"
-      >
-        -
-      </div>
-
-
-      <div class="info-label">
-        Role
-      </div>
-
-      <div
-        id="roleValue"
-        class="info-value"
-      >
-        -
-      </div>
-
-
-      <div class="info-label">
-        Status
-      </div>
-
-      <div
-        id="statusValue"
-        class="info-value"
-      >
-        -
-      </div>
-
-
+    <div id="dataAparStatus" class="status info hidden"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Aksi</th></tr></thead>
+        <tbody id="masterAparBody"><tr><td colspan="8" class="empty">Memuat data APAR...</td></tr></tbody>
+      </table>
     </div>
+  </section>
+</section>
 
 
-    <br>
-
-
-    <button
-      id="logoutBtn"
-      class="btn-danger"
-      type="button"
-    >
-      Logout
-    </button>
-
-  </div>
-
-
-  <!-- =====================================================
-       APAR LIST
-  ====================================================== -->
-
-  <div
-    id="aparCard"
-    class="card hidden"
-  >
-
-    <h2>
-      Pilih APAR
-    </h2>
-
-    <div
-      id="aparStatus"
-      class="status status-info"
-    >
-      Memuat data APAR...
-    </div>
-
-    <div id="aparList"></div>
-
-    <div id="selectedAparBox" class="test-info hidden">
-      <strong>APAR Terpilih</strong>
-      <div class="info-grid">
-        <div class="info-label">Asset Number</div>
-        <div id="selectedAssetNumber" class="info-value">-</div>
-        <div class="info-label">Brand</div>
-        <div id="selectedBrand" class="info-value">-</div>
-        <div class="info-label">Capacity</div>
-        <div id="selectedCapacity" class="info-value">-</div>
-        <div class="info-label">Location</div>
-        <div id="selectedLocation" class="info-value">-</div>
-        <div class="info-label">Serial Number</div>
-        <div id="selectedSerial" class="info-value">-</div>
-        <div class="info-label">Type</div>
-        <div id="selectedType" class="info-value">-</div>
-        <div class="info-label">Status</div>
-        <div id="selectedStatus" class="info-value">-</div>
+<section id="monitoringView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>Monitoring APAR</h2>
+        <div class="subtitle">Ringkasan status APAR berdasarkan data <b>apar</b> dan pemeriksaan terbaru dari <b>inspections</b>.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="reloadMonitoringBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
       </div>
     </div>
 
-  </div>
-
-
-
-  <!-- =====================================================
-       QR GENERATOR APAR
-  ====================================================== -->
-
-  <div id="qrGeneratorCard" class="card hidden">
-
-    <h2>Generator QR Code APAR</h2>
-
-    <div id="qrGeneratorStatus" class="status status-info">
-      Pilih APAR untuk membuat QR Code.
+    <div class="stats">
+      <div class="stat"><div class="stat-title">PASS</div><div id="monitorPass" class="stat-value">-</div></div>
+      <div class="stat"><div class="stat-title">FAIL</div><div id="monitorFail" class="stat-value">-</div></div>
+      <div class="stat"><div class="stat-title">Belum Diperiksa</div><div id="monitorNever" class="stat-value">-</div></div>
+      <div class="stat"><div class="stat-title">Perlu Perhatian</div><div id="monitorAttention" class="stat-value">-</div></div>
     </div>
 
-    <div class="qr-generator-box">
+    <div id="monitoringStatus" class="status info hidden"></div>
 
-      <div class="small">
-        QR Code akan berisi <strong>Asset Number</strong> APAR,
-        contoh: <strong>APAR-0001</strong>. QR ini nantinya dapat
-        dipindai oleh Inspector melalui fitur Scan QR Code APAR.
-      </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Asset Number</th>
+            <th>Status APAR</th>
+            <th>Hasil Terakhir</th>
+            <th>Tanggal Terakhir</th>
+            <th>Inspector Terakhir</th>
+            <th>Kondisi</th>
+          </tr>
+        </thead>
+        <tbody id="monitoringBody">
+          <tr><td colspan="6" class="empty">Memuat monitoring...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
 
-      <div class="qr-generator-controls">
-        <div class="field" style="margin-bottom:0;">
-          <label for="qrAparSelect">Pilih APAR</label>
-          <select id="qrAparSelect">
-            <option value="">Memuat data APAR...</option>
+<section id="placeholderView" class="card hidden">
+  <h2 id="placeholderTitle">Menu</h2>
+  <div id="placeholderText" class="subtitle">Menu ini akan dibangun pada tahap berikutnya.</div>
+</section>
+
+<section class="card">
+  <h2>Debug Information</h2>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.6...</div>
+</section>
+</div>
+</main>
+</div>
+
+
+<div id="aparFormModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2 id="aparFormTitle">Tambah APAR</h2>
+      <button id="closeAparForm" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="aparFormStatus" class="status info hidden"></div>
+
+    <form id="aparForm">
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="fAssetNumber">Asset Number *</label>
+          <input id="fAssetNumber" type="text" required placeholder="Contoh: APAR-0002">
+          <div id="assetHelp" class="form-help">Asset Number akan menjadi Document ID Firestore.</div>
+        </div>
+
+        <div class="form-field">
+          <label for="fBrand">Brand *</label>
+          <input id="fBrand" type="text" required placeholder="Contoh: ABC">
+        </div>
+
+        <div class="form-field">
+          <label for="fCapacity">Capacity *</label>
+          <input id="fCapacity" type="text" required placeholder="Contoh: 6 Kg">
+        </div>
+
+        <div class="form-field">
+          <label for="fLocation">Location ID *</label>
+          <input id="fLocation" type="text" required placeholder="Contoh: LOC-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fSerial">Serial Number *</label>
+          <input id="fSerial" type="text" required placeholder="Contoh: SN-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fType">Type ID *</label>
+          <input id="fType" type="text" required placeholder="Contoh: TYPE-001">
+        </div>
+
+        <div class="form-field">
+          <label for="fStatus">Status *</label>
+          <select id="fStatus" required>
+            <option value="active">ACTIVE</option>
+            <option value="inactive">INACTIVE</option>
           </select>
         </div>
 
-        <button
-          id="generateQrBtn"
-          class="btn-primary"
-          type="button"
-          disabled
-        >
-          Generate QR
-        </button>
-      </div>
-
-      <div id="qrPreview" class="qr-preview hidden">
-        <div class="small">QR Code APAR</div>
-        <div id="qrPreviewCode" class="qr-preview-code">
-          <canvas id="qr-generator-canvas" width="260" height="260"></canvas>
-        </div>
-        <div id="qrAssetTitle" class="qr-asset-title">-</div>
-        <div id="qrAssetMeta" class="qr-asset-meta">-</div>
-
-        <div style="margin-top:14px;">
-          <button
-            id="downloadQrBtn"
-            class="btn-success"
-            type="button"
-            disabled
-          >
-            Simpan PNG
-          </button>
-
-          <button
-            id="printQrBtn"
-            class="btn-primary"
-            type="button"
-            disabled
-          >
-            Print QR
-          </button>
+        <div class="form-field full">
+          <div class="form-help">Untuk V14.3, Asset Number tidak dapat diubah saat Edit agar relasi QR dan riwayat pemeriksaan tetap aman.</div>
         </div>
       </div>
 
-      <div style="margin-top:18px;">
-        <button
-          id="printAllQrBtn"
-          class="btn-secondary"
-          type="button"
-          disabled
-        >
-          Print Semua QR APAR
-        </button>
+      <div class="modal-actions">
+        <button id="cancelAparForm" class="action secondary" type="button">Batal</button>
+        <button id="saveAparBtn" class="action primary" type="submit">Simpan APAR</button>
       </div>
-
-      <div id="qrAllPreview" class="qr-print-grid hidden"></div>
-
-    </div>
-
+    </form>
   </div>
-
-
-
-  <!-- DASHBOARD APAR -->
-  <div id="dashboardCard" class="card hidden">
-    <h2>Dashboard APAR</h2>
-    <div id="dashboardStatus" class="status status-info">Memuat ringkasan APAR...</div>
-    <div class="dashboard-toolbar">
-      <div class="small">Status dihitung berdasarkan pemeriksaan <strong>terakhir</strong> dari setiap APAR.</div>
-      <button id="refreshDashboardBtn" class="btn-secondary" type="button">🔄 Muat Ulang</button>
-    </div>
-    <div class="dashboard-grid">
-      <div class="dashboard-stat"><div class="stat-label">🧯 Total APAR</div><div id="dashTotal" class="stat-value">0</div><div class="stat-note">Seluruh APAR di master</div></div>
-      <div class="dashboard-stat"><div class="stat-label">✅ PASS</div><div id="dashPass" class="stat-value">0</div><div class="stat-note">Pemeriksaan terakhir PASS</div></div>
-      <div class="dashboard-stat"><div class="stat-label">❌ FAIL</div><div id="dashFail" class="stat-value">0</div><div class="stat-note">Pemeriksaan terakhir FAIL</div></div>
-      <div class="dashboard-stat"><div class="stat-label">⏳ Belum Diperiksa</div><div id="dashUnchecked" class="stat-value">0</div><div class="stat-note">Belum memiliki pemeriksaan</div></div>
-      <div class="dashboard-stat"><div class="stat-label">⚠️ Perlu Perhatian</div><div id="dashAttention" class="stat-value">0</div><div class="stat-note">Pemeriksaan terakhir FAIL</div></div>
-    </div>
-    <div class="dashboard-section"><h3>Daftar Status APAR</h3><div id="dashboardTableWrap" class="dashboard-table-wrap"></div></div>
-    <div class="dashboard-section"><h3>⚠️ APAR Perlu Perhatian</h3><div id="dashboardAttentionWrap"></div></div>
-  </div>
-
-  <!-- V13 MONITORING & STATUS APAR -->
-<div id="monitoringCard" class="card hidden">
-  <h2>Monitoring &amp; Status APAR</h2>
-  <div id="monitoringStatus" class="status status-info">Memuat monitoring APAR...</div>
-  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;">
-    <button id="refreshMonitoringBtn" class="btn-secondary" type="button">🔄 Muat Ulang</button>
-  </div>
-  <div class="monitoring-summary">
-    <div class="monitoring-stat"><div class="monitoring-label">Active</div><div id="monitorActive" class="monitoring-value">0</div></div>
-    <div class="monitoring-stat"><div class="monitoring-label">Inactive</div><div id="monitorInactive" class="monitoring-value">0</div></div>
-    <div class="monitoring-stat"><div class="monitoring-label">PASS Terakhir</div><div id="monitorPass" class="monitoring-value">0</div></div>
-    <div class="monitoring-stat"><div class="monitoring-label">FAIL Terakhir</div><div id="monitorFail" class="monitoring-value">0</div></div>
-  </div>
-  <div class="small" style="margin-top:8px;">Hasil pemeriksaan yang ditampilkan adalah hasil <strong>terakhir</strong> untuk setiap Asset Number. APAR INACTIVE tidak dapat diperiksa.</div>
-  <div class="monitoring-table-wrap"><div id="monitoringTableWrap"></div></div>
 </div>
 
-<!-- =====================================================
-       QR SCANNER APAR
-  ====================================================== -->
-
-  <div id="scannerCard" class="card hidden">
-
-    <h2>Scan QR Code APAR</h2>
-
-    <div id="scannerStatus" class="status status-info">
-      Tekan "Mulai Scan" lalu arahkan kamera ke QR Code APAR. Setelah terbaca, APAR akan otomatis dipilih.
-    </div>
-
-    <div class="scanner-box">
-
-      <div class="small">
-        QR Code harus berisi <strong>Asset Number</strong>,
-        contoh: <strong>APAR-0001</strong>.
-      </div>
-
-      <div id="qr-reader" class="hidden"></div>
-
-      <div id="scanResult" class="scan-result hidden"></div>
-
-      <div class="scanner-actions">
-        <button
-          id="startScanBtn"
-          class="btn-primary"
-          type="button"
-        >
-          Mulai Scan
-        </button>
-
-        <button
-          id="stopScanBtn"
-          class="btn-secondary"
-          type="button"
-          disabled
-        >
-          Hentikan Scan
-        </button>
-      </div>
-
-      <div class="small" style="margin-top:10px;">
-        Setelah QR valid terbaca, kamera otomatis berhenti, APAR otomatis dipilih, dan form pemeriksaan dibuka.
-      </div>
-
-    </div>
-
+<div id="detailModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h2>Detail APAR</h2><button id="closeDetail" class="close" type="button">✕ Tutup</button></div>
+    <div id="detailContent"></div>
   </div>
-
-
-  <!-- =====================================================
-       PEMERIKSAAN APAR
-  ====================================================== -->
-
-  <div id="inspectionCard" class="card hidden">
-
-    <h2>Pemeriksaan APAR</h2>
-
-    <div id="inspectionStatus" class="status status-info">
-      Pilih APAR terlebih dahulu.
-    </div>
-
-    <div class="inspection-summary">
-      <strong>APAR yang diperiksa</strong>
-
-      <div class="info-grid">
-        <div class="info-label">Asset Number</div>
-        <div id="inspectionAssetNumber" class="info-value">-</div>
-
-        <div class="info-label">Brand</div>
-        <div id="inspectionBrand" class="info-value">-</div>
-
-        <div class="info-label">Location</div>
-        <div id="inspectionLocation" class="info-value">-</div>
-
-        <div class="info-label">Serial Number</div>
-        <div id="inspectionSerial" class="info-value">-</div>
-      </div>
-    </div>
-
-    <div class="inspection-grid">
-      <div class="inspection-item">
-        <label for="physicalCondition">Kondisi Fisik</label>
-        <select id="physicalCondition">
-          <option value="good">Baik</option>
-          <option value="minor_damage">Rusak Ringan</option>
-          <option value="damaged">Rusak</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="seal">Seal</label>
-        <select id="seal">
-          <option value="good">Baik</option>
-          <option value="damaged">Rusak</option>
-          <option value="missing">Tidak Ada</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="safetyPin">Safety Pin</label>
-        <select id="safetyPin">
-          <option value="good">Baik</option>
-          <option value="damaged">Rusak</option>
-          <option value="missing">Tidak Ada</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="pressure">Pressure</label>
-        <select id="pressure">
-          <option value="normal">Normal</option>
-          <option value="low">Rendah</option>
-          <option value="high">Tinggi</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="nozzle">Nozzle</label>
-        <select id="nozzle">
-          <option value="good">Baik</option>
-          <option value="damaged">Rusak</option>
-          <option value="blocked">Tersumbat</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="hose">Selang</label>
-        <select id="hose">
-          <option value="good">Baik</option>
-          <option value="damaged">Rusak</option>
-          <option value="missing">Tidak Ada</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="signage">Signage</label>
-        <select id="signage">
-          <option value="good">Baik</option>
-          <option value="damaged">Rusak</option>
-          <option value="missing">Tidak Ada</option>
-        </select>
-      </div>
-
-      <div class="inspection-item">
-        <label for="result">Hasil Pemeriksaan</label>
-        <select id="result">
-          <option value="pass">PASS</option>
-          <option value="fail">FAIL</option>
-        </select>
-      </div>
-
-      <div class="inspection-item inspection-full">
-        <label for="notes">Catatan</label>
-        <textarea id="notes" placeholder="Masukkan catatan pemeriksaan jika ada..."></textarea>
-      </div>
-    </div>
-
-    <br>
-
-    <button id="saveInspectionBtn" class="btn-success" type="button">
-      Simpan Pemeriksaan
-    </button>
-
-    <button id="cancelInspectionBtn" class="btn-secondary" type="button">
-      Batal
-    </button>
-
-  </div>
-
-
-
-  <!-- =====================================================
-       RIWAYAT PEMERIKSAAN
-  ====================================================== -->
-
-  <div id="historyCard" class="card hidden">
-
-    <h2>Riwayat Pemeriksaan APAR</h2>
-
-    <div id="historyStatus" class="status status-info">
-      Memuat riwayat pemeriksaan...
-    </div>
-
-    <div class="history-toolbar">
-
-      <input
-        id="historySearch"
-        type="search"
-        placeholder="Cari Asset Number..."
-        autocomplete="off"
-      />
-
-      <input
-        id="historyDateFrom"
-        type="date"
-        aria-label="Tanggal mulai"
-      />
-
-      <input
-        id="historyDateTo"
-        type="date"
-        aria-label="Tanggal sampai"
-      />
-
-      <select id="historyResultFilter" aria-label="Filter hasil">
-        <option value="">Semua Hasil</option>
-        <option value="pass">PASS</option>
-        <option value="fail">FAIL</option>
-      </select>
-
-    </div>
-
-    <div style="margin-top:10px;">
-      <button
-        id="historyRefreshBtn"
-        class="btn-secondary"
-        type="button"
-      >
-        ↻ Muat Ulang
-      </button>
-      <button
-        id="historyResetBtn"
-        class="btn-secondary"
-        type="button"
-      >
-        Reset Filter
-      </button>
-    </div>
-
-    <div class="history-table-wrap">
-
-      <table class="history-table">
-
-        <thead>
-          <tr>
-            <th>Tanggal</th>
-            <th>Asset Number</th>
-            <th>Inspector</th>
-            <th>Hasil</th>
-            <th>Catatan</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-
-        <tbody id="historyTableBody">
-          <tr>
-            <td colspan="6">Belum ada data.</td>
-          </tr>
-        </tbody>
-
-      </table>
-
-    </div>
-
-    <div id="historyDetail" class="history-detail hidden">
-
-      <div class="history-detail-header">
-        <strong>Detail Pemeriksaan</strong>
-
-        <div class="history-detail-actions">
-          <button
-            id="historyPrintBtn"
-            class="btn-primary"
-            type="button"
-          >
-            🖨️ Print Pemeriksaan
-          </button>
-
-          <button
-            id="historyCloseDetailBtn"
-            class="btn-secondary"
-            type="button"
-          >
-            Tutup Detail
-          </button>
-        </div>
-      </div>
-
-      <div id="historyDetailGrid" class="history-detail-grid"></div>
-
-    </div>
-
-  </div>
-
-
-  <!-- =====================================================
-       DEBUG
-  ====================================================== -->
-
-  <div class="card">
-
-    <h2>
-      Debug Information
-    </h2>
-
-
-    <div
-      id="debugBox"
-      class="debug"
-    >
-Memulai Test Inspector V13 MONITORING STATUS...
-    </div>
-
-  </div>
-
-
 </div>
-
-
-<!-- =========================================================
-     PRINT AREA
-========================================================== -->
-
-<div id="printArea" aria-hidden="true"></div>
-
-
-<!-- =========================================================
-     FIREBASE SDK
-========================================================= -->
-
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-
 
 <script type="module">
+import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-  import {
-    initializeApp
+const firebaseConfig={
+  apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
+  authDomain:"apar-7a343.firebaseapp.com",
+  projectId:"apar-7a343",
+  storageBucket:"apar-7a343.firebasestorage.app",
+  messagingSenderId:"692076938129",
+  appId:"1:692076938129:web:8583c9d30f47588c135030"
+};
+
+let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],monitorRows=[],aparFormMode="create",aparEditId=null;
+
+const $=id=>document.getElementById(id);
+function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
+function debug(m){const b=$("debugBox"),t=new Date().toLocaleTimeString("id-ID",{hour12:false});b.textContent+=`[${t}] ${m}\n`;b.scrollTop=b.scrollHeight}
+function setStatus(m,type="info"){const e=$("pageStatus");e.textContent=m;e.className=`status ${type}`}
+function setLoginStatus(m,type="info"){const e=$("loginStatus");e.textContent=m;e.className=`status ${type}`}
+function badge(v){const x=String(v||"-").toLowerCase();return (x==="active"||x==="pass")?`<span class="badge">${esc(String(v).toUpperCase())}</span>`:esc(v||"-")}
+function dateValue(v){try{if(v?.toDate)return v.toDate().getTime();const d=new Date(v||0);return Number.isNaN(d.getTime())?0:d.getTime()}catch{return 0}}
+function formatDate(v){try{if(v?.toDate)return v.toDate().toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"});const d=new Date(v);if(!Number.isNaN(d.getTime()))return d.toLocaleString("id-ID",{dateStyle:"medium",timeStyle:"short"})}catch{}return esc(v||"-")}
+
+function showLogin(){
+  $("loginCard").classList.remove("hidden");
+  $("dashboardContent").classList.add("hidden");
+}
+function showDashboard(){
+  $("loginCard").classList.add("hidden");
+  $("dashboardContent").classList.remove("hidden");
+}
+
+async function validateAdmin(user){
+  debug("Memeriksa users/"+user.uid);
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists())throw new Error("Profil users/"+user.uid+" tidak ditemukan.");
+  const data=snap.data()||{};
+  const role=String(data.role||"").trim().toLowerCase();
+  const status=String(data.status||"").trim().toLowerCase();
+  debug("Role: "+role);debug("Status: "+status);
+  if(role!=="admin")throw new Error("Akun bukan Admin. Role: "+role);
+  if(status!=="active")throw new Error("Akun Admin tidak aktif. Status: "+status);
+  currentAdmin=data;
+  $("adminEmail").textContent=data.email||user.email||"-";
+}
+
+async function loadApar(){
+  debug("Membaca collection apar...");
+  const snap=await getDocs(collection(db,"apar"));
+  aparRows=[];
+  snap.forEach(s=>aparRows.push({id:s.id,...(s.data()||{})}));
+  aparRows.sort((a,b)=>String(a.assetNumber||a.id).localeCompare(String(b.assetNumber||b.id),undefined,{numeric:true,sensitivity:"base"}));
+  const active=aparRows.filter(x=>String(x.status||"").toLowerCase()==="active").length;
+  const inactive=aparRows.filter(x=>String(x.status||"").toLowerCase()==="inactive").length;
+  $("totalApar").textContent=aparRows.length;
+  $("activeApar").textContent=active;
+  $("inactiveApar").textContent=inactive;
+  renderDashboardApar();
+  renderMasterApar();
+  debug(`APAR ditemukan: ${aparRows.length}`);
+}
+function renderDashboardApar(){
+  const b=$("aparTableBody");
+  if(!aparRows.length){b.innerHTML='<tr><td colspan="6" class="empty">Belum ada data APAR.</td></tr>';return}
+  b.innerHTML=aparRows.map(x=>`<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td></tr>`).join("");
+}
+function renderMasterApar(){
+  const q=String($("aparSearch").value||"").trim().toLowerCase();
+  const rows=aparRows.filter(x=>{
+    if(!q)return true;
+    return [x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id]
+      .some(v=>String(v??"").toLowerCase().includes(q));
+  });
+  const b=$("masterAparBody");
+  if(!rows.length){b.innerHTML='<tr><td colspan="8" class="empty">Data APAR tidak ditemukan.</td></tr>';return}
+  b.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.assetNumber||x.id)}</strong></td>
+    <td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td>
+    <td>${esc(x.serialNumber)}</td><td>${esc(x.typeId)}</td><td>${badge(x.status)}</td>
+    <td><div class="toolbar-left"><button class="small-btn" data-detail-id="${esc(x.id)}" type="button">Detail</button><button class="small-btn" data-edit-id="${esc(x.id)}" type="button">Edit</button></div></td>
+  </tr>`).join("");
+  b.querySelectorAll("[data-detail-id]").forEach(btn=>btn.addEventListener("click",()=>showDetail(btn.dataset.detailId)));
+  b.querySelectorAll("[data-edit-id]").forEach(btn=>btn.addEventListener("click",()=>openAparForm("edit",btn.dataset.editId)));
+}
+
+async function loadInspections(){
+  debug("Membaca collection inspections...");
+  const snap=await getDocs(collection(db,"inspections"));
+  inspectionRows=[];
+  snap.forEach(s=>inspectionRows.push({id:s.id,...(s.data()||{})}));
+  inspectionRows.sort((a,b)=>dateValue(b.inspectionDate||b.createdAt)-dateValue(a.inspectionDate||a.createdAt));
+  $("passApar").textContent=inspectionRows.filter(x=>String(x.result||"").toLowerCase()==="pass").length;
+  const b=$("inspectionTableBody");
+  if(!inspectionRows.length){b.innerHTML='<tr><td colspan="5" class="empty">Belum ada data pemeriksaan.</td></tr>';return}
+  b.innerHTML=inspectionRows.slice(0,10).map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId)}</strong></td><td>${esc(x.inspectorPhone||x.inspectorId)}</td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes)}</td></tr>`).join("");
+  debug(`Pemeriksaan ditemukan: ${inspectionRows.length}`);
+}
+
+async function loadAll(){
+  try{
+    $("reloadBtn").disabled=true;$("reloadAparBtn").disabled=true;
+    setStatus("Memuat data Dashboard dari Firestore...","info");
+    await Promise.all([loadApar(),loadInspections()]);
+    renderMonitoring();
+    setStatus("Dashboard Admin berhasil dimuat dari Firestore.","success");
+  }catch(e){
+    console.error(e);setStatus("Gagal membaca data Dashboard dari Firestore.","error");
+    debug("ERROR: "+(e.code||"-"));debug("MESSAGE: "+(e.message||"-"));
+  }finally{$("reloadBtn").disabled=false;$("reloadAparBtn").disabled=false}
+}
+
+
+function setAparFormStatus(message,type="info"){
+  const e=$("aparFormStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function resetAparForm(){
+  $("aparForm").reset();
+  $("fStatus").value="active";
+  $("fAssetNumber").readOnly=false;
+  $("assetHelp").textContent="Asset Number akan menjadi Document ID Firestore.";
+  $("aparFormStatus").classList.add("hidden");
+}
+
+function openAparForm(mode="create",id=null){
+  aparFormMode=mode;
+  aparEditId=id;
+  resetAparForm();
+
+  if(mode==="edit"){
+    const x=aparRows.find(r=>r.id===id);
+    if(!x)return;
+
+    $("aparFormTitle").textContent="Edit APAR";
+    $("saveAparBtn").textContent="Simpan Perubahan";
+    $("fAssetNumber").value=x.assetNumber||x.id||"";
+    $("fAssetNumber").readOnly=true;
+    $("assetHelp").textContent="Asset Number dikunci agar QR dan riwayat pemeriksaan tetap terhubung.";
+    $("fBrand").value=x.brand||"";
+    $("fCapacity").value=x.capacity||"";
+    $("fLocation").value=x.locationId||"";
+    $("fSerial").value=x.serialNumber||"";
+    $("fType").value=x.typeId||"";
+    $("fStatus").value=String(x.status||"active").toLowerCase()==="inactive"?"inactive":"active";
+  }else{
+    $("aparFormTitle").textContent="Tambah APAR";
+    $("saveAparBtn").textContent="Simpan APAR";
   }
-  from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
+  $("aparFormModal").classList.remove("hidden");
+}
 
-  import {
-    getAuth,
-    RecaptchaVerifier,
-    signInWithPhoneNumber,
-    onAuthStateChanged,
-    signOut
-  }
-  from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+function closeAparForm(){
+  $("aparFormModal").classList.add("hidden");
+  aparFormMode="create";
+  aparEditId=null;
+}
 
-
-  import {
-    getFirestore,
-    collection,
-    getDocs,
-    doc,
-    getDoc,
-    addDoc,
-    serverTimestamp
-  }
-  from
-  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-
-
-  // =========================================================
-  // FIREBASE CONFIG
-  // =========================================================
-  //
-  // GANTI BAGIAN INI DENGAN CONFIG WEB APP FIREBASE ANDA
-  //
-  // Firebase Console
-  // Project Settings
-  // General
-  // Your apps
-  // Web App
-  // SDK setup and configuration
-  //
-  // =========================================================
-
-  const firebaseConfig = {
-
-    apiKey: "AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
-  authDomain: "apar-7a343.firebaseapp.com",
-  projectId: "apar-7a343",
-  storageBucket: "apar-7a343.firebasestorage.app",
-  messagingSenderId: "692076938129",
-  appId: "1:692076938129:web:8583c9d30f47588c135030"
-
+function getAparFormData(){
+  const assetNumber=$("fAssetNumber").value.trim().toUpperCase();
+  return {
+    assetNumber,
+    brand:$("fBrand").value.trim(),
+    capacity:$("fCapacity").value.trim(),
+    locationId:$("fLocation").value.trim().toUpperCase(),
+    serialNumber:$("fSerial").value.trim(),
+    typeId:$("fType").value.trim().toUpperCase(),
+    status:$("fStatus").value
   };
+}
 
+async function saveAparForm(event){
+  event.preventDefault();
 
-  // =========================================================
-  // GLOBAL VARIABLES
-  // =========================================================
-
-  let app = null;
-
-  let auth = null;
-
-  let db = null;
-
-  let recaptchaVerifier = null;
-
-  let confirmationResult = null;
-
-
-  // =========================================================
-  // DOM
-  // =========================================================
-
-  const globalStatus =
-    document.getElementById(
-      "globalStatus"
-    );
-
-
-  const loginCard =
-    document.getElementById(
-      "loginCard"
-    );
-
-
-  const otpCard =
-    document.getElementById(
-      "otpCard"
-    );
-
-
-  const profileCard =
-    document.getElementById(
-      "profileCard"
-    );
-
-
-  const profileStatus =
-    document.getElementById(
-      "profileStatus"
-    );
-
-
-  const debugBox =
-    document.getElementById(
-      "debugBox"
-    );
-
-
-  const phoneNumberInput =
-    document.getElementById(
-      "phoneNumber"
-    );
-
-
-  const otpCodeInput =
-    document.getElementById(
-      "otpCode"
-    );
-
-
-  const sendOtpBtn =
-    document.getElementById(
-      "sendOtpBtn"
-    );
-
-
-  const verifyOtpBtn =
-    document.getElementById(
-      "verifyOtpBtn"
-    );
-
-
-  const resetLoginBtn =
-    document.getElementById(
-      "resetLoginBtn"
-    );
-
-
-  const logoutBtn =
-    document.getElementById(
-      "logoutBtn"
-    );
-
-
-  const aparCard =
-    document.getElementById(
-      "aparCard"
-    );
-
-
-  const aparStatus =
-    document.getElementById(
-      "aparStatus"
-    );
-
-
-  const aparList =
-    document.getElementById(
-      "aparList"
-    );
-
-
-  const qrGeneratorCard =
-    document.getElementById("qrGeneratorCard");
-
-  const qrGeneratorStatus =
-    document.getElementById("qrGeneratorStatus");
-
-  const qrAparSelect =
-    document.getElementById("qrAparSelect");
-
-  const generateQrBtn =
-    document.getElementById("generateQrBtn");
-
-  const qrPreview =
-    document.getElementById("qrPreview");
-
-  const qrGeneratorCanvas =
-    document.getElementById("qr-generator-canvas");
-
-  const qrAssetTitle =
-    document.getElementById("qrAssetTitle");
-
-  const qrAssetMeta =
-    document.getElementById("qrAssetMeta");
-
-  const downloadQrBtn =
-    document.getElementById("downloadQrBtn");
-
-  const printQrBtn =
-    document.getElementById("printQrBtn");
-
-  const printAllQrBtn =
-    document.getElementById("printAllQrBtn");
-
-  const qrAllPreview =
-    document.getElementById("qrAllPreview");
-
-
-  const selectedAparBox =
-    document.getElementById(
-      "selectedAparBox"
-    );
-
-
-  const inspectionCard =
-    document.getElementById(
-      "inspectionCard"
-    );
-
-
-  const inspectionStatus =
-    document.getElementById(
-      "inspectionStatus"
-    );
-
-
-  const historyCard =
-    document.getElementById("historyCard");
-
-  const historyStatus =
-    document.getElementById("historyStatus");
-
-  const historySearch =
-    document.getElementById("historySearch");
-
-  const historyDateFrom =
-    document.getElementById("historyDateFrom");
-
-  const historyDateTo =
-    document.getElementById("historyDateTo");
-
-  const historyResultFilter =
-    document.getElementById("historyResultFilter");
-
-  const historyRefreshBtn =
-    document.getElementById("historyRefreshBtn");
-
-  const historyResetBtn =
-    document.getElementById("historyResetBtn");
-
-  const historyTableBody =
-    document.getElementById("historyTableBody");
-
-  const historyDetail =
-    document.getElementById("historyDetail");
-
-  const historyDetailGrid =
-    document.getElementById("historyDetailGrid");
-
-  const historyPrintBtn =
-    document.getElementById("historyPrintBtn");
-
-  const historyCloseDetailBtn =
-    document.getElementById("historyCloseDetailBtn");
-
-  const printArea =
-    document.getElementById("printArea");
-
-
-
-  const saveInspectionBtn =
-    document.getElementById(
-      "saveInspectionBtn"
-    );
-
-
-  const cancelInspectionBtn =
-    document.getElementById(
-      "cancelInspectionBtn"
-    );
-
-
-  const scannerCard =
-    document.getElementById("scannerCard");
-
-  const scannerStatus =
-    document.getElementById("scannerStatus");
-
-  const qrReader =
-    document.getElementById("qr-reader");
-
-  const scanResult =
-    document.getElementById("scanResult");
-
-  const startScanBtn =
-    document.getElementById("startScanBtn");
-
-  const stopScanBtn =
-    document.getElementById("stopScanBtn");
-
-  const dashboardCard = document.getElementById("dashboardCard");
-  const dashboardStatus = document.getElementById("dashboardStatus");
-  const refreshDashboardBtn = document.getElementById("refreshDashboardBtn");
-  const dashTotal = document.getElementById("dashTotal");
-  const dashPass = document.getElementById("dashPass");
-  const dashFail = document.getElementById("dashFail");
-  const dashUnchecked = document.getElementById("dashUnchecked");
-  const dashAttention = document.getElementById("dashAttention");
-  const dashboardTableWrap = document.getElementById("dashboardTableWrap");
-  const dashboardAttentionWrap = document.getElementById("dashboardAttentionWrap");
-
-  const monitoringCard = document.getElementById("monitoringCard");
-  const monitoringStatusEl = document.getElementById("monitoringStatus");
-  const refreshMonitoringBtn = document.getElementById("refreshMonitoringBtn");
-  const monitorActive = document.getElementById("monitorActive");
-  const monitorInactive = document.getElementById("monitorInactive");
-  const monitorPass = document.getElementById("monitorPass");
-  const monitorFail = document.getElementById("monitorFail");
-  const monitoringTableWrap = document.getElementById("monitoringTableWrap");
-
-
-
-  let currentUser = null;
-
-  let selectedApar = null;
-
-  let aparItems = [];
-
-  let generatedQrApar = null;
-
-  let qrScanner = null;
-
-  let scannerRunning = false;
-
-  let scannerHandlingResult = false;
-
-
-  let inspectionHistory = [];
-
-  let selectedHistoryItem = null;
-  let dashboardAparItems = [];
-
-
-  // =========================================================
-  // DEBUG
-  // =========================================================
-
-  function debug(message) {
-
-    const now =
-      new Date()
-        .toLocaleTimeString(
-          "id-ID"
-        );
-
-
-    debugBox.textContent +=
-      `[${now}] ${message}\n`;
-
-
-    debugBox.scrollTop =
-      debugBox.scrollHeight;
-
-
-    console.log(message);
-
+  if(!currentAdmin){
+    setAparFormStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");
+    return;
   }
 
+  const data=getAparFormData();
 
-  function clearDebug() {
-
-    debugBox.textContent = "";
-
+  if(!data.assetNumber||!data.brand||!data.capacity||!data.locationId||!data.serialNumber||!data.typeId){
+    setAparFormStatus("Semua field wajib diisi.","warning");
+    return;
   }
 
+  const btn=$("saveAparBtn");
+  btn.disabled=true;
+  setAparFormStatus("Menyimpan data APAR ke Firestore...","info");
 
-  // =========================================================
-  // STATUS
-  // =========================================================
+  try{
+    if(aparFormMode==="create"){
+      const ref=doc(db,"apar",data.assetNumber);
+      const existing=await getDoc(ref);
 
-  function setGlobalStatus(
-    message,
-    type = "info"
-  ) {
-
-    globalStatus.textContent =
-      message;
-
-
-    globalStatus.className =
-      `status status-${type}`;
-
-  }
-
-
-  function setProfileStatus(
-    message,
-    type = "info"
-  ) {
-
-    profileStatus.textContent =
-      message;
-
-
-    profileStatus.className =
-      `status status-${type}`;
-
-  }
-
-
-  // =========================================================
-  // CHECK CONFIG
-  // =========================================================
-
-  function isConfigValid() {
-
-    const required = [
-
-      "apiKey",
-      "authDomain",
-      "projectId",
-      "storageBucket",
-      "messagingSenderId",
-      "appId"
-
-    ];
-
-
-    for (
-      const key of required
-    ) {
-
-      const value =
-        firebaseConfig[key];
-
-
-      if (
-        !value ||
-        String(value)
-          .startsWith(
-            "GANTI_"
-          )
-      ) {
-
-        return false;
-
+      if(existing.exists()){
+        throw new Error(`Asset Number ${data.assetNumber} sudah terdaftar.`);
       }
 
-    }
-
-
-    return true;
-
-  }
-
-
-  // =========================================================
-  // INITIALIZE FIREBASE
-  // =========================================================
-
-  function initializeFirebase() {
-
-    try {
-
-      if (!isConfigValid()) {
-
-        setGlobalStatus(
-          "Firebase Config belum lengkap.",
-          "error"
-        );
-
-
-        debug(
-          "ERROR: Firebase Config belum lengkap."
-        );
-
-
-        debug(
-          "Periksa apiKey, storageBucket, messagingSenderId, dan appId."
-        );
-
-
-        return false;
-
-      }
-
-
-      app =
-        initializeApp(
-          firebaseConfig
-        );
-
-
-      auth =
-        getAuth(app);
-
-
-      db =
-        getFirestore(app);
-
-
-      /*
-       * =====================================================
-       * PENTING:
-       *
-       * Mode ini HANYA untuk testing nomor fiktif Firebase.
-       *
-       * Harus dipasang SEBELUM RecaptchaVerifier dibuat.
-       * =====================================================
-       */
-
-      auth.settings
-        .appVerificationDisabledForTesting =
-          true;
-
-
-      debug(
-        "Firebase berhasil diinisialisasi."
-      );
-
-
-      debug(
-        "Project ID: " +
-        firebaseConfig.projectId
-      );
-
-
-      debug(
-        "Auth Domain: " +
-        firebaseConfig.authDomain
-      );
-
-
-      debug(
-        "Mode testing Phone Auth: AKTIF"
-      );
-
-
-      debug(
-        "appVerificationDisabledForTesting = true"
-      );
-
-
-      setGlobalStatus(
-        "Firebase berhasil diinisialisasi. Mode testing aktif.",
-        "success"
-      );
-
-
-      return true;
-
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      setGlobalStatus(
-        "Gagal menginisialisasi Firebase.",
-        "error"
-      );
-
-
-      debug(
-        "Firebase initialization error:"
-      );
-
-
-      debug(
-        "Code: " +
-        (error.code || "-")
-      );
-
-
-      debug(
-        "Message: " +
-        (error.message || "-")
-      );
-
-
-      return false;
-
-    }
-
-  }
-
-
-  // =========================================================
-  // CREATE TEST RECAPTCHA
-  // =========================================================
-
-  async function createRecaptcha() {
-
-    if (!auth) {
-
-      throw new Error(
-        "Firebase Auth belum siap."
-      );
-
-    }
-
-
-    /*
-     * Jika sebelumnya sudah ada verifier,
-     * bersihkan terlebih dahulu.
-     */
-
-    if (recaptchaVerifier) {
-
-      try {
-
-        recaptchaVerifier.clear();
-
-      } catch (error) {
-
-        debug(
-          "Warning saat clear reCAPTCHA: " +
-          error.message
-        );
-
-      }
-
-
-      recaptchaVerifier =
-        null;
-
-    }
-
-
-    const container =
-      document.getElementById(
-        "recaptcha-container"
-      );
-
-
-    container.innerHTML = "";
-
-
-    debug(
-      "Membuat mock reCAPTCHA untuk testing..."
-    );
-
-
-    /*
-     * Karena appVerificationDisabledForTesting
-     * sudah TRUE sebelum verifier dibuat,
-     * Firebase akan menggunakan mock reCAPTCHA.
-     */
-
-    recaptchaVerifier =
-      new RecaptchaVerifier(
-        auth,
-        "recaptcha-container",
-        {
-
-          size: "normal",
-
-          callback: function() {
-
-            debug(
-              "Mock reCAPTCHA berhasil diverifikasi."
-            );
-
-          },
-
-          "expired-callback":
-            function() {
-
-              debug(
-                "Mock reCAPTCHA expired."
-              );
-
-            }
-
-        }
-      );
-
-
-    try {
-
-      await recaptchaVerifier.render();
-
-
-      debug(
-        "Mock reCAPTCHA berhasil dibuat."
-      );
-
-
-    } catch (error) {
-
-      debug(
-        "Gagal membuat mock reCAPTCHA."
-      );
-
-
-      debug(
-        "Code: " +
-        (error.code || "-")
-      );
-
-
-      debug(
-        "Message: " +
-        (error.message || "-")
-      );
-
-
-      throw error;
-
-    }
-
-  }
-
-
-  // =========================================================
-  // SEND OTP
-  // =========================================================
-
-  sendOtpBtn.addEventListener(
-    "click",
-    async function() {
-
-      if (!auth) {
-
-        alert(
-          "Firebase belum siap."
-        );
-
-        return;
-
-      }
-
-
-      let phoneNumber =
-        phoneNumberInput.value.trim();
-
-
-      /*
-       * Nomor testing.
-       *
-       * Kita izinkan pengguna mengedit,
-       * tetapi normalisasi sederhana dilakukan
-       * agar format +62 812-3456-7890 tetap valid.
-       */
-
-      phoneNumber =
-        phoneNumber
-          .replace(/\s+/g, "")
-          .replace(/-/g, "")
-          .replace(/\(/g, "")
-          .replace(/\)/g, "");
-
-
-      if (!phoneNumber) {
-
-        alert(
-          "Masukkan nomor HP."
-        );
-
-        return;
-
-      }
-
-
-      clearDebug();
-
-
-      debug(
-        "================================"
-      );
-
-
-      debug(
-        "MULAI TEST PHONE AUTH"
-      );
-
-
-      debug(
-        "================================"
-      );
-
-
-      debug(
-        "Nomor HP: " +
-        phoneNumber
-      );
-
-
-      debug(
-        "Mode testing: AKTIF"
-      );
-
-
-      debug(
-        "Nomor harus terdaftar sebagai Test Phone Number di Firebase."
-      );
-
-
-      sendOtpBtn.disabled =
-        true;
-
-
-      setGlobalStatus(
-        "Menyiapkan verifikasi testing...",
-        "info"
-      );
-
-
-      try {
-
-        /*
-         * Pastikan setting testing masih aktif.
-         */
-
-        auth.settings
-          .appVerificationDisabledForTesting =
-            true;
-
-
-        /*
-         * Buat mock reCAPTCHA
-         * setelah setting testing aktif.
-         */
-
-        await createRecaptcha();
-
-
-        setGlobalStatus(
-          "Memproses nomor testing...",
-          "info"
-        );
-
-
-        debug(
-          "Memanggil signInWithPhoneNumber()..."
-        );
-
-
-        confirmationResult =
-          await signInWithPhoneNumber(
-            auth,
-            phoneNumber,
-            recaptchaVerifier
-          );
-
-
-        debug(
-          "signInWithPhoneNumber() berhasil."
-        );
-
-
-        debug(
-          "Firebase siap menerima kode testing."
-        );
-
-
-        setGlobalStatus(
-          "Nomor diterima. Masukkan OTP testing.",
-          "success"
-        );
-
-
-        loginCard.classList.add(
-          "hidden"
-        );
-
-
-        otpCard.classList.remove(
-          "hidden"
-        );
-
-
-        otpCodeInput.focus();
-
-
-      } catch (error) {
-
-        console.error(error);
-
-
-        debug(
-          "================================"
-        );
-
-
-        debug(
-          "GAGAL MENGIRIM / MEMPROSES OTP"
-        );
-
-
-        debug(
-          "================================"
-        );
-
-
-        debug(
-          "Code: " +
-          (error.code || "-")
-        );
-
-
-        debug(
-          "Message: " +
-          (error.message || "-")
-        );
-
-
-        if (
-          error.code ===
-          "auth/invalid-phone-number"
-        ) {
-
-          debug(
-            "Nomor HP tidak valid."
-          );
-
-        }
-
-
-        if (
-          error.code ===
-          "auth/too-many-requests"
-        ) {
-
-          debug(
-            "Terlalu banyak percobaan."
-          );
-
-        }
-
-
-        if (
-          error.code ===
-          "auth/quota-exceeded"
-        ) {
-
-          debug(
-            "Quota Firebase Authentication terlampaui."
-          );
-
-        }
-
-
-        if (
-          error.code ===
-          "auth/internal-error"
-        ) {
-
-          debug(
-            "Firebase mengembalikan internal-error."
-          );
-
-
-          debug(
-            "Periksa kembali Firebase Web App Config dan Phone Authentication."
-          );
-
-        }
-
-
-        setGlobalStatus(
-          "Gagal memproses Phone Authentication: " +
-          (error.message || "Unknown error"),
-          "error"
-        );
-
-
-        /*
-         * Reset verifier supaya percobaan berikutnya
-         * mendapatkan verifier baru.
-         */
-
-        if (recaptchaVerifier) {
-
-          try {
-
-            recaptchaVerifier.clear();
-
-          } catch (e) {}
-
-          recaptchaVerifier =
-            null;
-
-        }
-
-
-        document.getElementById(
-          "recaptcha-container"
-        ).innerHTML = "";
-
-
-      } finally {
-
-        sendOtpBtn.disabled =
-          false;
-
-      }
-
-    }
-  );
-
-
-  // =========================================================
-  // VERIFY OTP
-  // =========================================================
-
-  verifyOtpBtn.addEventListener(
-    "click",
-    async function() {
-
-      if (!confirmationResult) {
-
-        alert(
-          "Belum ada proses OTP."
-        );
-
-        return;
-
-      }
-
-
-      const code =
-        otpCodeInput.value.trim();
-
-
-      if (!code) {
-
-        alert(
-          "Masukkan kode OTP."
-        );
-
-        return;
-
-      }
-
-
-      verifyOtpBtn.disabled =
-        true;
-
-
-      clearDebug();
-
-
-      debug(
-        "================================"
-      );
-
-
-      debug(
-        "VERIFIKASI OTP"
-      );
-
-
-      debug(
-        "================================"
-      );
-
-
-      debug(
-        "Kode OTP: " +
-        code
-      );
-
-
-      try {
-
-        const result =
-          await confirmationResult
-            .confirm(code);
-
-
-        const user =
-          result.user;
-
-
-        currentUser = user;
-
-
-        debug(
-          "OTP berhasil diverifikasi."
-        );
-
-
-        debug(
-          "Authentication berhasil."
-        );
-
-
-        debug(
-          "Firebase UID: " +
-          user.uid
-        );
-
-
-        debug(
-          "Phone: " +
-          (user.phoneNumber || "-")
-        );
-
-
-        setGlobalStatus(
-          "Authentication berhasil.",
-          "success"
-        );
-
-
-        loginCard.classList.add(
-          "hidden"
-        );
-
-
-        otpCard.classList.add(
-          "hidden"
-        );
-
-
-        profileCard.classList.remove(
-          "hidden"
-        );
-
-
-        await checkInspectorProfile(
-          user
-        );
-
-
-      } catch (error) {
-
-        console.error(error);
-
-
-        debug(
-          "Gagal memverifikasi OTP."
-        );
-
-
-        debug(
-          "Code: " +
-          (error.code || "-")
-        );
-
-
-        debug(
-          "Message: " +
-          (error.message || "-")
-        );
-
-
-        setGlobalStatus(
-          "OTP tidak valid.",
-          "error"
-        );
-
-
-      } finally {
-
-        verifyOtpBtn.disabled =
-          false;
-
-      }
-
-    }
-  );
-
-
-  // =========================================================
-  // CHECK INSPECTOR PROFILE
-  // =========================================================
-
-  async function checkInspectorProfile(
-    user
-  ) {
-
-    setProfileStatus(
-      "Membaca users/" +
-      user.uid +
-      "...",
-      "info"
-    );
-
-
-    document.getElementById(
-      "uidValue"
-    ).textContent =
-      user.uid;
-
-
-    document.getElementById(
-      "phoneValue"
-    ).textContent =
-      user.phoneNumber || "-";
-
-
-    debug(
-      "================================"
-    );
-
-
-    debug(
-      "MEMERIKSA FIRESTORE USER"
-    );
-
-
-    debug(
-      "================================"
-    );
-
-
-    debug(
-      "Collection: users"
-    );
-
-
-    debug(
-      "Document ID: " +
-      user.uid
-    );
-
-
-    try {
-
-      const userRef =
-        doc(
-          db,
-          "users",
-          user.uid
-        );
-
-
-      const snapshot =
-        await getDoc(
-          userRef
-        );
-
-
-      /*
-       * -----------------------------------------------------
-       * USER BELUM ADA
-       * -----------------------------------------------------
-       */
-
-      if (!snapshot.exists()) {
-
-        debug(
-          "Document users/" +
-          user.uid +
-          " BELUM ADA."
-        );
-
-
-        document.getElementById(
-          "nameValue"
-        ).textContent =
-          "-";
-
-
-        document.getElementById(
-          "emailValue"
-        ).textContent =
-          user.email || "-";
-
-
-        document.getElementById(
-          "roleValue"
-        ).innerHTML =
-          `
-          <span class="badge badge-warning">
-            BELUM ADA
-          </span>
-          `;
-
-
-        document.getElementById(
-          "statusValue"
-        ).innerHTML =
-          `
-          <span class="badge badge-warning">
-            BELUM ADA
-          </span>
-          `;
-
-
-        setProfileStatus(
-          "Authentication berhasil, tetapi profil Inspector belum dibuat di Firestore.",
-          "warning"
-        );
-
-
-        debug(
-          "--------------------------------"
-        );
-
-
-        debug(
-          "AUTHENTICATION: BERHASIL"
-        );
-
-
-        debug(
-          "FIRESTORE PROFILE: BELUM ADA"
-        );
-
-
-        debug(
-          "--------------------------------"
-        );
-
-
-        debug(
-          "Document yang harus dibuat:"
-        );
-
-
-        debug(
-          "users/" +
-          user.uid
-        );
-
-
-        debug(
-          "Contoh field:"
-        );
-
-
-        debug(
-          'name: "Inspector"'
-        );
-
-
-        debug(
-          'role: "inspector"'
-        );
-
-
-        debug(
-          'status: "active"'
-        );
-
-
-        return;
-
-      }
-
-
-      /*
-       * -----------------------------------------------------
-       * USER ADA
-       * -----------------------------------------------------
-       */
-
-      const data =
-        snapshot.data();
-
-
-      debug(
-        "Document user ditemukan."
-      );
-
-
-      debug(
-        "Data Firestore:"
-      );
-
-
-      debug(
-        JSON.stringify(
-          data,
-          null,
-          2
-        )
-      );
-
-
-      const name =
-        data.name || "-";
-
-
-      const email =
-        data.email ||
-        user.email ||
-        "-";
-
-
-      const role =
-        data.role || "-";
-
-
-      const status =
-        data.status || "-";
-
-
-      document.getElementById(
-        "nameValue"
-      ).textContent =
-        name;
-
-
-      document.getElementById(
-        "emailValue"
-      ).textContent =
-        email;
-
-
-      document.getElementById(
-        "roleValue"
-      ).innerHTML =
-        formatRole(
-          role
-        );
-
-
-      document.getElementById(
-        "statusValue"
-      ).innerHTML =
-        formatStatus(
-          status
-        );
-
-
-      /*
-       * -----------------------------------------------------
-       * VALIDASI INSPECTOR
-       * -----------------------------------------------------
-       */
-
-      const isInspector =
-        String(role)
-          .trim()
-          .toLowerCase() ===
-        "inspector";
-
-
-      const isActive =
-        String(status)
-          .trim()
-          .toLowerCase() ===
-        "active";
-
-
-      debug(
-        "Role: " +
-        role
-      );
-
-
-      debug(
-        "Status: " +
-        status
-      );
-
-
-      debug(
-        "isInspector = " +
-        isInspector
-      );
-
-
-      debug(
-        "isActive = " +
-        isActive
-      );
-
-
-      if (
-        isInspector &&
-        isActive
-      ) {
-
-        setProfileStatus(
-          "LOGIN INSPECTOR BERHASIL — AKUN VALID.",
-          "success"
-        );
-
-
-        debug(
-          "================================"
-        );
-
-
-        debug(
-          "INSPECTOR VALID"
-        );
-
-
-        debug(
-          "================================"
-        );
-
-
-        debug(
-          "role = inspector"
-        );
-
-
-        debug(
-          "status = active"
-        );
-
-
-        debug(
-          "User boleh dianggap Inspector aktif."
-        );
-
-        dashboardCard.classList.remove("hidden");
-        await loadDashboard();
-
-        await loadInspectionHistory();
-
-        monitoringCard.classList.remove("hidden");
-        await loadV13Monitoring();
-
-        scannerCard.classList.remove("hidden");
-
-        setScannerStatus(
-          "Siap. Pilih APAR dari daftar atau scan QR Code APAR.",
-          "info"
-        );
-
-        await loadAparList();
-        await loadInspectionHistory();
-
-
-      } else {
-
-        setProfileStatus(
-          "Login berhasil, tetapi role/status belum sesuai.",
-          "error"
-        );
-
-
-        debug(
-          "================================"
-        );
-
-
-        debug(
-          "INSPECTOR TIDAK VALID"
-        );
-
-
-        debug(
-          "================================"
-        );
-
-
-        debug(
-          "Role yang diperlukan: inspector"
-        );
-
-
-        debug(
-          "Status yang diperlukan: active"
-        );
-
-
-        debug(
-          "Role sekarang: " +
-          role
-        );
-
-
-        debug(
-          "Status sekarang: " +
-          status
-        );
-
-      }
-
-
-    } catch (error) {
-
-      console.error(error);
-
-
-      debug(
-        "================================"
-      );
-
-
-      debug(
-        "GAGAL MEMBACA FIRESTORE"
-      );
-
-
-      debug(
-        "================================"
-      );
-
-
-      debug(
-        "Code: " +
-        (error.code || "-")
-      );
-
-
-      debug(
-        "Message: " +
-        (error.message || "-")
-      );
-
-
-      if (
-        error.code ===
-        "permission-denied"
-      ) {
-
-        debug(
-          "Security Rules menolak pembacaan users/{UID}."
-        );
-
-      }
-
-
-      setProfileStatus(
-        "Tidak dapat membaca profil Inspector dari Firestore.",
-        "error"
-      );
-
-    }
-
-  }
-
-
-  // =========================================================
-  // LOAD APAR
-  // =========================================================
-
-  async function loadAparList() {
-
-    aparCard.classList.remove("hidden");
-    aparStatus.textContent = "Membaca collection apar dari Firestore...";
-    aparStatus.className = "status status-info";
-    aparList.innerHTML = "";
-    selectedAparBox.classList.add("hidden");
-
-    debug("================================");
-    debug("MEMBACA COLLECTION APAR");
-    debug("================================");
-    debug("Collection: apar");
-
-    try {
-      const snapshot = await getDocs(collection(db, "apar"));
-      debug("Jumlah dokumen APAR: " + snapshot.size);
-
-      if (snapshot.empty) {
-        aparStatus.textContent = "Collection apar berhasil dibaca, tetapi belum ada data APAR.";
-        aparStatus.className = "status status-warning";
-        aparList.innerHTML = '<div class="apar-empty">Belum ada data APAR di Firestore.</div>';
-        aparItems = [];
-        initializeQrGenerator([]);
-        return;
-      }
-
-      const rawItems = snapshot.docs.map(function(documentSnapshot) {
-        const data = documentSnapshot.data() || {};
-
-        return {
-          id: documentSnapshot.id,
-          data: data,
-          assetNumber:
-            data.assetNumber ||
-            data.asset_number ||
-            data.assetNo ||
-            data.asset_no ||
-            data.kode ||
-            data.code ||
-            data.Field ||
-            documentSnapshot.id,
-          brand: data.brand || data.merk || "-",
-          capacity: data.capacity || data.kapasitas || "-",
-          location:
-            data.location ||
-            data.lokasi ||
-            data.locationName ||
-            data.lokasiNama ||
-            data.locationId ||
-            "-",
-          serial:
-            data.serialNumber ||
-            data.serial_number ||
-            data.serial ||
-            "-",
-          type:
-            data.type ||
-            data.tipe ||
-            data.typeId ||
-            "-",
-          status: data.status || "-"
-        };
+      await setDoc(ref,{
+        ...data,
+        createdAt:serverTimestamp(),
+        updatedAt:serverTimestamp(),
+        updatedBy:currentAdmin.email||currentAdmin.uid||"admin"
       });
 
-      /*
-       * Hilangkan duplikat Asset Number.
-       * Jika ada beberapa dokumen dengan Asset Number yang sama,
-       * dokumen dengan ID = Asset Number diprioritaskan.
-       */
-      const itemMap = new Map();
+      debug("APAR baru berhasil dibuat: "+data.assetNumber);
+      closeAparForm();
+      setStatus(`APAR ${data.assetNumber} berhasil ditambahkan.`,"success");
+    }else{
+      if(!aparEditId)throw new Error("Document ID APAR untuk edit tidak ditemukan.");
 
-      rawItems.forEach(function(item) {
-        const key =
-          String(item.assetNumber || item.id)
-            .trim()
-            .toUpperCase();
-
-        const existing = itemMap.get(key);
-
-        if (
-          !existing ||
-          String(item.id).trim().toUpperCase() === key
-        ) {
-          itemMap.set(key, item);
-        }
+      await updateDoc(doc(db,"apar",aparEditId),{
+        brand:data.brand,
+        capacity:data.capacity,
+        locationId:data.locationId,
+        serialNumber:data.serialNumber,
+        typeId:data.typeId,
+        status:data.status,
+        updatedAt:serverTimestamp(),
+        updatedBy:currentAdmin.email||currentAdmin.uid||"admin"
       });
 
-      const items = Array.from(itemMap.values());
-
-      aparItems = items;
-
-      initializeQrGenerator(items);
-
-      debug("Data APAR berhasil dibaca:");
-      debug(JSON.stringify(items, null, 2));
-
-      aparStatus.textContent =
-        items.length + " APAR unik berhasil ditemukan.";
-      aparStatus.className = "status status-success";
-
-      items.forEach(function(item) {
-        const wrapper = document.createElement("div");
-        wrapper.className = "apar-item";
-
-        const title = document.createElement("div");
-        title.className = "apar-item-title";
-        title.textContent = item.assetNumber;
-
-        const meta = document.createElement("div");
-        meta.className = "apar-item-meta";
-        meta.textContent =
-          "Brand: " + item.brand +
-          " | Capacity: " + item.capacity +
-          " | Location: " + item.location +
-          " | Status: " + item.status;
-
-        const button = document.createElement("button");
-        button.type = "button";
-        button.className = "btn-primary";
-        button.textContent = "Pilih APAR";
-        button.addEventListener("click", function() {
-          selectApar(item);
-        });
-
-        wrapper.appendChild(title);
-        wrapper.appendChild(meta);
-        wrapper.appendChild(button);
-        aparList.appendChild(wrapper);
-      });
-
-    } catch (error) {
-      console.error(error);
-      debug("================================");
-      debug("GAGAL MEMBACA COLLECTION APAR");
-      debug("================================");
-      debug("Code: " + (error.code || "-"));
-      debug("Message: " + (error.message || "-"));
-
-      if (error.code === "permission-denied") {
-        debug("Security Rules menolak pembacaan collection apar.");
-      }
-
-      aparStatus.textContent = "Gagal membaca data APAR dari Firestore.";
-      aparStatus.className = "status status-error";
-      aparList.innerHTML = '<div class="apar-empty">Periksa Firestore Rules dan pastikan collection "apar" dapat dibaca oleh Inspector.</div>';
+      debug("APAR berhasil diperbarui: "+aparEditId);
+      closeAparForm();
+      setStatus(`APAR ${data.assetNumber} berhasil diperbarui.`,"success");
     }
+
+    await loadApar();
+  }catch(e){
+    console.error(e);
+    setAparFormStatus(e.message||"Gagal menyimpan APAR.","error");
+    debug("SIMPAN APAR ERROR: "+(e.code||"-")+" "+(e.message||""));
+  }finally{
+    btn.disabled=false;
   }
+}
 
 
+function setMonitoringStatus(message,type="info"){
+  const e=$("monitoringStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
 
+function inspectionAssetKey(x){
+  return String(x.aparAssetNumber || x.aparId || "").trim();
+}
 
-  // =========================================================
-  // SELF-CONTAINED QR ENCODER
-  // =========================================================
-  // Tidak bergantung pada CDN QR library. Menggunakan QR Version 1-L
-  // dengan mode byte, cukup untuk Asset Number APAR (maks. 17 byte).
-  // =========================================================
+function inspectorLabel(x){
+  return x.inspectorPhone || x.inspectorId || x.inspectorEmail || "-";
+}
 
-  const SimpleQr = (() => {
-    const SIZE = 21;
-    const DATA_CODEWORDS = 19;
-    const TOTAL_CODEWORDS = 26;
-    const ECC_CODEWORDS = 7;
+function buildMonitoringRows(){
+  const byAsset=new Map();
 
-    function utf8Bytes(text) {
-      const bytes = [];
-      for (const ch of String(text)) {
-        const cp = ch.codePointAt(0);
-        if (cp <= 0x7f) bytes.push(cp);
-        else if (cp <= 0x7ff) bytes.push(0xc0 | (cp >> 6), 0x80 | (cp & 63));
-        else if (cp <= 0xffff) bytes.push(0xe0 | (cp >> 12), 0x80 | ((cp >> 6) & 63), 0x80 | (cp & 63));
-        else bytes.push(0xf0 | (cp >> 18), 0x80 | ((cp >> 12) & 63), 0x80 | ((cp >> 6) & 63), 0x80 | (cp & 63));
-      }
-      return bytes;
+  inspectionRows.forEach(ins=>{
+    const key=inspectionAssetKey(ins);
+    if(!key)return;
+    const time=dateValue(ins.inspectionDate||ins.createdAt);
+    const existing=byAsset.get(key);
+    if(!existing || time > existing._time){
+      byAsset.set(key,{...ins,_time:time});
     }
-
-    function makeData(text) {
-      const bytes = utf8Bytes(text);
-      if (bytes.length > 17) {
-        throw new Error("Asset Number terlalu panjang untuk QR Version 1. Maksimal 17 byte.");
-      }
-      const bits = [];
-      const put = (v, n) => { for (let i = n - 1; i >= 0; i--) bits.push((v >>> i) & 1); };
-      put(0x4, 4); // byte mode
-      put(bytes.length, 8);
-      bytes.forEach(b => put(b, 8));
-      const maxBits = DATA_CODEWORDS * 8;
-      for (let i = 0; i < Math.min(4, maxBits - bits.length); i++) bits.push(0);
-      while (bits.length % 8) bits.push(0);
-      const out = [];
-      for (let i = 0; i < bits.length; i += 8) {
-        let v = 0;
-        for (let j = 0; j < 8; j++) v = (v << 1) | bits[i + j];
-        out.push(v);
-      }
-      let pad = 0;
-      while (out.length < DATA_CODEWORDS) out.push((pad++ % 2 === 0) ? 0xec : 0x11);
-      return out;
-    }
-
-    function rsRemainder(data) {
-      const gen = [127,122,154,164,11,68,117];
-      const rem = new Array(ECC_CODEWORDS).fill(0);
-      for (const b of data) {
-        const factor = b ^ rem[0];
-        for (let i = 0; i < ECC_CODEWORDS - 1; i++) rem[i] = rem[i + 1] ^ gfMul(gen[i], factor);
-        rem[ECC_CODEWORDS - 1] = gfMul(gen[ECC_CODEWORDS - 1], factor);
-      }
-      return rem;
-    }
-
-    function gfMul(x, y) {
-      let z = 0;
-      while (y) {
-        if (y & 1) z ^= x;
-        y >>>= 1;
-        x <<= 1;
-        if (x & 0x100) x ^= 0x11d;
-      }
-      return z;
-    }
-
-    function bchTypeInfo(data) {
-      let v = data << 10;
-      const g = 0x537;
-      while ((v >>> 10) !== 0) {
-        const shift = Math.floor(Math.log2(v)) - 10;
-        v ^= g << shift;
-      }
-      return ((data << 10) | v) ^ 0x5412;
-    }
-
-    function newMatrix() {
-      return Array.from({length: SIZE}, () => Array(SIZE).fill(null));
-    }
-
-    function setFunctionModule(m, r, c, v) {
-      m[r][c] = !!v;
-    }
-
-    function finder(m, r, c) {
-      for (let dr = -1; dr <= 7; dr++) {
-        for (let dc = -1; dc <= 7; dc++) {
-          const rr = r + dr, cc = c + dc;
-          if (rr < 0 || rr >= SIZE || cc < 0 || cc >= SIZE) continue;
-          let v = false;
-          if (dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 && (dr === 0 || dr === 6 || dc === 0 || dc === 6)) v = true;
-          else if (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4) v = true;
-          setFunctionModule(m, rr, cc, v);
-        }
-      }
-    }
-
-    function setupFunctionPatterns(m) {
-      finder(m, 0, 0);
-      finder(m, 0, SIZE - 7);
-      finder(m, SIZE - 7, 0);
-      for (let i = 8; i < SIZE - 8; i++) {
-        if (m[6][i] === null) setFunctionModule(m, 6, i, i % 2 === 0);
-        if (m[i][6] === null) setFunctionModule(m, i, 6, i % 2 === 0);
-      }
-      // Version 1 has no alignment patterns.
-      setFunctionModule(m, SIZE - 8, 8, true); // dark module
-      // Reserve format areas.
-      for (let i = 0; i < 9; i++) {
-        if (m[i][8] === null) m[i][8] = false;
-        if (m[8][i] === null) m[8][i] = false;
-      }
-      for (let i = 0; i < 8; i++) {
-        if (m[8][SIZE - 1 - i] === null) m[8][SIZE - 1 - i] = false;
-        if (m[SIZE - 1 - i][8] === null) m[SIZE - 1 - i][8] = false;
-      }
-    }
-
-    function drawFormat(m, mask) {
-      const bits = bchTypeInfo((1 << 3) | mask); // ECC L = 01
-      for (let i = 0; i < 15; i++) {
-        const bit = ((bits >>> i) & 1) !== 0;
-        // Vertical format information around top-left.
-        if (i < 6) m[i][8] = bit;
-        else if (i < 8) m[i + 1][8] = bit;
-        else m[SIZE - 15 + i][8] = bit;
-        // Horizontal format information around top-left.
-        if (i < 8) m[8][SIZE - i - 1] = bit;
-        else if (i < 9) m[8][15 - i] = bit;
-        else m[8][15 - i - 1] = bit;
-      }
-      m[SIZE - 8][8] = true;
-    }
-
-    function isMasked(mask, r, c) {
-      switch (mask) {
-        case 0: return (r + c) % 2 === 0;
-        case 1: return r % 2 === 0;
-        case 2: return c % 3 === 0;
-        case 3: return (r + c) % 3 === 0;
-        case 4: return (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0;
-        case 5: return ((r * c) % 2 + (r * c) % 3) === 0;
-        case 6: return (((r * c) % 2 + (r * c) % 3) % 2) === 0;
-        case 7: return (((r * c) % 3 + (r + c) % 2) % 2) === 0;
-        default: return false;
-      }
-    }
-
-    function codewords(text) {
-      const data = makeData(text);
-      return data.concat(rsRemainder(data));
-    }
-
-    function placeData(m, cw, mask) {
-      const bits = [];
-      cw.forEach(b => { for (let i = 7; i >= 0; i--) bits.push((b >>> i) & 1); });
-      let idx = 0, upward = true;
-      for (let right = SIZE - 1; right >= 1; right -= 2) {
-        if (right === 6) right--;
-        for (let k = 0; k < SIZE; k++) {
-          const r = upward ? SIZE - 1 - k : k;
-          for (let j = 0; j < 2; j++) {
-            const c = right - j;
-            if (m[r][c] !== null) continue;
-            let bit = idx < bits.length ? bits[idx++] : 0;
-            if (isMasked(mask, r, c)) bit ^= 1;
-            m[r][c] = !!bit;
-          }
-        }
-        upward = !upward;
-      }
-    }
-
-    function penalty(m) {
-      let p = 0;
-      // Adjacent modules in row/column.
-      for (let r = 0; r < SIZE; r++) {
-        let run = 1;
-        for (let c = 1; c < SIZE; c++) {
-          if (m[r][c] === m[r][c-1]) run++; else { if (run >= 5) p += 3 + run - 5; run = 1; }
-        }
-        if (run >= 5) p += 3 + run - 5;
-      }
-      for (let c = 0; c < SIZE; c++) {
-        let run = 1;
-        for (let r = 1; r < SIZE; r++) {
-          if (m[r][c] === m[r-1][c]) run++; else { if (run >= 5) p += 3 + run - 5; run = 1; }
-        }
-        if (run >= 5) p += 3 + run - 5;
-      }
-      // 2x2 blocks.
-      for (let r = 0; r < SIZE - 1; r++) for (let c = 0; c < SIZE - 1; c++) {
-        const a = m[r][c];
-        if (a === m[r+1][c] && a === m[r][c+1] && a === m[r+1][c+1]) p += 3;
-      }
-      // Finder-like 1:1:3:1:1 patterns with four light modules before/after.
-      const pat = [true,false,true,true,true,false,true];
-      for (let r = 0; r < SIZE; r++) for (let c = 0; c <= SIZE - 7; c++) {
-        let ok = true; for (let k = 0; k < 7; k++) if (m[r][c+k] !== pat[k]) { ok = false; break; }
-        if (ok) { if (c >= 4 && !m[r][c-1] && !m[r][c-2] && !m[r][c-3] && !m[r][c-4]) p += 40; if (c + 11 < SIZE && !m[r][c+7] && !m[r][c+8] && !m[r][c+9] && !m[r][c+10]) p += 40; }
-      }
-      for (let c = 0; c < SIZE; c++) for (let r = 0; r <= SIZE - 7; r++) {
-        let ok = true; for (let k = 0; k < 7; k++) if (m[r+k][c] !== pat[k]) { ok = false; break; }
-        if (ok) { if (r >= 4 && !m[r-1][c] && !m[r-2][c] && !m[r-3][c] && !m[r-4][c]) p += 40; if (r + 11 < SIZE && !m[r+7][c] && !m[r+8][c] && !m[r+9][c] && !m[r+10][c]) p += 40; }
-      }
-      const dark = m.flat().filter(Boolean).length;
-      p += Math.floor(Math.abs(dark * 20 - SIZE * SIZE * 10) / (SIZE * SIZE)) * 10;
-      return p;
-    }
-
-    function make(text) {
-      const cw = codewords(text);
-      let best = null, bestScore = Infinity;
-      for (let mask = 0; mask < 8; mask++) {
-        const m = newMatrix();
-        setupFunctionPatterns(m);
-        placeData(m, cw, mask);
-        drawFormat(m, mask);
-        const score = penalty(m);
-        if (score < bestScore) { bestScore = score; best = m; }
-      }
-      return best;
-    }
-
-    function toCanvas(canvas, text, opts = {}) {
-      const width = Math.max(100, Number(opts.width) || 260);
-      const margin = Math.max(0, Number(opts.margin) || 2);
-      const scale = width / (SIZE + margin * 2);
-      const actual = Math.round(scale * (SIZE + margin * 2));
-      canvas.width = actual;
-      canvas.height = actual;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, actual, actual);
-      ctx.fillStyle = '#000000';
-      const m = make(text);
-      for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (m[r][c]) {
-        const x0 = Math.round((c + margin) * scale), y0 = Math.round((r + margin) * scale);
-        const x1 = Math.round((c + 1 + margin) * scale), y1 = Math.round((r + 1 + margin) * scale);
-        ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
-      }
-      return canvas;
-    }
-
-    function toDataURL(text, opts = {}) {
-      const canvas = document.createElement('canvas');
-      toCanvas(canvas, text, opts);
-      return canvas.toDataURL('image/png');
-    }
-
-    return { toCanvas, toDataURL };
-  })();
-
-  // =========================================================
-  // QR GENERATOR APAR
-  // =========================================================
-
-  function setQrGeneratorStatus(message, type = "info") {
-    qrGeneratorStatus.textContent = message;
-    qrGeneratorStatus.className = "status status-" + type;
-  }
-
-
-  function getAparMetaText(item) {
-    return "Brand: " + item.brand +
-      " | Capacity: " + item.capacity +
-      " | Location: " + item.location +
-      " | Serial: " + item.serial;
-  }
-
-
-  function initializeQrGenerator(items) {
-
-    qrGeneratorCard.classList.remove("hidden");
-
-    qrAparSelect.innerHTML = "";
-
-    const placeholder = document.createElement("option");
-    placeholder.value = "";
-    placeholder.textContent = items.length
-      ? "-- Pilih APAR --"
-      : "Belum ada data APAR";
-    qrAparSelect.appendChild(placeholder);
-
-    items.forEach(function(item) {
-      const option = document.createElement("option");
-      option.value = item.id;
-      option.textContent = item.assetNumber;
-      qrAparSelect.appendChild(option);
-    });
-
-    generateQrBtn.disabled = items.length === 0;
-    printAllQrBtn.disabled = items.length === 0;
-
-    if (!items.length) {
-      qrPreview.classList.add("hidden");
-      qrAllPreview.classList.add("hidden");
-      setQrGeneratorStatus(
-        "Collection apar belum memiliki data untuk dibuat QR Code.",
-        "warning"
-      );
-      return;
-    }
-
-    setQrGeneratorStatus(
-      items.length + " APAR siap dibuatkan QR Code.",
-      "success"
-    );
-  }
-
-
-  function findAparItemById(id) {
-    return aparItems.find(function(item) {
-      return String(item.id) === String(id);
-    }) || null;
-  }
-
-
-  async function generateQrForItem(item) {
-
-    if (!item || !item.assetNumber) {
-      throw new Error("Asset Number APAR tidak tersedia.");
-    }
-
-    const payload = String(item.assetNumber).trim();
-
-    if (!payload) {
-      throw new Error("Asset Number APAR kosong.");
-    }
-
-    SimpleQr.toCanvas(qrGeneratorCanvas, payload, { width: 260, margin: 2 });
-
-    generatedQrApar = item;
-
-    qrAssetTitle.textContent = item.assetNumber;
-    qrAssetMeta.textContent = getAparMetaText(item);
-
-    qrPreview.classList.remove("hidden");
-    downloadQrBtn.disabled = false;
-    printQrBtn.disabled = false;
-
-    setQrGeneratorStatus(
-      "QR Code " + item.assetNumber + " berhasil dibuat.",
-      "success"
-    );
-
-    debug("================================");
-    debug("GENERATE QR CODE APAR");
-    debug("================================");
-    debug("Asset Number: " + payload);
-    debug("Document ID: " + item.id);
-    debug("Payload QR: " + payload);
-  }
-
-
-  function canvasToDataUrl() {
-    return qrGeneratorCanvas.toDataURL("image/png");
-  }
-
-
-  generateQrBtn.addEventListener(
-    "click",
-    async function() {
-
-      const item = findAparItemById(qrAparSelect.value);
-
-      if (!item) {
-        setQrGeneratorStatus(
-          "Silakan pilih APAR terlebih dahulu.",
-          "warning"
-        );
-        return;
-      }
-
-      generateQrBtn.disabled = true;
-
-      try {
-        await generateQrForItem(item);
-      } catch (error) {
-        console.error(error);
-        debug("GAGAL GENERATE QR CODE");
-        debug("Message: " + (error.message || error));
-        setQrGeneratorStatus(
-          error.message || "QR Code gagal dibuat.",
-          "error"
-        );
-      } finally {
-        generateQrBtn.disabled = false;
-      }
-    }
-  );
-
-
-  qrAparSelect.addEventListener(
-    "change",
-    function() {
-      const item = findAparItemById(qrAparSelect.value);
-
-      if (!item) {
-        generatedQrApar = null;
-        qrPreview.classList.add("hidden");
-        downloadQrBtn.disabled = true;
-        printQrBtn.disabled = true;
-        return;
-      }
-
-      setQrGeneratorStatus(
-        "APAR " + item.assetNumber + " dipilih. Tekan Generate QR.",
-        "info"
-      );
-    }
-  );
-
-
-  downloadQrBtn.addEventListener(
-    "click",
-    function() {
-
-      if (!generatedQrApar) {
-        return;
-      }
-
-      const link = document.createElement("a");
-      link.href = canvasToDataUrl();
-      link.download = generatedQrApar.assetNumber + "-QR.png";
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-
-      debug(
-        "QR PNG disimpan: " +
-        generatedQrApar.assetNumber + "-QR.png"
-      );
-    }
-  );
-
-
-  function escapePrintText(value) {
-    return escapeHtml(value == null ? "" : value);
-  }
-
-
-  async function buildAllQrPreview() {
-
-    qrAllPreview.innerHTML = "";
-
-    const dataUrls = [];
-
-    for (const item of aparItems) {
-      const dataUrl = SimpleQr.toDataURL(String(item.assetNumber), { width: 220, margin: 2 });
-
-      dataUrls.push({
-        item: item,
-        dataUrl: dataUrl
-      });
-
-      const wrapper = document.createElement("div");
-      wrapper.className = "qr-print-item";
-
-      const img = document.createElement("img");
-      img.src = dataUrl;
-      img.alt = "QR Code " + item.assetNumber;
-
-      const strong = document.createElement("strong");
-      strong.textContent = item.assetNumber;
-
-      const meta = document.createElement("div");
-      meta.className = "small";
-      meta.textContent = item.brand + " | " + item.location;
-
-      wrapper.appendChild(img);
-      wrapper.appendChild(strong);
-      wrapper.appendChild(meta);
-      qrAllPreview.appendChild(wrapper);
-    }
-
-    qrAllPreview.classList.remove("hidden");
-
-    return dataUrls;
-  }
-
-
-  function openPrintWindow(title, bodyHtml) {
-
-    const printWindow = window.open(
-      "",
-      "_blank",
-      "width=900,height=700"
-    );
-
-    if (!printWindow) {
-      throw new Error(
-        "Popup diblokir browser. Izinkan popup untuk mencetak QR Code."
-      );
-    }
-
-    printWindow.document.open();
-    printWindow.document.write(
-      "<!DOCTYPE html>" +
-      "<html lang=\"id\"><head>" +
-      "<meta charset=\"UTF-8\">" +
-      "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
-      "<title>" + escapePrintText(title) + "</title>" +
-      "<style>" +
-      "@page{margin:10mm;}" +
-      "body{font-family:Arial,Helvetica,sans-serif;margin:0;color:#111827;}" +
-      ".sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm;}" +
-      ".label{border:1px solid #d1d5db;border-radius:8px;padding:6mm;text-align:center;page-break-inside:avoid;}" +
-      ".label img{width:100%;max-width:55mm;height:auto;display:block;margin:0 auto 4mm;}" +
-      ".asset{font-size:16pt;font-weight:700;}" +
-      ".meta{font-size:9pt;color:#4b5563;margin-top:2mm;line-height:1.4;}" +
-      "@media print{.label{border:1px solid #aaa;}}" +
-      "</style></head><body>" +
-      bodyHtml +
-      "</body></html>"
-    );
-    printWindow.document.close();
-
-    setTimeout(function() {
-      printWindow.focus();
-      printWindow.print();
-    }, 500);
-  }
-
-
-  printQrBtn.addEventListener(
-    "click",
-    function() {
-
-      if (!generatedQrApar) {
-        return;
-      }
-
-      try {
-        const dataUrl = canvasToDataUrl();
-        const item = generatedQrApar;
-
-        const body =
-          '<div class="sheet">' +
-          '<div class="label">' +
-          '<img src="' + dataUrl + '" alt="QR Code">' +
-          '<div class="asset">' + escapePrintText(item.assetNumber) + '</div>' +
-          '<div class="meta">' + escapePrintText(getAparMetaText(item)) + '</div>' +
-          '</div></div>';
-
-        openPrintWindow(
-          "QR " + item.assetNumber,
-          body
-        );
-
-      } catch (error) {
-        console.error(error);
-        setQrGeneratorStatus(
-          error.message || "QR gagal dicetak.",
-          "error"
-        );
-      }
-    }
-  );
-
-
-  printAllQrBtn.addEventListener(
-    "click",
-    async function() {
-
-      if (!aparItems.length) {
-        return;
-      }
-
-      printAllQrBtn.disabled = true;
-      setQrGeneratorStatus(
-        "Membuat QR Code untuk semua APAR...",
-        "info"
-      );
-
-      // Buka jendela print segera saat klik agar popup tidak diblokir browser.
-      const printWindow = window.open(
-        "",
-        "_blank",
-        "width=900,height=700"
-      );
-
-      if (!printWindow) {
-        printAllQrBtn.disabled = false;
-        setQrGeneratorStatus(
-          "Popup diblokir browser. Izinkan popup untuk mencetak QR Code.",
-          "error"
-        );
-        return;
-      }
-
-      printWindow.document.write(
-        "<p style=\"font-family:Arial;padding:30px\">Membuat QR Code APAR...</p>"
-      );
-
-      try {
-        const dataUrls = await buildAllQrPreview();
-
-        const labels = dataUrls.map(function(entry) {
-          return '<div class="label">' +
-            '<img src="' + entry.dataUrl + '" alt="QR Code">' +
-            '<div class="asset">' + escapePrintText(entry.item.assetNumber) + '</div>' +
-            '<div class="meta">' + escapePrintText(getAparMetaText(entry.item)) + '</div>' +
-            '</div>';
-        }).join("");
-
-        const bodyHtml =
-          '<div class="sheet">' + labels + '</div>';
-
-        printWindow.document.open();
-        printWindow.document.write(
-          "<!DOCTYPE html>" +
-          "<html lang=\"id\"><head>" +
-          "<meta charset=\"UTF-8\">" +
-          "<meta name=\"viewport\" content=\"width=device-width,initial-scale=1\">" +
-          "<title>QR Semua APAR</title>" +
-          "<style>" +
-          "@page{margin:10mm;}" +
-          "body{font-family:Arial,Helvetica,sans-serif;margin:0;color:#111827;}" +
-          ".sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm;}" +
-          ".label{border:1px solid #d1d5db;border-radius:8px;padding:6mm;text-align:center;page-break-inside:avoid;}" +
-          ".label img{width:100%;max-width:55mm;height:auto;display:block;margin:0 auto 4mm;}" +
-          ".asset{font-size:16pt;font-weight:700;}" +
-          ".meta{font-size:9pt;color:#4b5563;margin-top:2mm;line-height:1.4;}" +
-          "</style></head><body>" +
-          bodyHtml +
-          "</body></html>"
-        );
-        printWindow.document.close();
-
-        setTimeout(function() {
-          printWindow.focus();
-          printWindow.print();
-        }, 500);
-
-        setQrGeneratorStatus(
-          dataUrls.length + " QR Code APAR siap dicetak.",
-          "success"
-        );
-
-      } catch (error) {
-        console.error(error);
-        debug("GAGAL PRINT SEMUA QR");
-        debug("Message: " + (error.message || error));
-        printWindow.close();
-        setQrGeneratorStatus(
-          error.message || "QR semua APAR gagal dibuat.",
-          "error"
-        );
-      } finally {
-        printAllQrBtn.disabled = aparItems.length === 0;
-      }
-    }
-  );
-
-
-
-  // =========================================================
-
-  // =========================================================
-  // V13 MONITORING & STATUS APAR
-  // =========================================================
-
-  function v13Asset(data, id) {
-    return data.assetNumber || data.asset_number || data.assetNo ||
-      data.asset_no || data.kode || data.code || id || "-";
-  }
-
-  function v13Key(value) {
-    return String(value || "").trim().toUpperCase();
-  }
-
-  function v13Millis(value) {
-    if (!value) return 0;
-    if (typeof value.toMillis === "function") return value.toMillis();
-    if (value instanceof Date) return value.getTime();
-    if (typeof value === "number") return value;
-    const n = new Date(value).getTime();
-    return Number.isNaN(n) ? 0 : n;
-  }
-
-  function v13Date(value) {
-    const n = v13Millis(value);
-    if (!n) return "-";
-    return new Intl.DateTimeFormat("id-ID", {
-      dateStyle: "medium", timeStyle: "short"
-    }).format(new Date(n));
-  }
-
-  function v13Latest(docs) {
-    const map = new Map();
-    docs.forEach(snapshot => {
-      const data = snapshot.data() || {};
-      const key = v13Key(data.aparId || data.aparAssetNumber || data.assetNumber);
-      if (!key) return;
-      const candidate = {
-        id: snapshot.id,
-        data,
-        time: v13Millis(data.inspectionDate || data.updatedAt || data.createdAt)
-      };
-      const old = map.get(key);
-      if (!old || candidate.time > old.time) map.set(key, candidate);
-    });
-    return map;
-  }
-
-  async function loadV13Monitoring() {
-    if (!db) return;
-    monitoringStatusEl.textContent = "Memuat monitoring APAR...";
-    monitoringStatusEl.className = "status status-info";
-
-    try {
-      const [aparSnap, inspectionSnap] = await Promise.all([
-        getDocs(collection(db, "apar")),
-        getDocs(collection(db, "inspections"))
-      ]);
-
-      const aparMap = new Map();
-
-      aparSnap.docs.forEach(snapshot => {
-        const data = snapshot.data() || {};
-        const asset = v13Asset(data, snapshot.id);
-        const key = v13Key(asset);
-        const item = {
-          id: snapshot.id,
-          assetNumber: asset,
-          key,
-          brand: data.brand || data.merk || "-",
-          location: data.location || data.lokasi || data.locationName ||
-            data.lokasiNama || data.locationId || "-",
-          status: data.status || "active"
-        };
-        const old = aparMap.get(key);
-        if (!old || v13Key(item.id) === key) aparMap.set(key, item);
-      });
-
-      const aparItems = Array.from(aparMap.values()).sort((a,b) =>
-        String(a.assetNumber).localeCompare(String(b.assetNumber), undefined,
-          {numeric:true, sensitivity:"base"})
-      );
-
-      const latest = v13Latest(inspectionSnap.docs);
-      let active=0, inactive=0, pass=0, fail=0;
-
-      const rows = aparItems.map(item => {
-        const inactiveState = ["INACTIVE","NONAKTIF","NON-ACTIVE"].includes(v13Key(item.status));
-        if (inactiveState) inactive++; else active++;
-
-        const inspection = latest.get(item.key);
-        let result="Belum Diperiksa", resultClass="monitoring-unchecked";
-        if (inspection) {
-          const r=v13Key(inspection.data.result);
-          if(r==="PASS"){result="PASS";resultClass="monitoring-pass";pass++;}
-          else if(r==="FAIL"){result="FAIL";resultClass="monitoring-fail";fail++;}
-        }
-
-        const statusClass=inactiveState?"monitoring-inactive":"monitoring-active";
-        const date=inspection?v13Date(inspection.data.inspectionDate||inspection.data.updatedAt||inspection.data.createdAt):"-";
-        const notes=inspection?.data?.notes||"-";
-        const detail=inspection
-          ? `<button type="button" class="btn-secondary v13-detail-btn" data-inspection-id="${escapePrintHtml(inspection.id)}">Detail</button>`
-          : "";
-
-        return `<tr>
-          <td><strong>${escapePrintHtml(item.assetNumber)}</strong></td>
-          <td>${escapePrintHtml(item.brand)}</td>
-          <td>${escapePrintHtml(item.location)}</td>
-          <td><span class="monitoring-badge ${statusClass}">${inactiveState?"INACTIVE":"ACTIVE"}</span></td>
-          <td><span class="monitoring-badge ${resultClass}">${escapePrintHtml(result)}</span></td>
-          <td>${escapePrintHtml(date)}</td>
-          <td>${escapePrintHtml(notes)}</td>
-          <td>${detail}</td>
-        </tr>`;
-      }).join("");
-
-      monitorActive.textContent=active;
-      monitorInactive.textContent=inactive;
-      monitorPass.textContent=pass;
-      monitorFail.textContent=fail;
-
-      monitoringTableWrap.innerHTML=rows
-        ? `<table class="monitoring-table"><thead><tr>
-          <th>Asset Number</th><th>Brand</th><th>Location</th><th>Status APAR</th>
-          <th>Hasil Terakhir</th><th>Tanggal Pemeriksaan</th><th>Catatan Terakhir</th><th>Aksi</th>
-        </tr></thead><tbody>${rows}</tbody></table>`
-        : `<div class="dashboard-empty">Belum ada data APAR.</div>`;
-
-      monitoringTableWrap.querySelectorAll(".v13-detail-btn").forEach(button=>{
-        button.addEventListener("click",()=>{
-          const item=inspectionHistory.find(x=>x.id===button.dataset.inspectionId);
-          if(item) showHistoryDetail(item);
-        });
-      });
-
-      monitoringStatusEl.textContent=`Monitoring berhasil diperbarui. ${aparItems.length} APAR ditemukan.`;
-      monitoringStatusEl.className="status status-success";
-      debug(`V13 Monitoring: Active=${active}, Inactive=${inactive}, PASS=${pass}, FAIL=${fail}`);
-
-    } catch(error) {
-      console.error(error);
-      monitoringStatusEl.textContent="Gagal memuat Monitoring APAR: "+(error.message||error);
-      monitoringStatusEl.className="status status-error";
-      debug("V13 Monitoring error: "+(error.code||"-")+" | "+(error.message||error));
-    }
-  }
-
-  refreshMonitoringBtn.addEventListener("click", async()=>{
-    await loadInspectionHistory();
-    await loadV13Monitoring();
   });
 
-  // DASHBOARD APAR
-  // =========================================================
-  function dashMillis(v){
-    if(!v) return 0;
-    if(typeof v.toMillis==='function') return v.toMillis();
-    if(v instanceof Date) return v.getTime();
-    if(typeof v==='number') return v;
-    const n=new Date(v).getTime(); return Number.isNaN(n)?0:n;
+  monitorRows=aparRows.map(apar=>{
+    const asset=String(apar.assetNumber||apar.id||"").trim();
+    const latest=byAsset.get(asset);
+    const result=String(latest?.result||"").trim().toLowerCase();
+
+    let condition="Belum diperiksa";
+    if(result==="fail") condition="PERLU PERHATIAN";
+    else if(result==="pass") condition="Baik";
+
+    return {
+      apar,
+      latest,
+      result,
+      condition
+    };
+  });
+
+  monitorRows.sort((a,b)=>{
+    const priority={ "PERLU PERHATIAN":0, "Belum diperiksa":1, "Baik":2 };
+    const pa=priority[a.condition]??3, pb=priority[b.condition]??3;
+    if(pa!==pb)return pa-pb;
+    return String(a.apar.assetNumber||a.apar.id).localeCompare(
+      String(b.apar.assetNumber||b.apar.id),
+      undefined,{numeric:true,sensitivity:"base"}
+    );
+  });
+}
+
+function renderMonitoring(){
+  buildMonitoringRows();
+
+  const pass=monitorRows.filter(x=>x.result==="pass").length;
+  const fail=monitorRows.filter(x=>x.result==="fail").length;
+  const never=monitorRows.filter(x=>x.condition==="Belum diperiksa").length;
+  const attention=monitorRows.filter(x=>x.condition==="PERLU PERHATIAN").length;
+
+  $("monitorPass").textContent=pass;
+  $("monitorFail").textContent=fail;
+  $("monitorNever").textContent=never;
+  $("monitorAttention").textContent=attention;
+
+  const body=$("monitoringBody");
+  if(!monitorRows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Belum ada data APAR.</td></tr>';
+    return;
   }
-  function dashDate(v){
-    const n=dashMillis(v); if(!n) return '-';
-    return new Intl.DateTimeFormat('id-ID',{dateStyle:'medium',timeStyle:'short'}).format(new Date(n));
+
+  body.innerHTML=monitorRows.map(x=>{
+    const apar=x.apar, latest=x.latest;
+    let conditionHtml=esc(x.condition);
+    if(x.condition==="PERLU PERHATIAN") conditionHtml='<span class="status error" style="display:inline-block;padding:5px 8px;margin:0;font-size:11px">PERLU PERHATIAN</span>';
+    else if(x.condition==="Baik") conditionHtml='<span class="badge">BAIK</span>';
+    else conditionHtml='<span style="color:#64748b;font-weight:700">BELUM DIPERIKSA</span>';
+
+    return `<tr>
+      <td><strong>${esc(apar.assetNumber||apar.id)}</strong></td>
+      <td>${badge(apar.status)}</td>
+      <td>${latest ? badge(latest.result) : "-"}</td>
+      <td>${latest ? formatDate(latest.inspectionDate||latest.createdAt) : "-"}</td>
+      <td>${latest ? esc(inspectorLabel(latest)) : "-"}</td>
+      <td>${conditionHtml}</td>
+    </tr>`;
+  }).join("");
+}
+
+function loadMonitoring(){
+  try{
+    setMonitoringStatus("Menghitung monitoring dari data APAR dan pemeriksaan terbaru...","info");
+    renderMonitoring();
+    setMonitoringStatus("Monitoring berhasil diperbarui.","success");
+    debug("Monitoring berhasil dihitung.");
+  }catch(e){
+    console.error(e);
+    setMonitoringStatus("Gagal menghitung monitoring: "+(e.message||"Unknown error"),"error");
+    debug("MONITORING ERROR: "+(e.message||""));
   }
-  function dashAsset(d,id){return d.assetNumber||d.asset_number||d.assetNo||d.asset_no||d.kode||d.code||id||'-';}
-  function dashKey(v){return String(v||'').trim().toUpperCase();}
-  function dashResult(v){const x=dashKey(v);return x==='PASS'?'PASS':x==='FAIL'?'FAIL':'Belum Diperiksa';}
-  function dashLatest(docs){
-    const m=new Map();
-    docs.forEach(s=>{const d=s.data()||{};const k=dashKey(d.aparId||d.aparAssetNumber||d.assetNumber);if(!k)return;const c={id:s.id,data:d,t:dashMillis(d.inspectionDate||d.updatedAt||d.createdAt)};const old=m.get(k);if(!old||c.t>old.t)m.set(k,c);});
-    return m;
+}
+
+function showDetail(id){
+  const x=aparRows.find(r=>r.id===id);
+  if(!x)return;
+  const fields=[
+    ["Asset Number",x.assetNumber],["Brand",x.brand],["Capacity",x.capacity],
+    ["Location ID",x.locationId],["Serial Number",x.serialNumber],["Type ID",x.typeId],
+    ["Status",x.status],["Document ID",x.id]
+  ];
+  $("detailContent").innerHTML=`<div class="detail-grid">${fields.map(([l,v])=>`<div class="detail-item"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v)}</div></div>`).join("")}</div>`;
+  $("detailModal").classList.remove("hidden");
+}
+function closeDetail(){$("detailModal").classList.add("hidden")}
+
+function setView(view){
+  const views={
+    dashboard:$("dashboardView"),
+    data:$("dataAparView"),
+    monitoring:$("monitoringView"),
+    placeholder:$("placeholderView")
+  };
+  Object.values(views).forEach(v=>v.classList.add("hidden"));
+  views[view].classList.remove("hidden");
+  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory"].forEach(id=>$(id).classList.remove("active"));
+  if(view==="dashboard"){
+    $("navDashboard").classList.add("active");
+    $("pageTitle").textContent="Admin Dashboard";
+    $("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru";
   }
-  function renderDashboard(items,latest){
-    let pass=0,fail=0,unchecked=0,attention=[];
-    const rows=items.map(item=>{const i=latest.get(item.key);const r=i?dashResult(i.data.result):'Belum Diperiksa';if(r==='PASS')pass++;else if(r==='FAIL'){fail++;attention.push({item,i});}else unchecked++;return `<tr><td><strong>${escapePrintHtml(item.asset)}</strong></td><td>${escapePrintHtml(item.brand)}</td><td>${escapePrintHtml(item.capacity)}</td><td>${escapePrintHtml(item.location)}</td><td><strong>${escapePrintHtml(r)}</strong></td><td>${escapePrintHtml(i?dashDate(i.data.inspectionDate||i.data.updatedAt||i.data.createdAt):'-')}</td><td>${escapePrintHtml(i?(i.data.inspectorPhone||i.data.inspectorId||'-'):'-')}</td><td>${escapePrintHtml(item.status||'-')}</td></tr>`;}).join('');
-    dashTotal.textContent=items.length;dashPass.textContent=pass;dashFail.textContent=fail;dashUnchecked.textContent=unchecked;dashAttention.textContent=attention.length;
-    dashboardTableWrap.innerHTML=rows?`<table class="dashboard-table"><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Hasil Terakhir</th><th>Tanggal Pemeriksaan</th><th>Inspector</th><th>Status APAR</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="dashboard-empty">Belum ada data APAR.</div>';
-    dashboardAttentionWrap.innerHTML=attention.length?attention.map(x=>`<div class="dashboard-stat" style="margin-top:10px"><strong>${escapePrintHtml(x.item.asset)}</strong><div class="small">Hasil terakhir: <strong>FAIL</strong> · ${escapePrintHtml(dashDate(x.i.data.inspectionDate||x.i.data.updatedAt||x.i.data.createdAt))}</div><div class="small">Catatan: ${escapePrintHtml(x.i.data.notes||'-')}</div></div>`).join(''):'<div class="dashboard-empty">Tidak ada APAR yang perlu perhatian berdasarkan pemeriksaan terakhir.</div>';
+  if(view==="data"){
+    $("navDataApar").classList.add("active");
+    $("pageTitle").textContent="Data APAR";
+    $("pageSubtitle").textContent="Master data APAR + Tambah/Edit dari Firestore";
   }
-  async function loadDashboard(){
+  if(view==="monitoring"){
+    $("navMonitoring").classList.add("active");
+    $("pageTitle").textContent="Monitoring APAR";
+    $("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";
+    loadMonitoring();
+  }
+}
+function placeholder(title,text,id){
+  setView("placeholder");$(id).classList.add("active");$("placeholderTitle").textContent=title;$("placeholderText").textContent=text;$("pageTitle").textContent=title;$("pageSubtitle").textContent="Modul berikutnya";
+}
+
+
+$("addAparBtn").addEventListener("click",()=>openAparForm("create"));
+$("closeAparForm").addEventListener("click",closeAparForm);
+$("cancelAparForm").addEventListener("click",closeAparForm);
+$("aparForm").addEventListener("submit",saveAparForm);
+$("aparFormModal").addEventListener("click",e=>{if(e.target===$("aparFormModal"))closeAparForm()});
+
+$("loginBtn").addEventListener("click",async()=>{
+  const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
+  if(!email||!password){setLoginStatus("Email dan password wajib diisi.","warning");return}
+  $("loginBtn").disabled=true;setLoginStatus("Sedang login dan memeriksa akun Admin...","info");
+  try{await signInWithEmailAndPassword(auth,email,password);setLoginStatus("Authentication berhasil.","success")}
+  catch(e){console.error(e);setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error")}
+  finally{$("loginBtn").disabled=false}
+});
+$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+$("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
+$("reloadBtn").addEventListener("click",loadAll);
+$("reloadAparBtn").addEventListener("click",loadAll);
+$("reloadMonitoringBtn").addEventListener("click",async()=>{await loadAll();loadMonitoring();});
+$("aparSearch").addEventListener("input",renderMasterApar);
+$("closeDetail").addEventListener("click",closeDetail);
+$("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeDetail()});
+$("navDashboard").addEventListener("click",()=>setView("dashboard"));
+$("navDataApar").addEventListener("click",()=>setView("data"));
+$("navMonitoring").addEventListener("click",()=>setView("monitoring"));
+$("navInspection").addEventListener("click",()=>placeholder("Pemeriksaan","Modul Pemeriksaan Admin akan dibangun pada tahap berikutnya.","navInspection"));
+$("navHistory").addEventListener("click",()=>placeholder("Riwayat","Modul Riwayat Admin akan dibangun pada tahap berikutnya.","navHistory"));
+
+try{
+  debug("Menginisialisasi Firebase...");
+  const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+  debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
+  onAuthStateChanged(auth,async user=>{
+    if(!user){showLogin();setStatus("Belum login. Silakan login menggunakan akun Admin.","warning");debug("Tidak ada user Firebase yang login.");return}
     try{
-      dashboardStatus.textContent='Memuat dashboard APAR...';dashboardStatus.className='status status-info';
-      const [aSnap,iSnap]=await Promise.all([getDocs(collection(db,'apar')),getDocs(collection(db,'inspections'))]);
-      const map=new Map();
-      aSnap.docs.forEach(s=>{const d=s.data()||{};const asset=dashAsset(d,s.id),key=dashKey(asset);const item={id:s.id,data:d,asset,key,brand:d.brand||d.merk||'-',capacity:d.capacity||d.kapasitas||'-',location:d.location||d.lokasi||d.locationName||d.lokasiNama||d.locationId||'-',status:d.status||'-'};const old=map.get(key);if(!old||dashKey(item.id)===key)map.set(key,item);});
-      dashboardAparItems=[...map.values()].sort((a,b)=>a.asset.localeCompare(b.asset,undefined,{numeric:true,sensitivity:'base'}));
-      renderDashboard(dashboardAparItems,dashLatest(iSnap.docs));
-      dashboardStatus.textContent=`Dashboard berhasil diperbarui. ${dashboardAparItems.length} APAR ditemukan.`;dashboardStatus.className='status status-success';
-    }catch(e){console.error(e);dashboardStatus.textContent='Gagal memuat Dashboard APAR: '+(e.message||e);dashboardStatus.className='status status-error';debug('Dashboard error: '+(e.message||e));}
-  }
-  refreshDashboardBtn.addEventListener('click',loadDashboard);
-
-  // =========================================================
-  // QR SCANNER APAR
-  // =========================================================
-
-  function setScannerStatus(message, type = "info") {
-    scannerStatus.textContent = message;
-    scannerStatus.className = `status status-${type}`;
-  }
-
-
-  function normalizeQrValue(value) {
-    let result = String(value || "").trim();
-
-    /*
-     * Mendukung QR berisi:
-     * APAR-0001
-     * atau URL yang memiliki assetNumber/asset/apar
-     * atau path terakhir URL.
-     */
-    try {
-      if (/^https?:\/\//i.test(result)) {
-        const url = new URL(result);
-
-        const fromQuery =
-          url.searchParams.get("assetNumber") ||
-          url.searchParams.get("asset") ||
-          url.searchParams.get("apar");
-
-        if (fromQuery) {
-          result = fromQuery;
-        } else {
-          result =
-            decodeURIComponent(
-              url.pathname
-                .split("/")
-                .filter(Boolean)
-                .pop() || result
-            );
-        }
-      }
-    } catch (error) {
-      // Jika bukan URL valid, gunakan nilai QR apa adanya.
+      debug("User login ditemukan: "+user.email);
+      await validateAdmin(user);
+      showDashboard();
+      await loadAll();
+    }catch(e){
+      setStatus("Akses ditolak. Akun ini bukan Admin aktif.","error");debug("VALIDASI ADMIN GAGAL: "+e.message);
+      try{await signOut(auth)}catch(_){}
+      showLogin();
     }
-
-    return result.trim();
-  }
-
-
-  function normalizeAssetKey(value) {
-    return String(value || "")
-      .trim()
-      .toUpperCase();
-  }
-
-
-  function buildAparItem(id, data) {
-    return {
-      id: id,
-      data: data,
-
-      assetNumber:
-        data.assetNumber ||
-        data.asset_number ||
-        data.assetNo ||
-        data.asset_no ||
-        data.kode ||
-        data.code ||
-        data.Field ||
-        id,
-
-      brand:
-        data.brand ||
-        data.merk ||
-        "-",
-
-      capacity:
-        data.capacity ||
-        data.kapasitas ||
-        "-",
-
-      location:
-        data.location ||
-        data.lokasi ||
-        data.locationName ||
-        data.lokasiNama ||
-        data.locationId ||
-        "-",
-
-      serial:
-        data.serialNumber ||
-        data.serial_number ||
-        data.serial ||
-        "-",
-
-      type:
-        data.type ||
-        data.tipe ||
-        data.typeId ||
-        "-",
-
-      status:
-        data.status ||
-        "-"
-    };
-  }
-
-
-  async function findAparByQrValue(rawValue) {
-
-    const qrValue =
-      normalizeQrValue(rawValue);
-
-    if (!qrValue) {
-      throw new Error("QR Code kosong.");
-    }
-
-    debug("================================");
-    debug("SCAN QR APAR");
-    debug("================================");
-    debug("Isi QR: " + qrValue);
-
-    /*
-     * Prioritas pertama:
-     * QR = Document ID Firestore.
-     */
-    const directSnapshot =
-      await getDoc(
-        doc(db, "apar", qrValue)
-      );
-
-    if (directSnapshot.exists()) {
-
-      debug(
-        "Dokumen apar/" +
-        qrValue +
-        " ditemukan."
-      );
-
-      return buildAparItem(
-        directSnapshot.id,
-        directSnapshot.data() || {}
-      );
-    }
-
-    /*
-     * Fallback:
-     * QR = Asset Number.
-     */
-    debug(
-      "Dokumen ID tidak ditemukan. " +
-      "Mencari berdasarkan assetNumber..."
-    );
-
-    const snapshot =
-      await getDocs(
-        collection(db, "apar")
-      );
-
-    const target =
-      normalizeAssetKey(qrValue);
-
-    for (
-      const documentSnapshot of snapshot.docs
-    ) {
-
-      const data =
-        documentSnapshot.data() || {};
-
-      const assetNumber =
-        data.assetNumber ||
-        data.asset_number ||
-        data.assetNo ||
-        data.asset_no ||
-        data.kode ||
-        data.code ||
-        data.Field ||
-        documentSnapshot.id;
-
-      if (
-        normalizeAssetKey(assetNumber) ===
-        target
-      ) {
-
-        debug(
-          "Asset Number ditemukan: " +
-          assetNumber
-        );
-
-        return buildAparItem(
-          documentSnapshot.id,
-          data
-        );
-      }
-    }
-
-    throw new Error(
-      "APAR dengan QR/Asset Number " +
-      qrValue +
-      " tidak ditemukan di Firestore."
-    );
-  }
-
-
-  async function stopQrScanner() {
-
-    if (
-      !qrScanner ||
-      !scannerRunning
-    ) {
-
-      qrReader.classList.add(
-        "hidden"
-      );
-
-      stopScanBtn.disabled =
-        true;
-
-      startScanBtn.disabled =
-        false;
-
-      return;
-    }
-
-    try {
-
-      await qrScanner.stop();
-
-      debug(
-        "Scanner kamera dihentikan."
-      );
-
-    } catch (error) {
-
-      debug(
-        "Warning saat menghentikan scanner: " +
-        (error.message || error)
-      );
-    }
-
-    scannerRunning = false;
-
-    qrReader.classList.add(
-      "hidden"
-    );
-
-    stopScanBtn.disabled =
-      true;
-
-    startScanBtn.disabled =
-      false;
-  }
-
-
-  async function handleQrSuccess(
-    decodedText
-  ) {
-
-    if (scannerHandlingResult) {
-      return;
-    }
-
-    scannerHandlingResult =
-      true;
-
-    setScannerStatus(
-      "QR terbaca. Mencari APAR di Firestore...",
-      "info"
-    );
-
-    scanResult.textContent =
-      "QR: " +
-      normalizeQrValue(decodedText);
-
-    scanResult.classList.remove(
-      "hidden"
-    );
-
-    try {
-
-      await stopQrScanner();
-
-      const item =
-        await findAparByQrValue(
-          decodedText
-        );
-
-      const selected = selectApar(item, "scan");
-
-      if (!selected) {
-        throw new Error("APAR ditemukan, tetapi tidak dapat dipilih.");
-      }
-
-      setScannerStatus(
-        "APAR " +
-        item.assetNumber +
-        " berhasil ditemukan. Pemeriksaan siap dilakukan.",
-        "success"
-      );
-
-      scanResult.textContent =
-        "✓ APAR ditemukan dan otomatis dipilih: " +
-        item.assetNumber;
-
-    } catch (error) {
-
-      console.error(error);
-
-      debug(
-        "GAGAL MEMPROSES HASIL SCAN"
-      );
-
-      debug(
-        "Code: " +
-        (error.code || "-")
-      );
-
-      debug(
-        "Message: " +
-        (error.message || "-")
-      );
-
-      setScannerStatus(
-        error.message ||
-        "QR tidak dapat diproses.",
-        "error"
-      );
-
-      scanResult.textContent =
-        "QR terbaca, tetapi APAR tidak ditemukan.";
-
-    } finally {
-
-      scannerHandlingResult =
-        false;
-    }
-  }
-
-
-  startScanBtn.addEventListener(
-    "click",
-    async function() {
-
-      if (!window.Html5Qrcode) {
-
-        setScannerStatus(
-          "Library QR Scanner belum berhasil dimuat. Periksa koneksi internet.",
-          "error"
-        );
-
-        return;
-      }
-
-      if (scannerRunning) {
-        return;
-      }
-
-      qrReader.classList.remove(
-        "hidden"
-      );
-
-      scanResult.classList.add(
-        "hidden"
-      );
-
-      setScannerStatus(
-        "Meminta akses kamera...",
-        "info"
-      );
-
-      startScanBtn.disabled =
-        true;
-
-      stopScanBtn.disabled =
-        false;
-
-      try {
-
-        if (!qrScanner) {
-
-          qrScanner =
-            new Html5Qrcode(
-              "qr-reader"
-            );
-        }
-
-        await qrScanner.start(
-          {
-            facingMode:
-              "environment"
-          },
-          {
-            fps: 10,
-
-            qrbox: {
-              width: 250,
-              height: 250
-            },
-
-            formatsToSupport: [
-              Html5QrcodeSupportedFormats.QR_CODE
-            ],
-
-            aspectRatio: 1.0
-          },
-          handleQrSuccess,
-          function() {
-            // Callback scan frame yang belum berisi QR.
-          }
-        );
-
-        scannerRunning = true;
-
-        setScannerStatus(
-          "Scanner aktif. Arahkan kamera ke QR Code APAR.",
-          "success"
-        );
-
-        debug(
-          "Scanner kamera aktif."
-        );
-
-      } catch (error) {
-
-        console.error(error);
-
-        debug(
-          "GAGAL MEMULAI SCANNER"
-        );
-
-        debug(
-          "Code: " +
-          (error.code || "-")
-        );
-
-        debug(
-          "Message: " +
-          (error.message || "-")
-        );
-
-        setScannerStatus(
-          "Kamera tidak dapat digunakan. Izinkan akses kamera dan coba lagi.",
-          "error"
-        );
-
-        scannerRunning =
-          false;
-
-        qrReader.classList.add(
-          "hidden"
-        );
-
-        startScanBtn.disabled =
-          false;
-
-        stopScanBtn.disabled =
-          true;
-      }
-    }
-  );
-
-
-  stopScanBtn.addEventListener(
-    "click",
-    async function() {
-
-      await stopQrScanner();
-
-      setScannerStatus(
-        "Scanner dihentikan. Tekan Mulai Scan untuk mencoba lagi.",
-        "info"
-      );
-    }
-  );
-
-
-  // =========================================================
-  // SELECT APAR
-  // =========================================================
-
-  function selectApar(item, source = "manual") {
-
-    if (!item) {
-      return false;
-    }
-
-    const statusValue = String(item.status || "")
-      .trim()
-      .toLowerCase();
-
-    // V14.5: status wajib ACTIVE. Status kosong/unknown juga ditolak.
-    if (statusValue !== "active") {
-      const displayStatus = item.status || "tidak diketahui";
-      const message =
-        "APAR " + item.assetNumber +
-        " berstatus " + displayStatus +
-        " dan tidak dapat diperiksa. Hanya APAR ACTIVE yang boleh diperiksa.";
-
-      setScannerStatus(message, "error");
-      aparStatus.textContent = message;
-      aparStatus.className = "status status-error";
-      inspectionCard.classList.add("hidden");
-      selectedAparBox.classList.add("hidden");
-      selectedApar = null;
-      debug("V14.5 BLOKIR PEMERIKSAAN: " + message);
-      return false;
-    }
-
-    selectedApar = item;
-
-    if (qrAparSelect) {
-      qrAparSelect.value = item.id;
-    }
-
-    document.getElementById("selectedAssetNumber").textContent = item.assetNumber;
-    document.getElementById("selectedBrand").textContent = item.brand;
-    document.getElementById("selectedCapacity").textContent = item.capacity;
-    document.getElementById("selectedLocation").textContent = item.location;
-    document.getElementById("selectedSerial").textContent = item.serial;
-    document.getElementById("selectedType").textContent = item.type;
-    document.getElementById("selectedStatus").innerHTML = formatStatus(item.status);
-
-    selectedAparBox.classList.remove("hidden");
-
-    document.getElementById("inspectionAssetNumber").textContent = item.assetNumber;
-    document.getElementById("inspectionBrand").textContent = item.brand;
-    document.getElementById("inspectionLocation").textContent = item.location;
-    document.getElementById("inspectionSerial").textContent = item.serial;
-
-    inspectionCard.classList.remove("hidden");
-    inspectionStatus.textContent =
-      source === "scan"
-        ? "APAR berhasil dipilih dari QR. Silakan lakukan pemeriksaan."
-        : "APAR siap diperiksa.";
-    inspectionStatus.className = "status status-info";
-
-    debug("================================");
-    debug("APAR DIPILIH");
-    debug("Sumber: " + source);
-    debug("================================");
-    debug("Document ID: " + item.id);
-    debug("Asset Number: " + item.assetNumber);
-    debug("Brand: " + item.brand);
-    debug("Capacity: " + item.capacity);
-    debug("Location: " + item.location);
-    debug("Serial: " + item.serial);
-    debug("Type: " + item.type);
-    debug("Status: " + item.status);
-
-    if (source === "scan") {
-      aparStatus.textContent =
-        "QR berhasil dibaca. APAR " + item.assetNumber +
-        " otomatis dipilih untuk pemeriksaan.";
-    } else {
-      aparStatus.textContent =
-        "APAR " + item.assetNumber + " berhasil dipilih.";
-    }
-    aparStatus.className = "status status-success";
-
-    if (source === "scan") {
-      scanResult.textContent =
-        "✓ QR valid: " + item.assetNumber +
-        " — APAR otomatis dipilih.";
-      scanResult.classList.remove("hidden");
-    }
-
-    return true;
-
-    inspectionCard.scrollIntoView({
-      behavior: "smooth",
-      block: "start"
-    });
-  }
-
-
-  // =========================================================
-  // FORMAT ROLE
-  // =========================================================
-
-  function formatRole(
-    role
-  ) {
-
-    const value =
-      String(role);
-
-
-    if (
-      value
-        .toLowerCase() ===
-      "inspector"
-    ) {
-
-      return `
-        <span class="badge badge-success">
-          INSPECTOR
-        </span>
-      `;
-
-    }
-
-
-    if (
-      value
-        .toLowerCase() ===
-      "admin"
-    ) {
-
-      return `
-        <span class="badge badge-warning">
-          ADMIN
-        </span>
-      `;
-
-    }
-
-
-    return `
-      <span class="badge badge-danger">
-        ${escapeHtml(value)}
-      </span>
-    `;
-
-  }
-
-
-  // =========================================================
-  // FORMAT STATUS
-  // =========================================================
-
-  function formatStatus(
-    status
-  ) {
-
-    const value =
-      String(status);
-
-
-    if (
-      value
-        .toLowerCase() ===
-      "active"
-    ) {
-
-      return `
-        <span class="badge badge-success">
-          ACTIVE
-        </span>
-      `;
-
-    }
-
-
-    return `
-      <span class="badge badge-danger">
-        ${escapeHtml(value)}
-      </span>
-    `;
-
-  }
-
-
-  // =========================================================
-  // ESCAPE HTML
-  // =========================================================
-
-  function escapeHtml(
-    value
-  ) {
-
-    return String(value)
-
-      .replaceAll(
-        "&",
-        "&amp;"
-      )
-
-      .replaceAll(
-        "<",
-        "&lt;"
-      )
-
-      .replaceAll(
-        ">",
-        "&gt;"
-      )
-
-      .replaceAll(
-        '"',
-        "&quot;"
-      )
-
-      .replaceAll(
-        "'",
-        "&#039;"
-      );
-
-  }
-
-
-  // =========================================================
-  // V14.5 STATUS PROTECTION
-  // =========================================================
-  // Selalu baca ulang dokumen APAR langsung dari Firestore sebelum
-  // menyimpan pemeriksaan. Ini mencegah Inspector memeriksa APAR
-  // yang baru saja diubah Admin menjadi INACTIVE setelah daftar APAR
-  // sebelumnya sudah dimuat di browser.
-  // =========================================================
-  async function verifyAparStillActive(aparItem) {
-    const aparRef = doc(db, "apar", aparItem.id);
-    const freshSnapshot = await getDoc(aparRef);
-
-    if (!freshSnapshot.exists()) {
-      throw new Error("Data APAR sudah tidak ditemukan di Firestore.");
-    }
-
-    const freshData = freshSnapshot.data() || {};
-    const freshStatus = String(freshData.status || "")
-      .trim()
-      .toLowerCase();
-
-    debug("V14.5 verifikasi status APAR sebelum simpan: " + freshStatus);
-
-    if (freshStatus !== "active") {
-      throw new Error(
-        "Pemeriksaan ditolak. APAR " +
-        (freshData.assetNumber || aparItem.assetNumber || freshSnapshot.id) +
-        " saat ini berstatus " +
-        (freshData.status || "tidak diketahui") +
-        ". Hanya APAR ACTIVE yang dapat diperiksa."
-      );
-    }
-
-    return {
-      id: freshSnapshot.id,
-      data: freshData,
-      assetNumber: freshData.assetNumber || aparItem.assetNumber || freshSnapshot.id,
-      status: freshData.status
-    };
-  }
-
-
-  // =========================================================
-  // SAVE INSPECTION
-  // =========================================================
-
-  saveInspectionBtn.addEventListener(
-    "click",
-    async function() {
-
-      if (!currentUser) {
-        alert("Inspector belum login.");
-        return;
-      }
-
-      if (!selectedApar) {
-        alert("Silakan pilih APAR terlebih dahulu.");
-        return;
-      }
-
-      saveInspectionBtn.disabled = true;
-      cancelInspectionBtn.disabled = true;
-
-      inspectionStatus.textContent =
-        "Menyimpan hasil pemeriksaan...";
-      inspectionStatus.className = "status status-info";
-
-      debug("================================");
-      debug("MENYIMPAN PEMERIKSAAN APAR");
-      debug("================================");
-
-      let verifiedApar;
-
-      try {
-        verifiedApar = await verifyAparStillActive(selectedApar);
-      } catch (statusError) {
-        debug("V14.5 PEMERIKSAAN DITOLAK");
-        debug("Message: " + (statusError.message || statusError));
-        inspectionStatus.textContent = statusError.message || "APAR tidak dapat diperiksa.";
-        inspectionStatus.className = "status status-error";
-        alert(statusError.message || "APAR tidak dapat diperiksa.");
-        saveInspectionBtn.disabled = false;
-        cancelInspectionBtn.disabled = false;
-        return;
-      }
-
-      const inspectionData = {
-        aparId: verifiedApar.id,
-        aparAssetNumber: verifiedApar.assetNumber,
-        inspectorId: currentUser.uid,
-        inspectorPhone: currentUser.phoneNumber || null,
-        inspectionDate: serverTimestamp(),
-        physicalCondition: document.getElementById("physicalCondition").value,
-        seal: document.getElementById("seal").value,
-        safetyPin: document.getElementById("safetyPin").value,
-        pressure: document.getElementById("pressure").value,
-        nozzle: document.getElementById("nozzle").value,
-        hose: document.getElementById("hose").value,
-        signage: document.getElementById("signage").value,
-        result: document.getElementById("result").value,
-        notes: document.getElementById("notes").value.trim(),
-        createdAt: serverTimestamp(),
-        updatedAt: serverTimestamp()
-      };
-
-      debug("Collection: inspections");
-      debug("APAR ID: " + selectedApar.id);
-      debug("Asset Number: " + selectedApar.assetNumber);
-      debug("Inspector UID: " + currentUser.uid);
-      debug("Result: " + inspectionData.result);
-
-      try {
-
-        const inspectionRef = await addDoc(
-          collection(db, "inspections"),
-          inspectionData
-        );
-
-        debug("Pemeriksaan berhasil disimpan.");
-        debug("Inspection Document ID: " + inspectionRef.id);
-
-        inspectionStatus.textContent =
-          "Pemeriksaan berhasil disimpan. ID: " + inspectionRef.id;
-        inspectionStatus.className = "status status-success";
-
-        alert(
-          "Pemeriksaan APAR berhasil disimpan.\n\n" +
-          "ID: " + inspectionRef.id
-        );
-
-      } catch (error) {
-
-        console.error(error);
-        debug("GAGAL MENYIMPAN PEMERIKSAAN");
-        debug("Code: " + (error.code || "-"));
-        debug("Message: " + (error.message || "-"));
-
-        inspectionStatus.textContent =
-          "Gagal menyimpan pemeriksaan: " +
-          (error.message || "Unknown error");
-        inspectionStatus.className = "status status-error";
-
-      } finally {
-
-        saveInspectionBtn.disabled = false;
-        cancelInspectionBtn.disabled = false;
-
-      }
-    }
-  );
-
-
-  // =========================================================
-  // CANCEL INSPECTION
-  // =========================================================
-
-  cancelInspectionBtn.addEventListener(
-    "click",
-    function() {
-
-      document.getElementById("physicalCondition").value = "good";
-      document.getElementById("seal").value = "good";
-      document.getElementById("safetyPin").value = "good";
-      document.getElementById("pressure").value = "normal";
-      document.getElementById("nozzle").value = "good";
-      document.getElementById("hose").value = "good";
-      document.getElementById("signage").value = "good";
-      document.getElementById("result").value = "pass";
-      document.getElementById("notes").value = "";
-
-      inspectionStatus.textContent =
-        "Form pemeriksaan dikosongkan. APAR tetap terpilih.";
-      inspectionStatus.className = "status status-info";
-
-      debug("Form pemeriksaan di-reset.");
-    }
-  );
-
-
-  // =========================================================
-  // RESET LOGIN
-  // =========================================================
-
-  resetLoginBtn.addEventListener(
-    "click",
-    function() {
-
-      otpCard.classList.add(
-        "hidden"
-      );
-
-
-      loginCard.classList.remove(
-        "hidden"
-      );
-
-
-      otpCodeInput.value = "";
-
-
-      aparCard.classList.add("hidden");
-      dashboardCard.classList.add("hidden");
-      monitoringCard.classList.add("hidden");
-      scannerCard.classList.add("hidden");
-      inspectionCard.classList.add("hidden");
-      selectedApar = null;
-
-
-      confirmationResult =
-        null;
-
-
-      setGlobalStatus(
-        "Silakan masukkan nomor HP kembali.",
-        "info"
-      );
-
-
-      clearDebug();
-
-
-      debug(
-        "Login di-reset."
-      );
-
-    }
-  );
-
-
-
-  // =========================================================
-  // RIWAYAT PEMERIKSAAN
-  // =========================================================
-
-  function historyTimestampToDate(value) {
-
-    if (!value) {
-      return null;
-    }
-
-    if (
-      typeof value.toDate === "function"
-    ) {
-      return value.toDate();
-    }
-
-    if (
-      value instanceof Date
-    ) {
-      return value;
-    }
-
-    if (
-      typeof value === "number"
-    ) {
-      return new Date(value);
-    }
-
-    return null;
-  }
-
-
-  function formatHistoryDate(value) {
-
-    const date =
-      historyTimestampToDate(value);
-
-    if (!date || Number.isNaN(date.getTime())) {
-      return "-";
-    }
-
-    return new Intl.DateTimeFormat(
-      "id-ID",
-      {
-        dateStyle: "short",
-        timeStyle: "short"
-      }
-    ).format(date);
-  }
-
-
-  function historyResultText(value) {
-
-    const normalized =
-      String(value || "")
-        .trim()
-        .toLowerCase();
-
-    if (normalized === "pass") {
-      return "PASS";
-    }
-
-    if (normalized === "fail") {
-      return "FAIL";
-    }
-
-    return String(value || "-").toUpperCase();
-  }
-
-
-  function historyResultClass(value) {
-
-    const normalized =
-      String(value || "")
-        .trim()
-        .toLowerCase();
-
-    if (normalized === "pass") {
-      return "pass";
-    }
-
-    if (normalized === "fail") {
-      return "fail";
-    }
-
-    return "other";
-  }
-
-
-  function getInspectionDate(item) {
-
-    return (
-      item.inspectionDate ||
-      item.createdAt ||
-      item.updatedAt ||
-      null
-    );
-  }
-
-
-  function getHistoryInspector(item) {
-
-    return (
-      item.inspectorName ||
-      item.inspector ||
-      item.inspectorPhone ||
-      item.inspectorId ||
-      "-"
-    );
-  }
-
-
-  function renderHistory() {
-
-    const search =
-      String(historySearch.value || "")
-        .trim()
-        .toLowerCase();
-
-    const from =
-      historyDateFrom.value || "";
-
-    const to =
-      historyDateTo.value || "";
-
-    const resultFilter =
-      String(
-        historyResultFilter.value || ""
-      ).toLowerCase();
-
-    const filtered =
-      inspectionHistory.filter(function(item) {
-
-        const asset =
-          String(
-            item.aparAssetNumber ||
-            item.assetNumber ||
-            item.aparId ||
-            ""
-          );
-
-        if (
-          search &&
-          !asset.toLowerCase().includes(search)
-        ) {
-          return false;
-        }
-
-        const date =
-          historyTimestampToDate(
-            getInspectionDate(item)
-          );
-
-        if (from && date) {
-
-          const fromDate =
-            new Date(from + "T00:00:00");
-
-          if (date < fromDate) {
-            return false;
-          }
-        }
-
-        if (to && date) {
-
-          const toDate =
-            new Date(to + "T23:59:59.999");
-
-          if (date > toDate) {
-            return false;
-          }
-        }
-
-        const result =
-          String(item.result || "")
-            .trim()
-            .toLowerCase();
-
-        if (
-          resultFilter &&
-          result !== resultFilter
-        ) {
-          return false;
-        }
-
-        return true;
-      });
-
-    historyTableBody.innerHTML = "";
-
-    if (!filtered.length) {
-
-      const row =
-        document.createElement("tr");
-
-      const cell =
-        document.createElement("td");
-
-      cell.colSpan = 6;
-      cell.textContent =
-        "Tidak ada pemeriksaan yang sesuai filter.";
-
-      row.appendChild(cell);
-      historyTableBody.appendChild(row);
-
-      historyStatus.textContent =
-        "0 pemeriksaan ditemukan.";
-
-      return;
-    }
-
-    filtered.forEach(function(item) {
-
-      const row =
-        document.createElement("tr");
-
-      const dateCell =
-        document.createElement("td");
-
-      dateCell.textContent =
-        formatHistoryDate(
-          getInspectionDate(item)
-        );
-
-      const assetCell =
-        document.createElement("td");
-
-      assetCell.textContent =
-        item.aparAssetNumber ||
-        item.assetNumber ||
-        item.aparId ||
-        "-";
-
-      const inspectorCell =
-        document.createElement("td");
-
-      inspectorCell.textContent =
-        getHistoryInspector(item);
-
-      const resultCell =
-        document.createElement("td");
-
-      const badge =
-        document.createElement("span");
-
-      badge.className =
-        "history-badge " +
-        historyResultClass(item.result);
-
-      badge.textContent =
-        historyResultText(item.result);
-
-      resultCell.appendChild(badge);
-
-      const notesCell =
-        document.createElement("td");
-
-      notesCell.textContent =
-        item.notes || "-";
-
-      const actionCell =
-        document.createElement("td");
-
-      const detailBtn =
-        document.createElement("button");
-
-      detailBtn.type = "button";
-      detailBtn.className =
-        "btn-secondary";
-      detailBtn.textContent =
-        "Detail";
-
-      detailBtn.addEventListener(
-        "click",
-        function() {
-          showHistoryDetail(item);
-        }
-      );
-
-      actionCell.appendChild(detailBtn);
-
-      row.appendChild(dateCell);
-      row.appendChild(assetCell);
-      row.appendChild(inspectorCell);
-      row.appendChild(resultCell);
-      row.appendChild(notesCell);
-      row.appendChild(actionCell);
-
-      historyTableBody.appendChild(row);
-    });
-
-    historyStatus.textContent =
-      filtered.length +
-      " dari " +
-      inspectionHistory.length +
-      " pemeriksaan ditampilkan.";
-  }
-
-
-  function showHistoryDetail(item) {
-
-    selectedHistoryItem = item;
-
-    const fields = [
-      [
-        "Inspection ID",
-        item.id || "-"
-      ],
-      [
-        "Asset Number",
-        item.aparAssetNumber ||
-        item.assetNumber ||
-        "-"
-      ],
-      [
-        "APAR ID",
-        item.aparId || "-"
-      ],
-      [
-        "Tanggal Pemeriksaan",
-        formatHistoryDate(
-          item.inspectionDate
-        )
-      ],
-      [
-        "Inspector",
-        getHistoryInspector(item)
-      ],
-      [
-        "Inspector UID",
-        item.inspectorId || "-"
-      ],
-      [
-        "Nomor HP",
-        item.inspectorPhone || "-"
-      ],
-      [
-        "Kondisi Fisik",
-        item.physicalCondition || "-"
-      ],
-      [
-        "Seal",
-        item.seal || "-"
-      ],
-      [
-        "Safety Pin",
-        item.safetyPin || "-"
-      ],
-      [
-        "Pressure",
-        item.pressure || "-"
-      ],
-      [
-        "Nozzle",
-        item.nozzle || "-"
-      ],
-      [
-        "Selang",
-        item.hose || "-"
-      ],
-      [
-        "Signage",
-        item.signage || "-"
-      ],
-      [
-        "Hasil",
-        historyResultText(item.result)
-      ],
-      [
-        "Catatan",
-        item.notes || "-"
-      ],
-      [
-        "Dibuat",
-        formatHistoryDate(
-          item.createdAt
-        )
-      ],
-      [
-        "Diperbarui",
-        formatHistoryDate(
-          item.updatedAt
-        )
-      ]
-    ];
-
-    historyDetailGrid.innerHTML = "";
-
-    fields.forEach(function(pair) {
-
-      const label =
-        document.createElement("strong");
-
-      label.textContent =
-        pair[0];
-
-      const value =
-        document.createElement("div");
-
-      value.textContent =
-        pair[1];
-
-      historyDetailGrid.appendChild(label);
-      historyDetailGrid.appendChild(value);
-    });
-
-    historyDetail.classList.remove(
-      "hidden"
-    );
-
-    historyDetail.scrollIntoView({
-      behavior: "smooth",
-      block: "nearest"
-    });
-  }
-
-
-
-  function escapePrintHtml(value) {
-
-    return String(value ?? "-")
-      .replace(/&/g, "&amp;")
-      .replace(/</g, "&lt;")
-      .replace(/>/g, "&gt;")
-      .replace(/"/g, "&quot;")
-      .replace(/'/g, "&#039;");
-  }
-
-
-  function historyFieldValue(item, keys) {
-
-    for (const key of keys) {
-
-      if (
-        item &&
-        item[key] !== undefined &&
-        item[key] !== null &&
-        String(item[key]).trim() !== ""
-      ) {
-        return item[key];
-      }
-    }
-
-    return "-";
-  }
-
-
-  function buildInspectionPrintHtml(item) {
-
-    const assetNumber =
-      historyFieldValue(
-        item,
-        ["aparAssetNumber", "assetNumber", "aparId"]
-      );
-
-    const result =
-      historyResultText(item.result);
-
-    const resultClass =
-      String(item.result || "")
-        .trim()
-        .toLowerCase() === "fail"
-        ? "FAIL"
-        : result;
-
-    const rows = [
-      ["Inspection ID", item.id],
-      ["Asset Number", assetNumber],
-      ["APAR ID", item.aparId],
-      ["Tanggal Pemeriksaan", formatHistoryDate(item.inspectionDate)],
-      ["Inspector", getHistoryInspector(item)],
-      ["Inspector UID", item.inspectorId],
-      ["Nomor HP", item.inspectorPhone]
-    ];
-
-    const checks = [
-      ["Kondisi Fisik", item.physicalCondition],
-      ["Seal", item.seal],
-      ["Safety Pin", item.safetyPin],
-      ["Pressure", item.pressure],
-      ["Nozzle", item.nozzle],
-      ["Selang", item.hose],
-      ["Signage", item.signage]
-    ];
-
-    const generalRows =
-      rows.map(function(pair) {
-        return `
-          <tr>
-            <th>${escapePrintHtml(pair[0])}</th>
-            <td>${escapePrintHtml(pair[1])}</td>
-          </tr>
-        `;
-      }).join("");
-
-    const checkRows =
-      checks.map(function(pair) {
-        return `
-          <tr>
-            <th>${escapePrintHtml(pair[0])}</th>
-            <td>${escapePrintHtml(pair[1])}</td>
-          </tr>
-        `;
-      }).join("");
-
-    return `
-      <div class="print-report">
-        <h1>LAPORAN PEMERIKSAAN APAR</h1>
-        <div class="print-subtitle">
-          Hasil pemeriksaan yang tersimpan di sistem
-        </div>
-
-        <div class="print-section">IDENTITAS PEMERIKSAAN</div>
-
-        <table>
-          <tbody>
-            ${generalRows}
-          </tbody>
-        </table>
-
-        <div class="print-section">HASIL PEMERIKSAAN</div>
-
-        <table>
-          <tbody>
-            ${checkRows}
-            <tr>
-              <th>Hasil</th>
-              <td class="print-result">${escapePrintHtml(resultClass)}</td>
-            </tr>
-            <tr>
-              <th>Catatan</th>
-              <td>${escapePrintHtml(item.notes)}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="print-section">WAKTU PENCATATAN</div>
-
-        <table>
-          <tbody>
-            <tr>
-              <th>Dibuat</th>
-              <td>${escapePrintHtml(formatHistoryDate(item.createdAt))}</td>
-            </tr>
-            <tr>
-              <th>Diperbarui</th>
-              <td>${escapePrintHtml(formatHistoryDate(item.updatedAt))}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    `;
-  }
-
-
-  function printHistoryItem(item) {
-
-    if (!item) {
-
-      historyStatus.textContent =
-        "Pilih Detail pemeriksaan terlebih dahulu.";
-
-      return;
-    }
-
-    printArea.innerHTML =
-      buildInspectionPrintHtml(item);
-
-    printArea.setAttribute(
-      "aria-hidden",
-      "false"
-    );
-
-    debug(
-      "Menyiapkan print pemeriksaan: " +
-      item.id
-    );
-
-    window.print();
-
-    /*
-     * Setelah dialog print selesai pada browser,
-     * bersihkan area print agar tidak memengaruhi
-     * tampilan aplikasi.
-     */
-    window.setTimeout(
-      function() {
-
-        printArea.innerHTML = "";
-
-        printArea.setAttribute(
-          "aria-hidden",
-          "true"
-        );
-
-      },
-      1000
-    );
-  }
-
-
-  historyPrintBtn.addEventListener(
-    "click",
-    function() {
-
-      printHistoryItem(
-        selectedHistoryItem
-      );
-    }
-  );
-
-
-  historyCloseDetailBtn.addEventListener(
-    "click",
-    function() {
-
-      historyDetail.classList.add(
-        "hidden"
-      );
-
-      selectedHistoryItem = null;
-    }
-  );
-
-
-  async function loadInspectionHistory() {
-
-    if (!db) {
-      return;
-    }
-
-    historyStatus.textContent =
-      "Memuat riwayat pemeriksaan...";
-
-    try {
-
-      const snapshot =
-        await getDocs(
-          collection(
-            db,
-            "inspections"
-          )
-        );
-
-      inspectionHistory =
-        snapshot.docs.map(
-          function(documentSnapshot) {
-
-            return {
-              id: documentSnapshot.id,
-              ...(documentSnapshot.data() || {})
-            };
-          }
-        );
-
-      inspectionHistory.sort(
-        function(a, b) {
-
-          const da =
-            historyTimestampToDate(
-              getInspectionDate(a)
-            );
-
-          const dbb =
-            historyTimestampToDate(
-              getInspectionDate(b)
-            );
-
-          return (
-            (dbb ? dbb.getTime() : 0) -
-            (da ? da.getTime() : 0)
-          );
-        }
-      );
-
-      historyCard.classList.remove(
-        "hidden"
-      );
-
-      renderHistory();
-
-      debug(
-        "Riwayat inspections berhasil dimuat: " +
-        inspectionHistory.length
-      );
-
-    } catch (error) {
-
-      console.error(error);
-
-      historyCard.classList.remove(
-        "hidden"
-      );
-
-      historyStatus.textContent =
-        "Gagal membaca riwayat pemeriksaan: " +
-        (error.message || error);
-
-      debug(
-        "GAGAL MEMBACA inspections"
-      );
-
-      debug(
-        "Code: " +
-        (error.code || "-")
-      );
-
-      debug(
-        "Message: " +
-        (error.message || "-")
-      );
-    }
-  }
-
-
-  historySearch.addEventListener(
-    "input",
-    renderHistory
-  );
-
-  historyDateFrom.addEventListener(
-    "change",
-    renderHistory
-  );
-
-  historyDateTo.addEventListener(
-    "change",
-    renderHistory
-  );
-
-  historyResultFilter.addEventListener(
-    "change",
-    renderHistory
-  );
-
-  historyRefreshBtn.addEventListener(
-    "click",
-    loadInspectionHistory
-  );
-
-  historyResetBtn.addEventListener(
-    "click",
-    function() {
-
-      historySearch.value = "";
-      historyDateFrom.value = "";
-      historyDateTo.value = "";
-      historyResultFilter.value = "";
-
-      historyDetail.classList.add(
-        "hidden"
-      );
-
-      selectedHistoryItem = null;
-
-      renderHistory();
-    }
-  );
-
-
-  // =========================================================
-  // LOGOUT
-  // =========================================================
-
-  logoutBtn.addEventListener(
-    "click",
-    async function() {
-
-      if (!auth) {
-
-        return;
-
-      }
-
-
-      try {
-
-        await stopQrScanner();
-
-        await signOut(
-          auth
-        );
-
-
-        profileCard.classList.add(
-          "hidden"
-        );
-
-
-        aparCard.classList.add(
-          "hidden"
-        );
-
-
-        dashboardCard.classList.add(
-          "hidden"
-        );
-
-        monitoringCard.classList.add(
-          "hidden"
-        );
-
-        scannerCard.classList.add(
-          "hidden"
-        );
-
-        historyCard.classList.add(
-          "hidden"
-        );
-
-        inspectionCard.classList.add(
-          "hidden"
-        );
-
-
-        selectedApar = null;
-        selectedHistoryItem = null;
-        currentUser = null;
-
-
-        otpCard.classList.add(
-          "hidden"
-        );
-
-
-        loginCard.classList.remove(
-          "hidden"
-        );
-
-
-        otpCodeInput.value =
-          "";
-
-
-        confirmationResult =
-          null;
-
-
-        setGlobalStatus(
-          "Berhasil logout.",
-          "info"
-        );
-
-
-        clearDebug();
-
-
-        debug(
-          "User berhasil logout."
-        );
-
-
-      } catch (error) {
-
-        debug(
-          "Logout error: " +
-          error.message
-        );
-
-      }
-
-    }
-  );
-
-
-  // =========================================================
-  // AUTH STATE
-  // =========================================================
-
-  function initializeAuthListener() {
-
-    if (!auth) {
-
-      return;
-
-    }
-
-
-    onAuthStateChanged(
-      auth,
-      function(user) {
-
-        if (user) {
-
-          currentUser = user;
-
-          debug(
-            "Auth State: USER LOGIN"
-          );
-
-
-          debug(
-            "UID: " +
-            user.uid
-          );
-
-        } else {
-
-          currentUser = null;
-
-          debug(
-            "Auth State: BELUM LOGIN"
-          );
-
-        }
-
-      }
-    );
-
-  }
-
-
-  // =========================================================
-  // START APPLICATION
-  // =========================================================
-
-  const firebaseReady =
-    initializeFirebase();
-
-
-  if (firebaseReady) {
-
-    initializeAuthListener();
-
-  }
-
+  });
+}catch(e){
+  console.error(e);setStatus("Gagal menginisialisasi Firebase.","error");debug("Firebase INIT ERROR: "+e.message);showLogin();
+}
 </script>
-
 </body>
 </html>
