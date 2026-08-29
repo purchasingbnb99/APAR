@@ -640,6 +640,20 @@
       background: #fafafa;
     }
 
+    .history-detail-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .history-detail-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
     .history-detail-grid {
       display: grid;
       grid-template-columns: 170px 1fr;
@@ -655,6 +669,14 @@
       .history-detail-grid {
         grid-template-columns: 1fr;
         gap: 3px;
+      }
+
+      .history-detail-actions {
+        width: 100%;
+      }
+
+      .history-detail-actions button {
+        flex: 1 1 auto;
       }
     }
 
@@ -686,7 +708,82 @@
 
     }
 
-  </style>
+  
+    /* =========================================================
+       PRINT PEMERIKSAAN
+    ========================================================== */
+    @media print {
+      body {
+        background: #ffffff !important;
+      }
+
+      body > * {
+        display: none !important;
+      }
+
+      #printArea {
+        display: block !important;
+      }
+
+      .print-report {
+        font-family: Arial, sans-serif;
+        color: #111827;
+        padding: 24px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      .print-report h1 {
+        font-size: 22px;
+        margin: 0 0 5px;
+        text-align: center;
+      }
+
+      .print-report .print-subtitle {
+        text-align: center;
+        font-size: 12px;
+        margin-bottom: 20px;
+        color: #4b5563;
+      }
+
+      .print-report table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      .print-report th,
+      .print-report td {
+        border: 1px solid #d1d5db;
+        padding: 8px;
+        text-align: left;
+        vertical-align: top;
+        font-size: 12px;
+      }
+
+      .print-report th {
+        width: 34%;
+      }
+
+      .print-report .print-section {
+        margin-top: 18px;
+        font-weight: 700;
+        font-size: 14px;
+        border-bottom: 2px solid #111827;
+        padding-bottom: 5px;
+      }
+
+      .print-report .print-result {
+        font-weight: 700;
+        font-size: 15px;
+      }
+    }
+
+    #printArea {
+      display: none;
+    }
+
+</style>
 </head>
 
 <body>
@@ -700,11 +797,11 @@
   <div class="card">
 
     <h1>
-      APAR - Test Inspector V5 QR FIX
+      APAR - Test Inspector V11 DETAIL FILTER PRINT
     </h1>
 
     <div class="subtitle">
-      Pengujian Firebase Authentication + Firestore + QR Code APAR + Pemeriksaan
+      Firebase Authentication + QR Code APAR + Pemeriksaan + Riwayat + Detail + Print
     </div>
 
 
@@ -1409,8 +1506,31 @@
     </div>
 
     <div id="historyDetail" class="history-detail hidden">
-      <strong>Detail Pemeriksaan</strong>
+
+      <div class="history-detail-header">
+        <strong>Detail Pemeriksaan</strong>
+
+        <div class="history-detail-actions">
+          <button
+            id="historyPrintBtn"
+            class="btn-primary"
+            type="button"
+          >
+            🖨️ Print Pemeriksaan
+          </button>
+
+          <button
+            id="historyCloseDetailBtn"
+            class="btn-secondary"
+            type="button"
+          >
+            Tutup Detail
+          </button>
+        </div>
+      </div>
+
       <div id="historyDetailGrid" class="history-detail-grid"></div>
+
     </div>
 
   </div>
@@ -1431,12 +1551,20 @@
       id="debugBox"
       class="debug"
     >
-Memulai Test Inspector V5 QR FIX...
+Memulai Test Inspector V11 DETAIL FILTER PRINT...
     </div>
 
   </div>
 
+
 </div>
+
+
+<!-- =========================================================
+     PRINT AREA
+========================================================== -->
+
+<div id="printArea" aria-hidden="true"></div>
 
 
 <!-- =========================================================
@@ -1703,6 +1831,15 @@ Memulai Test Inspector V5 QR FIX...
   const historyDetailGrid =
     document.getElementById("historyDetailGrid");
 
+  const historyPrintBtn =
+    document.getElementById("historyPrintBtn");
+
+  const historyCloseDetailBtn =
+    document.getElementById("historyCloseDetailBtn");
+
+  const printArea =
+    document.getElementById("printArea");
+
 
 
   const saveInspectionBtn =
@@ -1752,6 +1889,8 @@ Memulai Test Inspector V5 QR FIX...
 
 
   let inspectionHistory = [];
+
+  let selectedHistoryItem = null;
 
 
   // =========================================================
@@ -5009,6 +5148,8 @@ Memulai Test Inspector V5 QR FIX...
 
   function showHistoryDetail(item) {
 
+    selectedHistoryItem = item;
+
     const fields = [
       [
         "Inspection ID",
@@ -5121,6 +5262,214 @@ Memulai Test Inspector V5 QR FIX...
       block: "nearest"
     });
   }
+
+
+
+  function escapePrintHtml(value) {
+
+    return String(value ?? "-")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+  }
+
+
+  function historyFieldValue(item, keys) {
+
+    for (const key of keys) {
+
+      if (
+        item &&
+        item[key] !== undefined &&
+        item[key] !== null &&
+        String(item[key]).trim() !== ""
+      ) {
+        return item[key];
+      }
+    }
+
+    return "-";
+  }
+
+
+  function buildInspectionPrintHtml(item) {
+
+    const assetNumber =
+      historyFieldValue(
+        item,
+        ["aparAssetNumber", "assetNumber", "aparId"]
+      );
+
+    const result =
+      historyResultText(item.result);
+
+    const resultClass =
+      String(item.result || "")
+        .trim()
+        .toLowerCase() === "fail"
+        ? "FAIL"
+        : result;
+
+    const rows = [
+      ["Inspection ID", item.id],
+      ["Asset Number", assetNumber],
+      ["APAR ID", item.aparId],
+      ["Tanggal Pemeriksaan", formatHistoryDate(item.inspectionDate)],
+      ["Inspector", getHistoryInspector(item)],
+      ["Inspector UID", item.inspectorId],
+      ["Nomor HP", item.inspectorPhone]
+    ];
+
+    const checks = [
+      ["Kondisi Fisik", item.physicalCondition],
+      ["Seal", item.seal],
+      ["Safety Pin", item.safetyPin],
+      ["Pressure", item.pressure],
+      ["Nozzle", item.nozzle],
+      ["Selang", item.hose],
+      ["Signage", item.signage]
+    ];
+
+    const generalRows =
+      rows.map(function(pair) {
+        return `
+          <tr>
+            <th>${escapePrintHtml(pair[0])}</th>
+            <td>${escapePrintHtml(pair[1])}</td>
+          </tr>
+        `;
+      }).join("");
+
+    const checkRows =
+      checks.map(function(pair) {
+        return `
+          <tr>
+            <th>${escapePrintHtml(pair[0])}</th>
+            <td>${escapePrintHtml(pair[1])}</td>
+          </tr>
+        `;
+      }).join("");
+
+    return `
+      <div class="print-report">
+        <h1>LAPORAN PEMERIKSAAN APAR</h1>
+        <div class="print-subtitle">
+          Hasil pemeriksaan yang tersimpan di sistem
+        </div>
+
+        <div class="print-section">IDENTITAS PEMERIKSAAN</div>
+
+        <table>
+          <tbody>
+            ${generalRows}
+          </tbody>
+        </table>
+
+        <div class="print-section">HASIL PEMERIKSAAN</div>
+
+        <table>
+          <tbody>
+            ${checkRows}
+            <tr>
+              <th>Hasil</th>
+              <td class="print-result">${escapePrintHtml(resultClass)}</td>
+            </tr>
+            <tr>
+              <th>Catatan</th>
+              <td>${escapePrintHtml(item.notes)}</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="print-section">WAKTU PENCATATAN</div>
+
+        <table>
+          <tbody>
+            <tr>
+              <th>Dibuat</th>
+              <td>${escapePrintHtml(formatHistoryDate(item.createdAt))}</td>
+            </tr>
+            <tr>
+              <th>Diperbarui</th>
+              <td>${escapePrintHtml(formatHistoryDate(item.updatedAt))}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+
+  function printHistoryItem(item) {
+
+    if (!item) {
+
+      historyStatus.textContent =
+        "Pilih Detail pemeriksaan terlebih dahulu.";
+
+      return;
+    }
+
+    printArea.innerHTML =
+      buildInspectionPrintHtml(item);
+
+    printArea.setAttribute(
+      "aria-hidden",
+      "false"
+    );
+
+    debug(
+      "Menyiapkan print pemeriksaan: " +
+      item.id
+    );
+
+    window.print();
+
+    /*
+     * Setelah dialog print selesai pada browser,
+     * bersihkan area print agar tidak memengaruhi
+     * tampilan aplikasi.
+     */
+    window.setTimeout(
+      function() {
+
+        printArea.innerHTML = "";
+
+        printArea.setAttribute(
+          "aria-hidden",
+          "true"
+        );
+
+      },
+      1000
+    );
+  }
+
+
+  historyPrintBtn.addEventListener(
+    "click",
+    function() {
+
+      printHistoryItem(
+        selectedHistoryItem
+      );
+    }
+  );
+
+
+  historyCloseDetailBtn.addEventListener(
+    "click",
+    function() {
+
+      historyDetail.classList.add(
+        "hidden"
+      );
+
+      selectedHistoryItem = null;
+    }
+  );
 
 
   async function loadInspectionHistory() {
@@ -5251,6 +5600,8 @@ Memulai Test Inspector V5 QR FIX...
         "hidden"
       );
 
+      selectedHistoryItem = null;
+
       renderHistory();
     }
   );
@@ -5304,6 +5655,7 @@ Memulai Test Inspector V5 QR FIX...
 
 
         selectedApar = null;
+        selectedHistoryItem = null;
         currentUser = null;
 
 
