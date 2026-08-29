@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.8</title>
+<title>APAR - Admin Dashboard V14.8.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -81,7 +81,7 @@ tr:last-child td{border-bottom:0}
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.8</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.8.1</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -247,6 +247,7 @@ tr:last-child td{border-bottom:0}
         <div class="subtitle">Daftar profil pengguna dari collection <b>users</b>.</div>
       </div>
       <div class="toolbar-left">
+        <button id="addUserBtn" class="action primary" type="button">➕ Tambah User</button>
         <button id="reloadUsersBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
       </div>
     </div>
@@ -295,7 +296,7 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.8...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.8.1...</div>
 </section>
 </div>
 </main>
@@ -374,7 +375,7 @@ tr:last-child td{border-bottom:0}
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
@@ -385,6 +386,9 @@ const firebaseConfig={
   messagingSenderId:"692076938129",
   appId:"1:692076938129:web:8583c9d30f47588c135030"
 };
+
+const userCreationApp=initializeApp(firebaseConfig,"userCreationApp");
+const userCreationAuth=getAuth(userCreationApp);
 
 let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
 
@@ -996,6 +1000,134 @@ async function saveUserEdit(){
   }
 }
 
+
+function setUserAddStatus(message,type="info"){
+  const e=$("userAddStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function openUserAdd(){
+  $("newUserName").value="";
+  $("newUserEmail").value="";
+  $("newUserPhone").value="";
+  $("newUserRole").value="inspector";
+  $("newUserStatus").value="active";
+  $("newUserPassword").value="";
+  $("newUserPassword2").value="";
+  $("userAddStatus").classList.add("hidden");
+  $("saveNewUserBtn").disabled=false;
+  $("userAddModal").classList.remove("hidden");
+  setTimeout(()=>$("newUserName").focus(),50);
+}
+
+function closeUserAdd(){
+  $("userAddModal").classList.add("hidden");
+}
+
+function firebaseAuthErrorMessage(e){
+  const code=String(e?.code||"");
+  const map={
+    "auth/email-already-in-use":"Email tersebut sudah terdaftar di Firebase Authentication.",
+    "auth/invalid-email":"Format email tidak valid.",
+    "auth/weak-password":"Password terlalu lemah. Gunakan minimal 6 karakter.",
+    "auth/operation-not-allowed":"Email/Password Authentication belum diaktifkan di Firebase.",
+    "auth/network-request-failed":"Koneksi internet bermasalah. Coba lagi.",
+    "permission-denied":"Firestore menolak akses. Pastikan rule users mengizinkan Admin aktif membuat user."
+  };
+  return map[code] || e?.message || "Gagal membuat user.";
+}
+
+async function createNewUser(){
+  const name=$("newUserName").value.trim();
+  const email=$("newUserEmail").value.trim().toLowerCase();
+  const phone=$("newUserPhone").value.trim();
+  const role=String($("newUserRole").value||"").toLowerCase();
+  const status=String($("newUserStatus").value||"").toLowerCase();
+  const password=$("newUserPassword").value;
+  const password2=$("newUserPassword2").value;
+
+  if(!name){
+    setUserAddStatus("Nama wajib diisi.","error"); $("newUserName").focus(); return;
+  }
+  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    setUserAddStatus("Email tidak valid.","error"); $("newUserEmail").focus(); return;
+  }
+  if(!["admin","inspector"].includes(role)){
+    setUserAddStatus("Role tidak valid.","error"); return;
+  }
+  if(!["active","inactive"].includes(status)){
+    setUserAddStatus("Status tidak valid.","error"); return;
+  }
+  if(password.length<6){
+    setUserAddStatus("Password minimal 6 karakter.","error"); $("newUserPassword").focus(); return;
+  }
+  if(password!==password2){
+    setUserAddStatus("Konfirmasi password tidak sama.","error"); $("newUserPassword2").focus(); return;
+  }
+
+  const btn=$("saveNewUserBtn");
+  btn.disabled=true;
+  setUserAddStatus("Membuat akun Firebase Authentication...","info");
+
+  let createdUser=null;
+  try{
+    // Secondary Auth: sesi Admin utama tetap aman dan tidak ikut logout.
+    const credential=await createUserWithEmailAndPassword(userCreationAuth,email,password);
+    createdUser=credential.user;
+
+    setUserAddStatus("Akun Authentication berhasil. Membuat profil Firestore...","info");
+
+    const profile={
+      email,
+      name,
+      phone,
+      role,
+      status,
+      createdAt:serverTimestamp(),
+      updatedAt:serverTimestamp()
+    };
+
+    await setDoc(doc(db,"users",createdUser.uid),profile);
+
+    userRows.push({
+      id:createdUser.uid,
+      email,name,phone,role,status
+    });
+    userRows.sort((a,b)=>String(a.name||a.email||a.id).localeCompare(
+      String(b.name||b.email||b.id),undefined,{sensitivity:"base"}
+    ));
+    renderUsers();
+
+    await signOut(userCreationAuth);
+    createdUser=null;
+
+    setUserAddStatus("User berhasil dibuat dan siap digunakan untuk login.","success");
+    debug("USER BARU DIBUAT: "+email+" | UID: "+credential.user.uid+" | ROLE: "+role);
+    setTimeout(closeUserAdd,900);
+
+  }catch(e){
+    console.error(e);
+    debug("CREATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
+
+    // Jika Auth berhasil tetapi Firestore gagal, coba rollback akun baru.
+    if(createdUser){
+      try{
+        await deleteUser(createdUser);
+        debug("Rollback Authentication berhasil untuk user baru: "+email);
+      }catch(rollbackError){
+        console.error("Rollback gagal:",rollbackError);
+        debug("ROLLBACK AUTH GAGAL: "+(rollbackError.code||"-")+" | "+(rollbackError.message||""));
+      }
+    }
+
+    setUserAddStatus(firebaseAuthErrorMessage(e),"error");
+  }finally{
+    btn.disabled=false;
+  }
+}
+
 function setView(view){
   const views={
     dashboard:$("dashboardView"),
@@ -1086,6 +1218,11 @@ $("userStatusFilter").addEventListener("change",renderUsers);
 $("closeUserEdit").addEventListener("click",closeUserEdit);
 $("userEditModal").addEventListener("click",e=>{if(e.target===$("userEditModal"))closeUserEdit()});
 $("saveUserBtn").addEventListener("click",saveUserEdit);
+$("addUserBtn").addEventListener("click",openUserAdd);
+$("closeUserAdd").addEventListener("click",closeUserAdd);
+$("userAddModal").addEventListener("click",e=>{if(e.target===$("userAddModal"))closeUserAdd()});
+$("saveNewUserBtn").addEventListener("click",createNewUser);
+
 
 
 try{
@@ -1140,6 +1277,66 @@ try{
       </select>
     </div>
     <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
+  </div>
+</div>
+
+
+<div id="userAddModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Tambah User Baru</h2>
+      <button id="closeUserAdd" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="userAddStatus" class="status info hidden"></div>
+
+    <div class="field">
+      <label for="newUserName">Nama</label>
+      <input id="newUserName" type="text" autocomplete="name" placeholder="Contoh: Inspector B">
+    </div>
+
+    <div class="field">
+      <label for="newUserEmail">Email Login</label>
+      <input id="newUserEmail" type="email" autocomplete="email" placeholder="contoh@apar.test">
+    </div>
+
+    <div class="field">
+      <label for="newUserPhone">Nomor HP</label>
+      <input id="newUserPhone" type="tel" autocomplete="tel" placeholder="+6281234567890">
+    </div>
+
+    <div class="field">
+      <label for="newUserRole">Role</label>
+      <select id="newUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="newUserStatus">Status</label>
+      <select id="newUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="newUserPassword">Password Awal</label>
+      <input id="newUserPassword" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+    </div>
+
+    <div class="field">
+      <label for="newUserPassword2">Konfirmasi Password</label>
+      <input id="newUserPassword2" type="password" autocomplete="new-password" placeholder="Ulangi password">
+    </div>
+
+    <div class="login-note" style="margin-bottom:15px">
+      Akun dibuat di Firebase Authentication dan profilnya otomatis dibuat di Firestore <b>users/{UID}</b>.
+      Password tidak disimpan di Firestore.
+    </div>
+
+    <button id="saveNewUserBtn" class="action primary" type="button">💾 Buat User</button>
   </div>
 </div>
 
