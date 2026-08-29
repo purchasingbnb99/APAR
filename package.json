@@ -1,0 +1,11 @@
+{
+  "name": "apar-firebase-backend",
+  "private": true,
+  "version": "1.0.0",
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "firebase-admin": "^13.4.0"
+  }
+}
