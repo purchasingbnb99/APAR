@@ -3011,7 +3011,7 @@ Memulai Test Inspector V5 QR FIX...
     }
 
     function rsRemainder(data) {
-      const gen = [87,229,146,149,238,102,21,1];
+      const gen = [127,122,154,164,11,68,117];
       const rem = new Array(ECC_CODEWORDS).fill(0);
       for (const b of data) {
         const factor = b ^ rem[0];
@@ -4016,6 +4016,10 @@ Memulai Test Inspector V5 QR FIX...
               width: 250,
               height: 250
             },
+
+            formatsToSupport: [
+              Html5QrcodeSupportedFormats.QR_CODE
+            ],
 
             aspectRatio: 1.0
           },
