@@ -573,6 +573,91 @@
       }
     }
 
+
+    /* =========================================================
+       RIWAYAT PEMERIKSAAN
+    ========================================================== */
+    .history-toolbar {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr 1fr auto;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .history-table-wrap {
+      overflow-x: auto;
+      margin-top: 14px;
+    }
+
+    .history-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 760px;
+    }
+
+    .history-table th,
+    .history-table td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 10px 8px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 13px;
+    }
+
+    .history-table th {
+      background: #f9fafb;
+      font-weight: 700;
+    }
+
+    .history-badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .history-badge.pass {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .history-badge.fail {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .history-badge.other {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .history-detail {
+      margin-top: 14px;
+      padding: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      background: #fafafa;
+    }
+
+    .history-detail-grid {
+      display: grid;
+      grid-template-columns: 170px 1fr;
+      gap: 7px 12px;
+      margin-top: 10px;
+    }
+
+    @media (max-width: 700px) {
+      .history-toolbar {
+        grid-template-columns: 1fr;
+      }
+
+      .history-detail-grid {
+        grid-template-columns: 1fr;
+        gap: 3px;
+      }
+    }
+
     @media (max-width: 600px) {
 
       .container {
@@ -1239,6 +1324,98 @@
   </div>
 
 
+
+  <!-- =====================================================
+       RIWAYAT PEMERIKSAAN
+  ====================================================== -->
+
+  <div id="historyCard" class="card hidden">
+
+    <h2>Riwayat Pemeriksaan APAR</h2>
+
+    <div id="historyStatus" class="status status-info">
+      Memuat riwayat pemeriksaan...
+    </div>
+
+    <div class="history-toolbar">
+
+      <input
+        id="historySearch"
+        type="search"
+        placeholder="Cari Asset Number..."
+        autocomplete="off"
+      />
+
+      <input
+        id="historyDateFrom"
+        type="date"
+        aria-label="Tanggal mulai"
+      />
+
+      <input
+        id="historyDateTo"
+        type="date"
+        aria-label="Tanggal sampai"
+      />
+
+      <select id="historyResultFilter" aria-label="Filter hasil">
+        <option value="">Semua Hasil</option>
+        <option value="pass">PASS</option>
+        <option value="fail">FAIL</option>
+      </select>
+
+    </div>
+
+    <div style="margin-top:10px;">
+      <button
+        id="historyRefreshBtn"
+        class="btn-secondary"
+        type="button"
+      >
+        ↻ Muat Ulang
+      </button>
+      <button
+        id="historyResetBtn"
+        class="btn-secondary"
+        type="button"
+      >
+        Reset Filter
+      </button>
+    </div>
+
+    <div class="history-table-wrap">
+
+      <table class="history-table">
+
+        <thead>
+          <tr>
+            <th>Tanggal</th>
+            <th>Asset Number</th>
+            <th>Inspector</th>
+            <th>Hasil</th>
+            <th>Catatan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+
+        <tbody id="historyTableBody">
+          <tr>
+            <td colspan="6">Belum ada data.</td>
+          </tr>
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div id="historyDetail" class="history-detail hidden">
+      <strong>Detail Pemeriksaan</strong>
+      <div id="historyDetailGrid" class="history-detail-grid"></div>
+    </div>
+
+  </div>
+
+
   <!-- =====================================================
        DEBUG
   ====================================================== -->
@@ -1493,6 +1670,41 @@ Memulai Test Inspector V5 QR FIX...
     );
 
 
+  const historyCard =
+    document.getElementById("historyCard");
+
+  const historyStatus =
+    document.getElementById("historyStatus");
+
+  const historySearch =
+    document.getElementById("historySearch");
+
+  const historyDateFrom =
+    document.getElementById("historyDateFrom");
+
+  const historyDateTo =
+    document.getElementById("historyDateTo");
+
+  const historyResultFilter =
+    document.getElementById("historyResultFilter");
+
+  const historyRefreshBtn =
+    document.getElementById("historyRefreshBtn");
+
+  const historyResetBtn =
+    document.getElementById("historyResetBtn");
+
+  const historyTableBody =
+    document.getElementById("historyTableBody");
+
+  const historyDetail =
+    document.getElementById("historyDetail");
+
+  const historyDetailGrid =
+    document.getElementById("historyDetailGrid");
+
+
+
   const saveInspectionBtn =
     document.getElementById(
       "saveInspectionBtn"
@@ -1537,6 +1749,9 @@ Memulai Test Inspector V5 QR FIX...
   let scannerRunning = false;
 
   let scannerHandlingResult = false;
+
+
+  let inspectionHistory = [];
 
 
   // =========================================================
@@ -2707,6 +2922,7 @@ Memulai Test Inspector V5 QR FIX...
         );
 
         await loadAparList();
+        await loadInspectionHistory();
 
 
       } else {
@@ -4491,6 +4707,555 @@ Memulai Test Inspector V5 QR FIX...
   );
 
 
+
+  // =========================================================
+  // RIWAYAT PEMERIKSAAN
+  // =========================================================
+
+  function historyTimestampToDate(value) {
+
+    if (!value) {
+      return null;
+    }
+
+    if (
+      typeof value.toDate === "function"
+    ) {
+      return value.toDate();
+    }
+
+    if (
+      value instanceof Date
+    ) {
+      return value;
+    }
+
+    if (
+      typeof value === "number"
+    ) {
+      return new Date(value);
+    }
+
+    return null;
+  }
+
+
+  function formatHistoryDate(value) {
+
+    const date =
+      historyTimestampToDate(value);
+
+    if (!date || Number.isNaN(date.getTime())) {
+      return "-";
+    }
+
+    return new Intl.DateTimeFormat(
+      "id-ID",
+      {
+        dateStyle: "short",
+        timeStyle: "short"
+      }
+    ).format(date);
+  }
+
+
+  function historyResultText(value) {
+
+    const normalized =
+      String(value || "")
+        .trim()
+        .toLowerCase();
+
+    if (normalized === "pass") {
+      return "PASS";
+    }
+
+    if (normalized === "fail") {
+      return "FAIL";
+    }
+
+    return String(value || "-").toUpperCase();
+  }
+
+
+  function historyResultClass(value) {
+
+    const normalized =
+      String(value || "")
+        .trim()
+        .toLowerCase();
+
+    if (normalized === "pass") {
+      return "pass";
+    }
+
+    if (normalized === "fail") {
+      return "fail";
+    }
+
+    return "other";
+  }
+
+
+  function getInspectionDate(item) {
+
+    return (
+      item.inspectionDate ||
+      item.createdAt ||
+      item.updatedAt ||
+      null
+    );
+  }
+
+
+  function getHistoryInspector(item) {
+
+    return (
+      item.inspectorName ||
+      item.inspector ||
+      item.inspectorPhone ||
+      item.inspectorId ||
+      "-"
+    );
+  }
+
+
+  function renderHistory() {
+
+    const search =
+      String(historySearch.value || "")
+        .trim()
+        .toLowerCase();
+
+    const from =
+      historyDateFrom.value || "";
+
+    const to =
+      historyDateTo.value || "";
+
+    const resultFilter =
+      String(
+        historyResultFilter.value || ""
+      ).toLowerCase();
+
+    const filtered =
+      inspectionHistory.filter(function(item) {
+
+        const asset =
+          String(
+            item.aparAssetNumber ||
+            item.assetNumber ||
+            item.aparId ||
+            ""
+          );
+
+        if (
+          search &&
+          !asset.toLowerCase().includes(search)
+        ) {
+          return false;
+        }
+
+        const date =
+          historyTimestampToDate(
+            getInspectionDate(item)
+          );
+
+        if (from && date) {
+
+          const fromDate =
+            new Date(from + "T00:00:00");
+
+          if (date < fromDate) {
+            return false;
+          }
+        }
+
+        if (to && date) {
+
+          const toDate =
+            new Date(to + "T23:59:59.999");
+
+          if (date > toDate) {
+            return false;
+          }
+        }
+
+        const result =
+          String(item.result || "")
+            .trim()
+            .toLowerCase();
+
+        if (
+          resultFilter &&
+          result !== resultFilter
+        ) {
+          return false;
+        }
+
+        return true;
+      });
+
+    historyTableBody.innerHTML = "";
+
+    if (!filtered.length) {
+
+      const row =
+        document.createElement("tr");
+
+      const cell =
+        document.createElement("td");
+
+      cell.colSpan = 6;
+      cell.textContent =
+        "Tidak ada pemeriksaan yang sesuai filter.";
+
+      row.appendChild(cell);
+      historyTableBody.appendChild(row);
+
+      historyStatus.textContent =
+        "0 pemeriksaan ditemukan.";
+
+      return;
+    }
+
+    filtered.forEach(function(item) {
+
+      const row =
+        document.createElement("tr");
+
+      const dateCell =
+        document.createElement("td");
+
+      dateCell.textContent =
+        formatHistoryDate(
+          getInspectionDate(item)
+        );
+
+      const assetCell =
+        document.createElement("td");
+
+      assetCell.textContent =
+        item.aparAssetNumber ||
+        item.assetNumber ||
+        item.aparId ||
+        "-";
+
+      const inspectorCell =
+        document.createElement("td");
+
+      inspectorCell.textContent =
+        getHistoryInspector(item);
+
+      const resultCell =
+        document.createElement("td");
+
+      const badge =
+        document.createElement("span");
+
+      badge.className =
+        "history-badge " +
+        historyResultClass(item.result);
+
+      badge.textContent =
+        historyResultText(item.result);
+
+      resultCell.appendChild(badge);
+
+      const notesCell =
+        document.createElement("td");
+
+      notesCell.textContent =
+        item.notes || "-";
+
+      const actionCell =
+        document.createElement("td");
+
+      const detailBtn =
+        document.createElement("button");
+
+      detailBtn.type = "button";
+      detailBtn.className =
+        "btn-secondary";
+      detailBtn.textContent =
+        "Detail";
+
+      detailBtn.addEventListener(
+        "click",
+        function() {
+          showHistoryDetail(item);
+        }
+      );
+
+      actionCell.appendChild(detailBtn);
+
+      row.appendChild(dateCell);
+      row.appendChild(assetCell);
+      row.appendChild(inspectorCell);
+      row.appendChild(resultCell);
+      row.appendChild(notesCell);
+      row.appendChild(actionCell);
+
+      historyTableBody.appendChild(row);
+    });
+
+    historyStatus.textContent =
+      filtered.length +
+      " dari " +
+      inspectionHistory.length +
+      " pemeriksaan ditampilkan.";
+  }
+
+
+  function showHistoryDetail(item) {
+
+    const fields = [
+      [
+        "Inspection ID",
+        item.id || "-"
+      ],
+      [
+        "Asset Number",
+        item.aparAssetNumber ||
+        item.assetNumber ||
+        "-"
+      ],
+      [
+        "APAR ID",
+        item.aparId || "-"
+      ],
+      [
+        "Tanggal Pemeriksaan",
+        formatHistoryDate(
+          item.inspectionDate
+        )
+      ],
+      [
+        "Inspector",
+        getHistoryInspector(item)
+      ],
+      [
+        "Inspector UID",
+        item.inspectorId || "-"
+      ],
+      [
+        "Nomor HP",
+        item.inspectorPhone || "-"
+      ],
+      [
+        "Kondisi Fisik",
+        item.physicalCondition || "-"
+      ],
+      [
+        "Seal",
+        item.seal || "-"
+      ],
+      [
+        "Safety Pin",
+        item.safetyPin || "-"
+      ],
+      [
+        "Pressure",
+        item.pressure || "-"
+      ],
+      [
+        "Nozzle",
+        item.nozzle || "-"
+      ],
+      [
+        "Selang",
+        item.hose || "-"
+      ],
+      [
+        "Signage",
+        item.signage || "-"
+      ],
+      [
+        "Hasil",
+        historyResultText(item.result)
+      ],
+      [
+        "Catatan",
+        item.notes || "-"
+      ],
+      [
+        "Dibuat",
+        formatHistoryDate(
+          item.createdAt
+        )
+      ],
+      [
+        "Diperbarui",
+        formatHistoryDate(
+          item.updatedAt
+        )
+      ]
+    ];
+
+    historyDetailGrid.innerHTML = "";
+
+    fields.forEach(function(pair) {
+
+      const label =
+        document.createElement("strong");
+
+      label.textContent =
+        pair[0];
+
+      const value =
+        document.createElement("div");
+
+      value.textContent =
+        pair[1];
+
+      historyDetailGrid.appendChild(label);
+      historyDetailGrid.appendChild(value);
+    });
+
+    historyDetail.classList.remove(
+      "hidden"
+    );
+
+    historyDetail.scrollIntoView({
+      behavior: "smooth",
+      block: "nearest"
+    });
+  }
+
+
+  async function loadInspectionHistory() {
+
+    if (!db) {
+      return;
+    }
+
+    historyStatus.textContent =
+      "Memuat riwayat pemeriksaan...";
+
+    try {
+
+      const snapshot =
+        await getDocs(
+          collection(
+            db,
+            "inspections"
+          )
+        );
+
+      inspectionHistory =
+        snapshot.docs.map(
+          function(documentSnapshot) {
+
+            return {
+              id: documentSnapshot.id,
+              ...(documentSnapshot.data() || {})
+            };
+          }
+        );
+
+      inspectionHistory.sort(
+        function(a, b) {
+
+          const da =
+            historyTimestampToDate(
+              getInspectionDate(a)
+            );
+
+          const dbb =
+            historyTimestampToDate(
+              getInspectionDate(b)
+            );
+
+          return (
+            (dbb ? dbb.getTime() : 0) -
+            (da ? da.getTime() : 0)
+          );
+        }
+      );
+
+      historyCard.classList.remove(
+        "hidden"
+      );
+
+      renderHistory();
+
+      debug(
+        "Riwayat inspections berhasil dimuat: " +
+        inspectionHistory.length
+      );
+
+    } catch (error) {
+
+      console.error(error);
+
+      historyCard.classList.remove(
+        "hidden"
+      );
+
+      historyStatus.textContent =
+        "Gagal membaca riwayat pemeriksaan: " +
+        (error.message || error);
+
+      debug(
+        "GAGAL MEMBACA inspections"
+      );
+
+      debug(
+        "Code: " +
+        (error.code || "-")
+      );
+
+      debug(
+        "Message: " +
+        (error.message || "-")
+      );
+    }
+  }
+
+
+  historySearch.addEventListener(
+    "input",
+    renderHistory
+  );
+
+  historyDateFrom.addEventListener(
+    "change",
+    renderHistory
+  );
+
+  historyDateTo.addEventListener(
+    "change",
+    renderHistory
+  );
+
+  historyResultFilter.addEventListener(
+    "change",
+    renderHistory
+  );
+
+  historyRefreshBtn.addEventListener(
+    "click",
+    loadInspectionHistory
+  );
+
+  historyResetBtn.addEventListener(
+    "click",
+    function() {
+
+      historySearch.value = "";
+      historyDateFrom.value = "";
+      historyDateTo.value = "";
+      historyResultFilter.value = "";
+
+      historyDetail.classList.add(
+        "hidden"
+      );
+
+      renderHistory();
+    }
+  );
+
+
   // =========================================================
   // LOGOUT
   // =========================================================
@@ -4526,6 +5291,10 @@ Memulai Test Inspector V5 QR FIX...
 
 
         scannerCard.classList.add(
+          "hidden"
+        );
+
+        historyCard.classList.add(
           "hidden"
         );
 
