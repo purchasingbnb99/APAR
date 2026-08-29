@@ -852,38 +852,7 @@ function printHistory(){
   <tbody>${body}</tbody></table>
   <script>window.onload=function(){window.print()}<\/script>
   
-<div id="userEditModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Edit User</h2>
-      <button id="closeUserEdit" class="close" type="button">✕ Tutup</button>
-    </div>
-    <div id="userEditStatus" class="status info hidden"></div>
-    <div class="detail-grid">
-      <div class="detail-item"><div class="detail-label">UID</div><div id="editUserUid" class="detail-value">-</div></div>
-      <div class="detail-item"><div class="detail-label">Email</div><div id="editUserEmail" class="detail-value">-</div></div>
-    </div>
-    <div class="field" style="margin-top:16px">
-      <label for="editUserName">Nama</label>
-      <input id="editUserName" type="text" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px">
-    </div>
-    <div class="field">
-      <label for="editUserRole">Role</label>
-      <select id="editUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
-        <option value="inspector">Inspector</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="editUserStatus">Status</label>
-      <select id="editUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-    </div>
-    <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
-  </div>
-</div>
+
 
 </body></html>`);
   win.document.close();
@@ -1140,5 +1109,39 @@ try{
   console.error(e);setStatus("Gagal menginisialisasi Firebase.","error");debug("Firebase INIT ERROR: "+e.message);showLogin();
 }
 </script>
+
+<div id="userEditModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit User</h2>
+      <button id="closeUserEdit" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="userEditStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">UID</div><div id="editUserUid" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Email</div><div id="editUserEmail" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="editUserName">Nama</label>
+      <input id="editUserName" type="text" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px">
+    </div>
+    <div class="field">
+      <label for="editUserRole">Role</label>
+      <select id="editUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editUserStatus">Status</label>
+      <select id="editUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+    <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
+  </div>
+</div>
+
 </body>
 </html>
