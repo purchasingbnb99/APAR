@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.7</title>
+<title>APAR - Admin Dashboard V14.8</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -81,13 +81,14 @@ tr:last-child td{border-bottom:0}
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.7</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.8</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
     <button id="navMonitoring" type="button">🔍 Monitoring</button>
     <button id="navInspection" type="button">📋 Pemeriksaan</button>
     <button id="navHistory" type="button">📜 Riwayat</button>
+    <button id="navUsers" type="button">👥 User Management</button>
     <button id="logoutBtn" type="button">🚪 Logout</button>
   </div>
 </aside>
@@ -237,6 +238,56 @@ tr:last-child td{border-bottom:0}
   </section>
 </section>
 
+
+<section id="usersView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>User Management</h2>
+        <div class="subtitle">Daftar profil pengguna dari collection <b>users</b>.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="reloadUsersBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+      </div>
+    </div>
+
+    <div class="history-filters">
+      <input id="userSearch" type="search" placeholder="Cari email, nama, UID...">
+      <select id="userRoleFilter">
+        <option value="">Semua Role</option>
+        <option value="admin">Admin</option>
+        <option value="inspector">Inspector</option>
+      </select>
+      <select id="userStatusFilter">
+        <option value="">Semua Status</option>
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <span id="userCount" class="history-count">0 user</span>
+    </div>
+
+    <div id="usersStatus" class="status info hidden"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Email</th>
+            <th>Nama</th>
+            <th>Role</th>
+            <th>Status</th>
+            <th>UID</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="usersBody">
+          <tr><td colspan="6" class="empty">Memuat user...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
 <section id="placeholderView" class="card hidden">
   <h2 id="placeholderTitle">Menu</h2>
   <div id="placeholderText" class="subtitle">Menu ini akan dibangun pada tahap berikutnya.</div>
@@ -244,7 +295,7 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.7...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.8...</div>
 </section>
 </div>
 </main>
@@ -335,7 +386,7 @@ const firebaseConfig={
   appId:"1:692076938129:web:8583c9d30f47588c135030"
 };
 
-let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],monitorRows=[],aparFormMode="create",aparEditId=null;
+let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
 
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -800,8 +851,180 @@ function printHistory(){
   <table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead>
   <tbody>${body}</tbody></table>
   <script>window.onload=function(){window.print()}<\/script>
-  </body></html>`);
+  
+<div id="userEditModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit User</h2>
+      <button id="closeUserEdit" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="userEditStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">UID</div><div id="editUserUid" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Email</div><div id="editUserEmail" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="editUserName">Nama</label>
+      <input id="editUserName" type="text" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px">
+    </div>
+    <div class="field">
+      <label for="editUserRole">Role</label>
+      <select id="editUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editUserStatus">Status</label>
+      <select id="editUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+    <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
+  </div>
+</div>
+
+</body></html>`);
   win.document.close();
+}
+
+
+function setUsersStatus(message,type="info"){
+  const e=$("usersStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+async function loadUsers(){
+  try{
+    setUsersStatus("Membaca collection users dari Firestore...","info");
+    const snap=await getDocs(collection(db,"users"));
+    userRows=[];
+    snap.forEach(s=>userRows.push({id:s.id,...(s.data()||{})}));
+    userRows.sort((a,b)=>String(a.name||a.email||a.id).localeCompare(String(b.name||b.email||b.id),undefined,{sensitivity:"base"}));
+    renderUsers();
+    setUsersStatus("Data user berhasil dimuat.","success");
+    debug(`Users ditemukan: ${userRows.length}`);
+  }catch(e){
+    console.error(e);
+    setUsersStatus("Gagal membaca collection users: "+(e.message||"Unknown error"),"error");
+    debug("USERS ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }
+}
+
+function renderUsers(){
+  const q=String($("userSearch").value||"").trim().toLowerCase();
+  const role=String($("userRoleFilter").value||"").toLowerCase();
+  const status=String($("userStatusFilter").value||"").toLowerCase();
+
+  const rows=userRows.filter(x=>{
+    const hay=[x.email,x.name,x.id,x.phone].map(v=>String(v??"").toLowerCase()).join(" ");
+    const r=String(x.role||"").toLowerCase();
+    const s=String(x.status||"").toLowerCase();
+    return (!q||hay.includes(q)) && (!role||r===role) && (!status||s===status);
+  });
+
+  $("userCount").textContent=`${rows.length} user`;
+  const body=$("usersBody");
+
+  if(!rows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Tidak ada user yang sesuai filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.email||"-")}</strong></td>
+    <td>${esc(x.name||"-")}</td>
+    <td>${esc(String(x.role||"-").toUpperCase())}</td>
+    <td>${badge(x.status)}</td>
+    <td title="${esc(x.id)}">${esc(x.id)}</td>
+    <td><button class="small-btn" data-edit-user="${esc(x.id)}" type="button">Edit</button></td>
+  </tr>`).join("");
+
+  body.querySelectorAll("[data-edit-user]").forEach(btn=>{
+    btn.addEventListener("click",()=>openUserEdit(btn.dataset.editUser));
+  });
+}
+
+function openUserEdit(id){
+  const x=userRows.find(u=>u.id===id);
+  if(!x)return;
+
+  editingUserId=id;
+  $("editUserUid").textContent=id;
+  $("editUserEmail").textContent=x.email||"-";
+  $("editUserName").value=x.name||"";
+  $("editUserRole").value=String(x.role||"inspector").toLowerCase();
+  $("editUserStatus").value=String(x.status||"active").toLowerCase();
+  $("userEditStatus").classList.add("hidden");
+  $("userEditModal").classList.remove("hidden");
+}
+
+function closeUserEdit(){
+  editingUserId=null;
+  $("userEditModal").classList.add("hidden");
+}
+
+async function saveUserEdit(){
+  if(!editingUserId)return;
+
+  const role=String($("editUserRole").value).toLowerCase();
+  const status=String($("editUserStatus").value).toLowerCase();
+  const name=$("editUserName").value.trim();
+
+  if(!["admin","inspector"].includes(role)){
+    $("userEditStatus").textContent="Role tidak valid.";
+    $("userEditStatus").className="status error";
+    $("userEditStatus").classList.remove("hidden");
+    return;
+  }
+
+  if(!["active","inactive"].includes(status)){
+    $("userEditStatus").textContent="Status tidak valid.";
+    $("userEditStatus").className="status error";
+    $("userEditStatus").classList.remove("hidden");
+    return;
+  }
+
+  // Jangan izinkan Admin menonaktifkan dirinya sendiri.
+  if(editingUserId===currentAdmin?.uid && status==="inactive"){
+    $("userEditStatus").textContent="Admin yang sedang login tidak boleh dinonaktifkan dari sesi ini.";
+    $("userEditStatus").className="status warning";
+    $("userEditStatus").classList.remove("hidden");
+    return;
+  }
+
+  $("saveUserBtn").disabled=true;
+  $("userEditStatus").textContent="Menyimpan perubahan...";
+  $("userEditStatus").className="status info";
+  $("userEditStatus").classList.remove("hidden");
+
+  try{
+    await updateDoc(doc(db,"users",editingUserId),{
+      name,
+      role,
+      status,
+      updatedAt:new Date()
+    });
+
+    const idx=userRows.findIndex(u=>u.id===editingUserId);
+    if(idx>=0) userRows[idx]={...userRows[idx],name,role,status,updatedAt:new Date()};
+
+    renderUsers();
+    $("userEditStatus").textContent="Perubahan user berhasil disimpan.";
+    $("userEditStatus").className="status success";
+    debug("User diperbarui: "+editingUserId);
+    setTimeout(closeUserEdit,600);
+  }catch(e){
+    console.error(e);
+    $("userEditStatus").textContent="Gagal menyimpan: "+(e.message||"Unknown error");
+    $("userEditStatus").className="status error";
+    debug("UPDATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }finally{
+    $("saveUserBtn").disabled=false;
+  }
 }
 
 function setView(view){
@@ -810,11 +1033,12 @@ function setView(view){
     data:$("dataAparView"),
     monitoring:$("monitoringView"),
     history:$("historyView"),
+    users:$("usersView"),
     placeholder:$("placeholderView")
   };
   Object.values(views).forEach(v=>v.classList.add("hidden"));
   views[view].classList.remove("hidden");
-  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory"].forEach(id=>$(id).classList.remove("active"));
+  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navUsers"].forEach(id=>$(id).classList.remove("active"));
 
   if(view==="dashboard"){
     $("navDashboard").classList.add("active");
@@ -837,6 +1061,11 @@ function setView(view){
     $("pageTitle").textContent="Riwayat Pemeriksaan";
     $("pageSubtitle").textContent="Riwayat pemeriksaan APAR dari Firestore";
     renderHistory();
+  }
+  if(view==="users"){
+    $("pageTitle").textContent="User Management";
+    $("pageSubtitle").textContent="Kelola profil dan hak akses pengguna";
+    loadUsers();
   }
 }
 function placeholder(title,text,id){
@@ -877,6 +1106,18 @@ $("navDataApar").addEventListener("click",()=>setView("data"));
 $("navMonitoring").addEventListener("click",()=>setView("monitoring"));
 $("navInspection").addEventListener("click",()=>placeholder("Pemeriksaan","Modul Pemeriksaan Admin akan dibangun pada tahap berikutnya.","navInspection"));
 $("navHistory").addEventListener("click",()=>setView("history"));
+$("navUsers").addEventListener("click",()=>{
+  $("navUsers").classList.add("active");
+  setView("users");
+});
+$("reloadUsersBtn").addEventListener("click",loadUsers);
+$("userSearch").addEventListener("input",renderUsers);
+$("userRoleFilter").addEventListener("change",renderUsers);
+$("userStatusFilter").addEventListener("change",renderUsers);
+$("closeUserEdit").addEventListener("click",closeUserEdit);
+$("userEditModal").addEventListener("click",e=>{if(e.target===$("userEditModal"))closeUserEdit()});
+$("saveUserBtn").addEventListener("click",saveUserEdit);
+
 
 try{
   debug("Menginisialisasi Firebase...");
