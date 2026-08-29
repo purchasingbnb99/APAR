@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.6</title>
+<title>APAR - Admin Dashboard V14.7</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -70,12 +70,18 @@ tr:last-child td{border-bottom:0}
 .hidden{display:none!important}
 @media(max-width:900px){.sidebar{width:205px}.main{margin-left:205px;width:calc(100% - 205px);padding:20px}.stats{grid-template-columns:repeat(2,minmax(0,1fr))}.topbar{align-items:flex-start;flex-direction:column}}
 @media(max-width:650px){.app{display:block}.sidebar{position:static;width:100%;padding:14px}.brand{padding-bottom:14px}.nav{display:grid;grid-template-columns:repeat(2,1fr);gap:5px}.nav button{margin:0}.main{margin:0;width:100%;padding:14px}.stats{grid-template-columns:1fr 1fr;gap:10px}.stat{padding:14px}.stat-value{font-size:27px}.detail-grid{grid-template-columns:1fr}}
+
+.history-filters{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:15px}
+.history-filters input,.history-filters select{border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;outline:none;background:#fff}
+.history-filters input:focus,.history-filters select:focus{border-color:#2563eb}
+.history-count{font-size:12px;color:#64748b}
+
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.6</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.7</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -183,6 +189,54 @@ tr:last-child td{border-bottom:0}
   </section>
 </section>
 
+
+<section id="historyView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>Riwayat Pemeriksaan Admin</h2>
+        <div class="subtitle">Seluruh riwayat pemeriksaan dari collection <b>inspections</b>.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="reloadHistoryBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+        <button id="printHistoryBtn" class="action primary" type="button">🖨️ Print</button>
+      </div>
+    </div>
+
+    <div class="history-filters">
+      <input id="historySearch" type="search" placeholder="Cari Asset Number, Inspector, hasil, catatan...">
+      <select id="historyResult">
+        <option value="">Semua Hasil</option>
+        <option value="pass">PASS</option>
+        <option value="fail">FAIL</option>
+      </select>
+      <input id="historyFrom" type="date" title="Tanggal mulai">
+      <input id="historyTo" type="date" title="Tanggal akhir">
+      <span id="historyCount" class="history-count">0 data</span>
+    </div>
+
+    <div id="historyStatus" class="status info hidden"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Asset Number</th>
+            <th>Inspector</th>
+            <th>Hasil</th>
+            <th>Tanggal</th>
+            <th>Catatan</th>
+            <th>Aksi</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <tr><td colspan="6" class="empty">Memuat riwayat...</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
 <section id="placeholderView" class="card hidden">
   <h2 id="placeholderTitle">Menu</h2>
   <div id="placeholderText" class="subtitle">Menu ini akan dibangun pada tahap berikutnya.</div>
@@ -190,7 +244,7 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.6...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.7...</div>
 </section>
 </div>
 </main>
@@ -373,6 +427,7 @@ async function loadAll(){
     setStatus("Memuat data Dashboard dari Firestore...","info");
     await Promise.all([loadApar(),loadInspections()]);
     renderMonitoring();
+    if(!$("historyView").classList.contains("hidden")) renderHistory();
     setStatus("Dashboard Admin berhasil dimuat dari Firestore.","success");
   }catch(e){
     console.error(e);setStatus("Gagal membaca data Dashboard dari Firestore.","error");
@@ -630,16 +685,137 @@ function showDetail(id){
 }
 function closeDetail(){$("detailModal").classList.add("hidden")}
 
+
+function setHistoryStatus(message,type="info"){
+  const e=$("historyStatus");
+  e.textContent=message;
+  e.className=`status ${type}`;
+  e.classList.remove("hidden");
+}
+
+function getHistoryRows(){
+  const q=String($("historySearch").value||"").trim().toLowerCase();
+  const result=String($("historyResult").value||"").trim().toLowerCase();
+  const from=$("historyFrom").value;
+  const to=$("historyTo").value;
+
+  const fromTime=from ? new Date(from+"T00:00:00").getTime() : null;
+  const toTime=to ? new Date(to+"T23:59:59.999").getTime() : null;
+
+  return inspectionRows.filter(x=>{
+    const asset=inspectionAssetKey(x).toLowerCase();
+    const inspector=inspectorLabel(x).toLowerCase();
+    const res=String(x.result||"").toLowerCase();
+    const notes=String(x.notes||"").toLowerCase();
+    const haystack=[asset,inspector,res,notes,String(x.id||"").toLowerCase()].join(" ");
+
+    if(q && !haystack.includes(q)) return false;
+    if(result && res!==result) return false;
+
+    const t=dateValue(x.inspectionDate||x.createdAt);
+    if(fromTime!==null && t<fromTime) return false;
+    if(toTime!==null && t>toTime) return false;
+
+    return true;
+  });
+}
+
+function renderHistory(){
+  const rows=getHistoryRows();
+  $("historyCount").textContent=`${rows.length} data`;
+
+  const body=$("historyBody");
+  if(!rows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Tidak ada riwayat yang sesuai filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.aparAssetNumber||x.aparId||"-")}</strong></td>
+    <td>${esc(inspectorLabel(x))}</td>
+    <td>${badge(x.result)}</td>
+    <td>${formatDate(x.inspectionDate||x.createdAt)}</td>
+    <td>${esc(x.notes||"-")}</td>
+    <td><button class="small-btn" data-history-id="${esc(x.id)}" type="button">Detail</button></td>
+  </tr>`).join("");
+
+  body.querySelectorAll("[data-history-id]").forEach(btn=>{
+    btn.addEventListener("click",()=>showInspectionDetail(btn.dataset.historyId));
+  });
+}
+
+function showInspectionDetail(id){
+  const x=inspectionRows.find(r=>r.id===id);
+  if(!x)return;
+
+  const fields=[
+    ["Document ID",x.id],
+    ["Asset Number",x.aparAssetNumber||x.aparId],
+    ["Inspector",inspectorLabel(x)],
+    ["Hasil",x.result],
+    ["Tanggal Pemeriksaan",formatDate(x.inspectionDate||x.createdAt)],
+    ["Catatan",x.notes],
+    ["Created At",formatDate(x.createdAt)],
+    ["Updated At",formatDate(x.updatedAt)]
+  ];
+
+  $("detailContent").innerHTML=`<div class="detail-grid">${fields.map(([l,v])=>`<div class="detail-item"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v)}</div></div>`).join("")}</div>`;
+  $("detailModal").classList.remove("hidden");
+}
+
+function printHistory(){
+  const rows=getHistoryRows();
+  if(!rows.length){
+    setHistoryStatus("Tidak ada data yang bisa dicetak.","warning");
+    return;
+  }
+
+  const win=window.open("","_blank","width=1200,height=800");
+  if(!win){
+    setHistoryStatus("Popup diblokir browser. Izinkan popup untuk mencetak.","error");
+    return;
+  }
+
+  const generatedAt=new Date().toLocaleString("id-ID");
+  const body=rows.map(x=>`<tr>
+    <td>${esc(x.aparAssetNumber||x.aparId||"-")}</td>
+    <td>${esc(inspectorLabel(x))}</td>
+    <td>${esc(String(x.result||"-").toUpperCase())}</td>
+    <td>${formatDate(x.inspectionDate||x.createdAt)}</td>
+    <td>${esc(x.notes||"-")}</td>
+  </tr>`).join("");
+
+  win.document.write(`<!doctype html><html><head><title>Riwayat Pemeriksaan APAR</title>
+  <style>
+  body{font-family:Arial,sans-serif;padding:25px;color:#111}
+  h1{font-size:22px;margin:0 0 5px}
+  p{font-size:12px;color:#555}
+  table{width:100%;border-collapse:collapse;margin-top:18px}
+  th,td{border:1px solid #ccc;padding:8px;font-size:11px;text-align:left}
+  th{background:#f3f4f6}
+  @media print{button{display:none}}
+  </style></head><body>
+  <h1>Riwayat Pemeriksaan APAR</h1>
+  <p>Dicetak: ${esc(generatedAt)} | Jumlah data: ${rows.length}</p>
+  <table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead>
+  <tbody>${body}</tbody></table>
+  <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
 function setView(view){
   const views={
     dashboard:$("dashboardView"),
     data:$("dataAparView"),
     monitoring:$("monitoringView"),
+    history:$("historyView"),
     placeholder:$("placeholderView")
   };
   Object.values(views).forEach(v=>v.classList.add("hidden"));
   views[view].classList.remove("hidden");
   ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory"].forEach(id=>$(id).classList.remove("active"));
+
   if(view==="dashboard"){
     $("navDashboard").classList.add("active");
     $("pageTitle").textContent="Admin Dashboard";
@@ -655,6 +831,12 @@ function setView(view){
     $("pageTitle").textContent="Monitoring APAR";
     $("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";
     loadMonitoring();
+  }
+  if(view==="history"){
+    $("navHistory").classList.add("active");
+    $("pageTitle").textContent="Riwayat Pemeriksaan";
+    $("pageSubtitle").textContent="Riwayat pemeriksaan APAR dari Firestore";
+    renderHistory();
   }
 }
 function placeholder(title,text,id){
@@ -681,6 +863,12 @@ $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(
 $("reloadBtn").addEventListener("click",loadAll);
 $("reloadAparBtn").addEventListener("click",loadAll);
 $("reloadMonitoringBtn").addEventListener("click",async()=>{await loadAll();loadMonitoring();});
+$("reloadHistoryBtn").addEventListener("click",async()=>{await loadAll();renderHistory();});
+$("printHistoryBtn").addEventListener("click",printHistory);
+$("historySearch").addEventListener("input",renderHistory);
+$("historyResult").addEventListener("change",renderHistory);
+$("historyFrom").addEventListener("change",renderHistory);
+$("historyTo").addEventListener("change",renderHistory);
 $("aparSearch").addEventListener("input",renderMasterApar);
 $("closeDetail").addEventListener("click",closeDetail);
 $("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeDetail()});
@@ -688,7 +876,7 @@ $("navDashboard").addEventListener("click",()=>setView("dashboard"));
 $("navDataApar").addEventListener("click",()=>setView("data"));
 $("navMonitoring").addEventListener("click",()=>setView("monitoring"));
 $("navInspection").addEventListener("click",()=>placeholder("Pemeriksaan","Modul Pemeriksaan Admin akan dibangun pada tahap berikutnya.","navInspection"));
-$("navHistory").addEventListener("click",()=>placeholder("Riwayat","Modul Riwayat Admin akan dibangun pada tahap berikutnya.","navHistory"));
+$("navHistory").addEventListener("click",()=>setView("history"));
 
 try{
   debug("Menginisialisasi Firebase...");
