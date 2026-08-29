@@ -1,0 +1,3690 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>APAR - Test Inspector V5 QR FIX</title>
+
+  <style>
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+      background: #f3f4f6;
+      color: #1f2937;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 760px;
+
+      margin: 40px auto;
+      padding: 20px;
+    }
+
+    .card {
+      background: #ffffff;
+
+      border-radius: 16px;
+
+      padding: 28px;
+
+      margin-bottom: 20px;
+
+      box-shadow:
+        0 8px 30px
+        rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+
+      font-size: 28px;
+    }
+
+    h2 {
+      margin-top: 0;
+
+      font-size: 20px;
+    }
+
+    .subtitle {
+      color: #6b7280;
+
+      margin-bottom: 24px;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    label {
+      display: block;
+
+      font-weight: 600;
+
+      margin-bottom: 7px;
+    }
+
+    input {
+      width: 100%;
+
+      padding: 13px 14px;
+
+      border:
+        1px solid #d1d5db;
+
+      border-radius: 9px;
+
+      font-size: 15px;
+
+      outline: none;
+    }
+
+    input:focus {
+      border-color: #2563eb;
+
+      box-shadow:
+        0 0 0 3px
+        rgba(37, 99, 235, 0.12);
+    }
+
+    button {
+      border: none;
+
+      border-radius: 9px;
+
+      padding: 13px 18px;
+
+      font-size: 15px;
+
+      font-weight: 600;
+
+      cursor: pointer;
+
+      margin-right: 8px;
+
+      margin-bottom: 8px;
+    }
+
+    button:disabled {
+      opacity: 0.55;
+
+      cursor: not-allowed;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    .btn-success {
+      background: #16a34a;
+
+      color: white;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #6b7280;
+
+      color: white;
+    }
+
+    .status {
+      padding: 14px 16px;
+
+      border-radius: 10px;
+
+      margin-bottom: 18px;
+
+      font-weight: 600;
+    }
+
+    .status-info {
+      background: #eff6ff;
+
+      color: #1d4ed8;
+
+      border:
+        1px solid #bfdbfe;
+    }
+
+    .status-success {
+      background: #f0fdf4;
+
+      color: #15803d;
+
+      border:
+        1px solid #bbf7d0;
+    }
+
+    .status-error {
+      background: #fef2f2;
+
+      color: #b91c1c;
+
+      border:
+        1px solid #fecaca;
+    }
+
+    .status-warning {
+      background: #fffbeb;
+
+      color: #b45309;
+
+      border:
+        1px solid #fde68a;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .step {
+      padding: 10px 0;
+
+      border-bottom:
+        1px solid #e5e7eb;
+    }
+
+    .step:last-child {
+      border-bottom: none;
+    }
+
+    .step-number {
+      display: inline-flex;
+
+      width: 28px;
+      height: 28px;
+
+      align-items: center;
+      justify-content: center;
+
+      background: #2563eb;
+
+      color: white;
+
+      border-radius: 50%;
+
+      font-weight: bold;
+
+      margin-right: 8px;
+    }
+
+    .small {
+      font-size: 13px;
+
+      color: #6b7280;
+
+      margin-top: 6px;
+
+      line-height: 1.5;
+    }
+
+    .info-grid {
+      display: grid;
+
+      grid-template-columns:
+        170px 1fr;
+
+      gap: 11px 15px;
+
+      margin-top: 15px;
+    }
+
+    .info-label {
+      font-weight: 700;
+
+      color: #4b5563;
+    }
+
+    .info-value {
+      word-break: break-all;
+    }
+
+    .badge {
+      display: inline-block;
+
+      padding: 5px 10px;
+
+      border-radius: 999px;
+
+      font-size: 13px;
+
+      font-weight: 700;
+    }
+
+    .badge-success {
+      background: #dcfce7;
+
+      color: #166534;
+    }
+
+    .badge-danger {
+      background: #fee2e2;
+
+      color: #991b1b;
+    }
+
+    .badge-warning {
+      background: #fef3c7;
+
+      color: #92400e;
+    }
+
+    .debug {
+      background: #111827;
+
+      color: #d1d5db;
+
+      padding: 16px;
+
+      border-radius: 10px;
+
+      font-family:
+        Consolas,
+        "Courier New",
+        monospace;
+
+      font-size: 13px;
+
+      line-height: 1.6;
+
+      white-space: pre-wrap;
+
+      word-break: break-word;
+
+      max-height: 360px;
+
+      overflow-y: auto;
+    }
+
+    .test-info {
+      background: #f9fafb;
+
+      border:
+        1px solid #e5e7eb;
+
+      padding: 14px;
+
+      border-radius: 10px;
+
+      margin-top: 15px;
+    }
+
+    .test-info strong {
+      color: #111827;
+    }
+
+    .apar-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 10px;
+      background: #f9fafb;
+    }
+
+    .apar-item-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .apar-item-meta {
+      font-size: 13px;
+      color: #6b7280;
+      line-height: 1.6;
+      margin-bottom: 10px;
+    }
+
+    .apar-empty {
+      padding: 16px;
+      border: 1px dashed #d1d5db;
+      border-radius: 10px;
+      text-align: center;
+      color: #6b7280;
+    }
+
+
+
+    .inspection-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 15px;
+    }
+
+    .inspection-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 14px;
+    }
+
+    .inspection-item label {
+      margin-bottom: 8px;
+    }
+
+    .inspection-item select,
+    .inspection-item textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 9px;
+      font-size: 15px;
+      outline: none;
+      background: #ffffff;
+      font-family: inherit;
+    }
+
+    .inspection-item select:focus,
+    .inspection-item textarea:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+    }
+
+    .inspection-item textarea {
+      min-height: 110px;
+      resize: vertical;
+    }
+
+    .inspection-summary {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 14px;
+      margin-top: 15px;
+    }
+
+    .inspection-full {
+      grid-column: 1 / -1;
+    }
+
+
+    /* =========================================================
+       QR SCANNER
+    ========================================================== */
+    .scanner-box {
+      margin-top: 15px;
+      padding: 14px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+
+    #qr-reader {
+      width: 100%;
+      max-width: 520px;
+      margin: 12px auto;
+      overflow: hidden;
+      border-radius: 10px;
+      background: #111827;
+    }
+
+    #qr-reader video {
+      border-radius: 10px;
+      width: 100% !important;
+    }
+
+    .scan-result {
+      margin-top: 12px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #15803d;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .scanner-actions {
+      margin-top: 10px;
+    }
+
+    @media (max-width: 600px) {
+
+      .container {
+        margin: 15px auto;
+
+        padding: 12px;
+      }
+
+      .card {
+        padding: 20px;
+      }
+
+      .info-grid {
+        grid-template-columns: 1fr;
+
+        gap: 4px;
+      }
+
+      .inspection-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .inspection-full {
+        grid-column: auto;
+      }
+
+    }
+
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <div class="card">
+
+    <h1>
+      APAR - Test Inspector V5 QR FIX
+    </h1>
+
+    <div class="subtitle">
+      Pengujian Firebase Authentication + Firestore + QR Code APAR + Pemeriksaan
+    </div>
+
+
+    <div
+      id="globalStatus"
+      class="status status-info"
+    >
+      Menyiapkan Firebase...
+    </div>
+
+
+    <div class="step">
+
+      <span class="step-number">
+        1
+      </span>
+
+      Masukkan nomor HP Inspector
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="step-number">
+        2
+      </span>
+
+      Kirim OTP
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="step-number">
+        3
+      </span>
+
+      Masukkan OTP
+
+    </div>
+
+
+    <div class="step">
+
+      <span class="step-number">
+        4
+      </span>
+
+      Sistem membaca profil Inspector dari Firestore
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       LOGIN
+  ====================================================== -->
+
+  <div
+    id="loginCard"
+    class="card"
+  >
+
+    <h2>
+      Login Inspector
+    </h2>
+
+
+    <div class="field">
+
+      <label for="phoneNumber">
+        Nomor HP
+      </label>
+
+
+      <input
+        type="tel"
+        id="phoneNumber"
+        value="+6281234567890"
+        autocomplete="tel"
+      >
+
+
+      <div class="small">
+
+        Nomor testing Firebase:
+
+        <strong>
+          +62 812-3456-7890
+        </strong>
+
+        <br>
+
+        Jangan masukkan kode OTP di kolom ini.
+
+      </div>
+
+    </div>
+
+
+    <!--
+      Container reCAPTCHA hanya akan digunakan
+      ketika tombol Kirim OTP ditekan.
+    -->
+
+    <div
+      id="recaptcha-container"
+    ></div>
+
+
+    <button
+      id="sendOtpBtn"
+      class="btn-primary"
+      type="button"
+    >
+      Kirim OTP
+    </button>
+
+
+    <div class="test-info">
+
+      <strong>
+        Data Testing
+      </strong>
+
+      <br><br>
+
+      Nomor:
+
+      <strong>
+        +62 812-3456-7890
+      </strong>
+
+      <br>
+
+      OTP:
+
+      <strong>
+        123456
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       OTP
+  ====================================================== -->
+
+  <div
+    id="otpCard"
+    class="card hidden"
+  >
+
+    <h2>
+      Verifikasi OTP
+    </h2>
+
+
+    <div class="field">
+
+      <label for="otpCode">
+        Kode OTP
+      </label>
+
+
+      <input
+        type="text"
+        id="otpCode"
+        placeholder="123456"
+        maxlength="6"
+        inputmode="numeric"
+        autocomplete="one-time-code"
+      >
+
+    </div>
+
+
+    <button
+      id="verifyOtpBtn"
+      class="btn-success"
+      type="button"
+    >
+      Verifikasi OTP
+    </button>
+
+
+    <button
+      id="resetLoginBtn"
+      class="btn-secondary"
+      type="button"
+    >
+      Kembali
+    </button>
+
+  </div>
+
+
+  <!-- =====================================================
+       PROFILE
+  ====================================================== -->
+
+  <div
+    id="profileCard"
+    class="card hidden"
+  >
+
+    <h2>
+      Hasil Pemeriksaan Inspector
+    </h2>
+
+
+    <div
+      id="profileStatus"
+      class="status status-info"
+    >
+      Memeriksa profil...
+    </div>
+
+
+    <div class="info-grid">
+
+
+      <div class="info-label">
+        Firebase UID
+      </div>
+
+      <div
+        id="uidValue"
+        class="info-value"
+      >
+        -
+      </div>
+
+
+      <div class="info-label">
+        Nomor HP
+      </div>
+
+      <div
+        id="phoneValue"
+        class="info-value"
+      >
+        -
+      </div>
+
+
+      <div class="info-label">
+        Nama
+      </div>
+
+      <div
+        id="nameValue"
+        class="info-value"
+      >
+        -
+      </div>
+
+
+      <div class="info-label">
+        Email
+      </div>
+
+      <div
+        id="emailValue"
+        class="info-value"
+      >
+        -
+      </div>
+
+
+      <div class="info-label">
+        Role
+      </div>
+
+      <div
+        id="roleValue"
+        class="info-value"
+      >
+        -
+      </div>
+
+
+      <div class="info-label">
+        Status
+      </div>
+
+      <div
+        id="statusValue"
+        class="info-value"
+      >
+        -
+      </div>
+
+
+    </div>
+
+
+    <br>
+
+
+    <button
+      id="logoutBtn"
+      class="btn-danger"
+      type="button"
+    >
+      Logout
+    </button>
+
+  </div>
+
+
+  <!-- =====================================================
+       APAR LIST
+  ====================================================== -->
+
+  <div
+    id="aparCard"
+    class="card hidden"
+  >
+
+    <h2>
+      Pilih APAR
+    </h2>
+
+    <div
+      id="aparStatus"
+      class="status status-info"
+    >
+      Memuat data APAR...
+    </div>
+
+    <div id="aparList"></div>
+
+    <div id="selectedAparBox" class="test-info hidden">
+      <strong>APAR Terpilih</strong>
+      <div class="info-grid">
+        <div class="info-label">Asset Number</div>
+        <div id="selectedAssetNumber" class="info-value">-</div>
+        <div class="info-label">Brand</div>
+        <div id="selectedBrand" class="info-value">-</div>
+        <div class="info-label">Capacity</div>
+        <div id="selectedCapacity" class="info-value">-</div>
+        <div class="info-label">Location</div>
+        <div id="selectedLocation" class="info-value">-</div>
+        <div class="info-label">Serial Number</div>
+        <div id="selectedSerial" class="info-value">-</div>
+        <div class="info-label">Type</div>
+        <div id="selectedType" class="info-value">-</div>
+        <div class="info-label">Status</div>
+        <div id="selectedStatus" class="info-value">-</div>
+      </div>
+    </div>
+
+  </div>
+
+
+
+  <!-- =====================================================
+       QR SCANNER APAR
+  ====================================================== -->
+
+  <div id="scannerCard" class="card hidden">
+
+    <h2>Scan QR Code APAR</h2>
+
+    <div id="scannerStatus" class="status status-info">
+      Tekan "Mulai Scan" lalu arahkan kamera ke QR Code APAR.
+    </div>
+
+    <div class="scanner-box">
+
+      <div class="small">
+        QR Code harus berisi <strong>Asset Number</strong>,
+        contoh: <strong>APAR-0001</strong>.
+      </div>
+
+      <div id="qr-reader" class="hidden"></div>
+
+      <div id="scanResult" class="scan-result hidden"></div>
+
+      <div class="scanner-actions">
+        <button
+          id="startScanBtn"
+          class="btn-primary"
+          type="button"
+        >
+          Mulai Scan
+        </button>
+
+        <button
+          id="stopScanBtn"
+          class="btn-secondary"
+          type="button"
+          disabled
+        >
+          Hentikan Scan
+        </button>
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       PEMERIKSAAN APAR
+  ====================================================== -->
+
+  <div id="inspectionCard" class="card hidden">
+
+    <h2>Pemeriksaan APAR</h2>
+
+    <div id="inspectionStatus" class="status status-info">
+      Pilih APAR terlebih dahulu.
+    </div>
+
+    <div class="inspection-summary">
+      <strong>APAR yang diperiksa</strong>
+
+      <div class="info-grid">
+        <div class="info-label">Asset Number</div>
+        <div id="inspectionAssetNumber" class="info-value">-</div>
+
+        <div class="info-label">Brand</div>
+        <div id="inspectionBrand" class="info-value">-</div>
+
+        <div class="info-label">Location</div>
+        <div id="inspectionLocation" class="info-value">-</div>
+
+        <div class="info-label">Serial Number</div>
+        <div id="inspectionSerial" class="info-value">-</div>
+      </div>
+    </div>
+
+    <div class="inspection-grid">
+      <div class="inspection-item">
+        <label for="physicalCondition">Kondisi Fisik</label>
+        <select id="physicalCondition">
+          <option value="good">Baik</option>
+          <option value="minor_damage">Rusak Ringan</option>
+          <option value="damaged">Rusak</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="seal">Seal</label>
+        <select id="seal">
+          <option value="good">Baik</option>
+          <option value="damaged">Rusak</option>
+          <option value="missing">Tidak Ada</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="safetyPin">Safety Pin</label>
+        <select id="safetyPin">
+          <option value="good">Baik</option>
+          <option value="damaged">Rusak</option>
+          <option value="missing">Tidak Ada</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="pressure">Pressure</label>
+        <select id="pressure">
+          <option value="normal">Normal</option>
+          <option value="low">Rendah</option>
+          <option value="high">Tinggi</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="nozzle">Nozzle</label>
+        <select id="nozzle">
+          <option value="good">Baik</option>
+          <option value="damaged">Rusak</option>
+          <option value="blocked">Tersumbat</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="hose">Selang</label>
+        <select id="hose">
+          <option value="good">Baik</option>
+          <option value="damaged">Rusak</option>
+          <option value="missing">Tidak Ada</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="signage">Signage</label>
+        <select id="signage">
+          <option value="good">Baik</option>
+          <option value="damaged">Rusak</option>
+          <option value="missing">Tidak Ada</option>
+        </select>
+      </div>
+
+      <div class="inspection-item">
+        <label for="result">Hasil Pemeriksaan</label>
+        <select id="result">
+          <option value="pass">PASS</option>
+          <option value="fail">FAIL</option>
+        </select>
+      </div>
+
+      <div class="inspection-item inspection-full">
+        <label for="notes">Catatan</label>
+        <textarea id="notes" placeholder="Masukkan catatan pemeriksaan jika ada..."></textarea>
+      </div>
+    </div>
+
+    <br>
+
+    <button id="saveInspectionBtn" class="btn-success" type="button">
+      Simpan Pemeriksaan
+    </button>
+
+    <button id="cancelInspectionBtn" class="btn-secondary" type="button">
+      Batal
+    </button>
+
+  </div>
+
+
+  <!-- =====================================================
+       DEBUG
+  ====================================================== -->
+
+  <div class="card">
+
+    <h2>
+      Debug Information
+    </h2>
+
+
+    <div
+      id="debugBox"
+      class="debug"
+    >
+Memulai Test Inspector V5 QR FIX...
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- =========================================================
+     FIREBASE SDK
+========================================================= -->
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+<script type="module">
+
+  import {
+    initializeApp
+  }
+  from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+
+  import {
+    getAuth,
+    RecaptchaVerifier,
+    signInWithPhoneNumber,
+    onAuthStateChanged,
+    signOut
+  }
+  from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+
+
+  import {
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+    addDoc,
+    serverTimestamp
+  }
+  from
+  "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+
+  // =========================================================
+  // FIREBASE CONFIG
+  // =========================================================
+  //
+  // GANTI BAGIAN INI DENGAN CONFIG WEB APP FIREBASE ANDA
+  //
+  // Firebase Console
+  // Project Settings
+  // General
+  // Your apps
+  // Web App
+  // SDK setup and configuration
+  //
+  // =========================================================
+
+  const firebaseConfig = {
+
+    apiKey: "AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
+  authDomain: "apar-7a343.firebaseapp.com",
+  projectId: "apar-7a343",
+  storageBucket: "apar-7a343.firebasestorage.app",
+  messagingSenderId: "692076938129",
+  appId: "1:692076938129:web:8583c9d30f47588c135030"
+
+  };
+
+
+  // =========================================================
+  // GLOBAL VARIABLES
+  // =========================================================
+
+  let app = null;
+
+  let auth = null;
+
+  let db = null;
+
+  let recaptchaVerifier = null;
+
+  let confirmationResult = null;
+
+
+  // =========================================================
+  // DOM
+  // =========================================================
+
+  const globalStatus =
+    document.getElementById(
+      "globalStatus"
+    );
+
+
+  const loginCard =
+    document.getElementById(
+      "loginCard"
+    );
+
+
+  const otpCard =
+    document.getElementById(
+      "otpCard"
+    );
+
+
+  const profileCard =
+    document.getElementById(
+      "profileCard"
+    );
+
+
+  const profileStatus =
+    document.getElementById(
+      "profileStatus"
+    );
+
+
+  const debugBox =
+    document.getElementById(
+      "debugBox"
+    );
+
+
+  const phoneNumberInput =
+    document.getElementById(
+      "phoneNumber"
+    );
+
+
+  const otpCodeInput =
+    document.getElementById(
+      "otpCode"
+    );
+
+
+  const sendOtpBtn =
+    document.getElementById(
+      "sendOtpBtn"
+    );
+
+
+  const verifyOtpBtn =
+    document.getElementById(
+      "verifyOtpBtn"
+    );
+
+
+  const resetLoginBtn =
+    document.getElementById(
+      "resetLoginBtn"
+    );
+
+
+  const logoutBtn =
+    document.getElementById(
+      "logoutBtn"
+    );
+
+
+  const aparCard =
+    document.getElementById(
+      "aparCard"
+    );
+
+
+  const aparStatus =
+    document.getElementById(
+      "aparStatus"
+    );
+
+
+  const aparList =
+    document.getElementById(
+      "aparList"
+    );
+
+
+  const selectedAparBox =
+    document.getElementById(
+      "selectedAparBox"
+    );
+
+
+  const inspectionCard =
+    document.getElementById(
+      "inspectionCard"
+    );
+
+
+  const inspectionStatus =
+    document.getElementById(
+      "inspectionStatus"
+    );
+
+
+  const saveInspectionBtn =
+    document.getElementById(
+      "saveInspectionBtn"
+    );
+
+
+  const cancelInspectionBtn =
+    document.getElementById(
+      "cancelInspectionBtn"
+    );
+
+
+  const scannerCard =
+    document.getElementById("scannerCard");
+
+  const scannerStatus =
+    document.getElementById("scannerStatus");
+
+  const qrReader =
+    document.getElementById("qr-reader");
+
+  const scanResult =
+    document.getElementById("scanResult");
+
+  const startScanBtn =
+    document.getElementById("startScanBtn");
+
+  const stopScanBtn =
+    document.getElementById("stopScanBtn");
+
+
+  let currentUser = null;
+
+  let selectedApar = null;
+
+  let qrScanner = null;
+
+  let scannerRunning = false;
+
+  let scannerHandlingResult = false;
+
+
+  // =========================================================
+  // DEBUG
+  // =========================================================
+
+  function debug(message) {
+
+    const now =
+      new Date()
+        .toLocaleTimeString(
+          "id-ID"
+        );
+
+
+    debugBox.textContent +=
+      `[${now}] ${message}\n`;
+
+
+    debugBox.scrollTop =
+      debugBox.scrollHeight;
+
+
+    console.log(message);
+
+  }
+
+
+  function clearDebug() {
+
+    debugBox.textContent = "";
+
+  }
+
+
+  // =========================================================
+  // STATUS
+  // =========================================================
+
+  function setGlobalStatus(
+    message,
+    type = "info"
+  ) {
+
+    globalStatus.textContent =
+      message;
+
+
+    globalStatus.className =
+      `status status-${type}`;
+
+  }
+
+
+  function setProfileStatus(
+    message,
+    type = "info"
+  ) {
+
+    profileStatus.textContent =
+      message;
+
+
+    profileStatus.className =
+      `status status-${type}`;
+
+  }
+
+
+  // =========================================================
+  // CHECK CONFIG
+  // =========================================================
+
+  function isConfigValid() {
+
+    const required = [
+
+      "apiKey",
+      "authDomain",
+      "projectId",
+      "storageBucket",
+      "messagingSenderId",
+      "appId"
+
+    ];
+
+
+    for (
+      const key of required
+    ) {
+
+      const value =
+        firebaseConfig[key];
+
+
+      if (
+        !value ||
+        String(value)
+          .startsWith(
+            "GANTI_"
+          )
+      ) {
+
+        return false;
+
+      }
+
+    }
+
+
+    return true;
+
+  }
+
+
+  // =========================================================
+  // INITIALIZE FIREBASE
+  // =========================================================
+
+  function initializeFirebase() {
+
+    try {
+
+      if (!isConfigValid()) {
+
+        setGlobalStatus(
+          "Firebase Config belum lengkap.",
+          "error"
+        );
+
+
+        debug(
+          "ERROR: Firebase Config belum lengkap."
+        );
+
+
+        debug(
+          "Periksa apiKey, storageBucket, messagingSenderId, dan appId."
+        );
+
+
+        return false;
+
+      }
+
+
+      app =
+        initializeApp(
+          firebaseConfig
+        );
+
+
+      auth =
+        getAuth(app);
+
+
+      db =
+        getFirestore(app);
+
+
+      /*
+       * =====================================================
+       * PENTING:
+       *
+       * Mode ini HANYA untuk testing nomor fiktif Firebase.
+       *
+       * Harus dipasang SEBELUM RecaptchaVerifier dibuat.
+       * =====================================================
+       */
+
+      auth.settings
+        .appVerificationDisabledForTesting =
+          true;
+
+
+      debug(
+        "Firebase berhasil diinisialisasi."
+      );
+
+
+      debug(
+        "Project ID: " +
+        firebaseConfig.projectId
+      );
+
+
+      debug(
+        "Auth Domain: " +
+        firebaseConfig.authDomain
+      );
+
+
+      debug(
+        "Mode testing Phone Auth: AKTIF"
+      );
+
+
+      debug(
+        "appVerificationDisabledForTesting = true"
+      );
+
+
+      setGlobalStatus(
+        "Firebase berhasil diinisialisasi. Mode testing aktif.",
+        "success"
+      );
+
+
+      return true;
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      setGlobalStatus(
+        "Gagal menginisialisasi Firebase.",
+        "error"
+      );
+
+
+      debug(
+        "Firebase initialization error:"
+      );
+
+
+      debug(
+        "Code: " +
+        (error.code || "-")
+      );
+
+
+      debug(
+        "Message: " +
+        (error.message || "-")
+      );
+
+
+      return false;
+
+    }
+
+  }
+
+
+  // =========================================================
+  // CREATE TEST RECAPTCHA
+  // =========================================================
+
+  async function createRecaptcha() {
+
+    if (!auth) {
+
+      throw new Error(
+        "Firebase Auth belum siap."
+      );
+
+    }
+
+
+    /*
+     * Jika sebelumnya sudah ada verifier,
+     * bersihkan terlebih dahulu.
+     */
+
+    if (recaptchaVerifier) {
+
+      try {
+
+        recaptchaVerifier.clear();
+
+      } catch (error) {
+
+        debug(
+          "Warning saat clear reCAPTCHA: " +
+          error.message
+        );
+
+      }
+
+
+      recaptchaVerifier =
+        null;
+
+    }
+
+
+    const container =
+      document.getElementById(
+        "recaptcha-container"
+      );
+
+
+    container.innerHTML = "";
+
+
+    debug(
+      "Membuat mock reCAPTCHA untuk testing..."
+    );
+
+
+    /*
+     * Karena appVerificationDisabledForTesting
+     * sudah TRUE sebelum verifier dibuat,
+     * Firebase akan menggunakan mock reCAPTCHA.
+     */
+
+    recaptchaVerifier =
+      new RecaptchaVerifier(
+        auth,
+        "recaptcha-container",
+        {
+
+          size: "normal",
+
+          callback: function() {
+
+            debug(
+              "Mock reCAPTCHA berhasil diverifikasi."
+            );
+
+          },
+
+          "expired-callback":
+            function() {
+
+              debug(
+                "Mock reCAPTCHA expired."
+              );
+
+            }
+
+        }
+      );
+
+
+    try {
+
+      await recaptchaVerifier.render();
+
+
+      debug(
+        "Mock reCAPTCHA berhasil dibuat."
+      );
+
+
+    } catch (error) {
+
+      debug(
+        "Gagal membuat mock reCAPTCHA."
+      );
+
+
+      debug(
+        "Code: " +
+        (error.code || "-")
+      );
+
+
+      debug(
+        "Message: " +
+        (error.message || "-")
+      );
+
+
+      throw error;
+
+    }
+
+  }
+
+
+  // =========================================================
+  // SEND OTP
+  // =========================================================
+
+  sendOtpBtn.addEventListener(
+    "click",
+    async function() {
+
+      if (!auth) {
+
+        alert(
+          "Firebase belum siap."
+        );
+
+        return;
+
+      }
+
+
+      let phoneNumber =
+        phoneNumberInput.value.trim();
+
+
+      /*
+       * Nomor testing.
+       *
+       * Kita izinkan pengguna mengedit,
+       * tetapi normalisasi sederhana dilakukan
+       * agar format +62 812-3456-7890 tetap valid.
+       */
+
+      phoneNumber =
+        phoneNumber
+          .replace(/\s+/g, "")
+          .replace(/-/g, "")
+          .replace(/\(/g, "")
+          .replace(/\)/g, "");
+
+
+      if (!phoneNumber) {
+
+        alert(
+          "Masukkan nomor HP."
+        );
+
+        return;
+
+      }
+
+
+      clearDebug();
+
+
+      debug(
+        "================================"
+      );
+
+
+      debug(
+        "MULAI TEST PHONE AUTH"
+      );
+
+
+      debug(
+        "================================"
+      );
+
+
+      debug(
+        "Nomor HP: " +
+        phoneNumber
+      );
+
+
+      debug(
+        "Mode testing: AKTIF"
+      );
+
+
+      debug(
+        "Nomor harus terdaftar sebagai Test Phone Number di Firebase."
+      );
+
+
+      sendOtpBtn.disabled =
+        true;
+
+
+      setGlobalStatus(
+        "Menyiapkan verifikasi testing...",
+        "info"
+      );
+
+
+      try {
+
+        /*
+         * Pastikan setting testing masih aktif.
+         */
+
+        auth.settings
+          .appVerificationDisabledForTesting =
+            true;
+
+
+        /*
+         * Buat mock reCAPTCHA
+         * setelah setting testing aktif.
+         */
+
+        await createRecaptcha();
+
+
+        setGlobalStatus(
+          "Memproses nomor testing...",
+          "info"
+        );
+
+
+        debug(
+          "Memanggil signInWithPhoneNumber()..."
+        );
+
+
+        confirmationResult =
+          await signInWithPhoneNumber(
+            auth,
+            phoneNumber,
+            recaptchaVerifier
+          );
+
+
+        debug(
+          "signInWithPhoneNumber() berhasil."
+        );
+
+
+        debug(
+          "Firebase siap menerima kode testing."
+        );
+
+
+        setGlobalStatus(
+          "Nomor diterima. Masukkan OTP testing.",
+          "success"
+        );
+
+
+        loginCard.classList.add(
+          "hidden"
+        );
+
+
+        otpCard.classList.remove(
+          "hidden"
+        );
+
+
+        otpCodeInput.focus();
+
+
+      } catch (error) {
+
+        console.error(error);
+
+
+        debug(
+          "================================"
+        );
+
+
+        debug(
+          "GAGAL MENGIRIM / MEMPROSES OTP"
+        );
+
+
+        debug(
+          "================================"
+        );
+
+
+        debug(
+          "Code: " +
+          (error.code || "-")
+        );
+
+
+        debug(
+          "Message: " +
+          (error.message || "-")
+        );
+
+
+        if (
+          error.code ===
+          "auth/invalid-phone-number"
+        ) {
+
+          debug(
+            "Nomor HP tidak valid."
+          );
+
+        }
+
+
+        if (
+          error.code ===
+          "auth/too-many-requests"
+        ) {
+
+          debug(
+            "Terlalu banyak percobaan."
+          );
+
+        }
+
+
+        if (
+          error.code ===
+          "auth/quota-exceeded"
+        ) {
+
+          debug(
+            "Quota Firebase Authentication terlampaui."
+          );
+
+        }
+
+
+        if (
+          error.code ===
+          "auth/internal-error"
+        ) {
+
+          debug(
+            "Firebase mengembalikan internal-error."
+          );
+
+
+          debug(
+            "Periksa kembali Firebase Web App Config dan Phone Authentication."
+          );
+
+        }
+
+
+        setGlobalStatus(
+          "Gagal memproses Phone Authentication: " +
+          (error.message || "Unknown error"),
+          "error"
+        );
+
+
+        /*
+         * Reset verifier supaya percobaan berikutnya
+         * mendapatkan verifier baru.
+         */
+
+        if (recaptchaVerifier) {
+
+          try {
+
+            recaptchaVerifier.clear();
+
+          } catch (e) {}
+
+          recaptchaVerifier =
+            null;
+
+        }
+
+
+        document.getElementById(
+          "recaptcha-container"
+        ).innerHTML = "";
+
+
+      } finally {
+
+        sendOtpBtn.disabled =
+          false;
+
+      }
+
+    }
+  );
+
+
+  // =========================================================
+  // VERIFY OTP
+  // =========================================================
+
+  verifyOtpBtn.addEventListener(
+    "click",
+    async function() {
+
+      if (!confirmationResult) {
+
+        alert(
+          "Belum ada proses OTP."
+        );
+
+        return;
+
+      }
+
+
+      const code =
+        otpCodeInput.value.trim();
+
+
+      if (!code) {
+
+        alert(
+          "Masukkan kode OTP."
+        );
+
+        return;
+
+      }
+
+
+      verifyOtpBtn.disabled =
+        true;
+
+
+      clearDebug();
+
+
+      debug(
+        "================================"
+      );
+
+
+      debug(
+        "VERIFIKASI OTP"
+      );
+
+
+      debug(
+        "================================"
+      );
+
+
+      debug(
+        "Kode OTP: " +
+        code
+      );
+
+
+      try {
+
+        const result =
+          await confirmationResult
+            .confirm(code);
+
+
+        const user =
+          result.user;
+
+
+        currentUser = user;
+
+
+        debug(
+          "OTP berhasil diverifikasi."
+        );
+
+
+        debug(
+          "Authentication berhasil."
+        );
+
+
+        debug(
+          "Firebase UID: " +
+          user.uid
+        );
+
+
+        debug(
+          "Phone: " +
+          (user.phoneNumber || "-")
+        );
+
+
+        setGlobalStatus(
+          "Authentication berhasil.",
+          "success"
+        );
+
+
+        loginCard.classList.add(
+          "hidden"
+        );
+
+
+        otpCard.classList.add(
+          "hidden"
+        );
+
+
+        profileCard.classList.remove(
+          "hidden"
+        );
+
+
+        await checkInspectorProfile(
+          user
+        );
+
+
+      } catch (error) {
+
+        console.error(error);
+
+
+        debug(
+          "Gagal memverifikasi OTP."
+        );
+
+
+        debug(
+          "Code: " +
+          (error.code || "-")
+        );
+
+
+        debug(
+          "Message: " +
+          (error.message || "-")
+        );
+
+
+        setGlobalStatus(
+          "OTP tidak valid.",
+          "error"
+        );
+
+
+      } finally {
+
+        verifyOtpBtn.disabled =
+          false;
+
+      }
+
+    }
+  );
+
+
+  // =========================================================
+  // CHECK INSPECTOR PROFILE
+  // =========================================================
+
+  async function checkInspectorProfile(
+    user
+  ) {
+
+    setProfileStatus(
+      "Membaca users/" +
+      user.uid +
+      "...",
+      "info"
+    );
+
+
+    document.getElementById(
+      "uidValue"
+    ).textContent =
+      user.uid;
+
+
+    document.getElementById(
+      "phoneValue"
+    ).textContent =
+      user.phoneNumber || "-";
+
+
+    debug(
+      "================================"
+    );
+
+
+    debug(
+      "MEMERIKSA FIRESTORE USER"
+    );
+
+
+    debug(
+      "================================"
+    );
+
+
+    debug(
+      "Collection: users"
+    );
+
+
+    debug(
+      "Document ID: " +
+      user.uid
+    );
+
+
+    try {
+
+      const userRef =
+        doc(
+          db,
+          "users",
+          user.uid
+        );
+
+
+      const snapshot =
+        await getDoc(
+          userRef
+        );
+
+
+      /*
+       * -----------------------------------------------------
+       * USER BELUM ADA
+       * -----------------------------------------------------
+       */
+
+      if (!snapshot.exists()) {
+
+        debug(
+          "Document users/" +
+          user.uid +
+          " BELUM ADA."
+        );
+
+
+        document.getElementById(
+          "nameValue"
+        ).textContent =
+          "-";
+
+
+        document.getElementById(
+          "emailValue"
+        ).textContent =
+          user.email || "-";
+
+
+        document.getElementById(
+          "roleValue"
+        ).innerHTML =
+          `
+          <span class="badge badge-warning">
+            BELUM ADA
+          </span>
+          `;
+
+
+        document.getElementById(
+          "statusValue"
+        ).innerHTML =
+          `
+          <span class="badge badge-warning">
+            BELUM ADA
+          </span>
+          `;
+
+
+        setProfileStatus(
+          "Authentication berhasil, tetapi profil Inspector belum dibuat di Firestore.",
+          "warning"
+        );
+
+
+        debug(
+          "--------------------------------"
+        );
+
+
+        debug(
+          "AUTHENTICATION: BERHASIL"
+        );
+
+
+        debug(
+          "FIRESTORE PROFILE: BELUM ADA"
+        );
+
+
+        debug(
+          "--------------------------------"
+        );
+
+
+        debug(
+          "Document yang harus dibuat:"
+        );
+
+
+        debug(
+          "users/" +
+          user.uid
+        );
+
+
+        debug(
+          "Contoh field:"
+        );
+
+
+        debug(
+          'name: "Inspector"'
+        );
+
+
+        debug(
+          'role: "inspector"'
+        );
+
+
+        debug(
+          'status: "active"'
+        );
+
+
+        return;
+
+      }
+
+
+      /*
+       * -----------------------------------------------------
+       * USER ADA
+       * -----------------------------------------------------
+       */
+
+      const data =
+        snapshot.data();
+
+
+      debug(
+        "Document user ditemukan."
+      );
+
+
+      debug(
+        "Data Firestore:"
+      );
+
+
+      debug(
+        JSON.stringify(
+          data,
+          null,
+          2
+        )
+      );
+
+
+      const name =
+        data.name || "-";
+
+
+      const email =
+        data.email ||
+        user.email ||
+        "-";
+
+
+      const role =
+        data.role || "-";
+
+
+      const status =
+        data.status || "-";
+
+
+      document.getElementById(
+        "nameValue"
+      ).textContent =
+        name;
+
+
+      document.getElementById(
+        "emailValue"
+      ).textContent =
+        email;
+
+
+      document.getElementById(
+        "roleValue"
+      ).innerHTML =
+        formatRole(
+          role
+        );
+
+
+      document.getElementById(
+        "statusValue"
+      ).innerHTML =
+        formatStatus(
+          status
+        );
+
+
+      /*
+       * -----------------------------------------------------
+       * VALIDASI INSPECTOR
+       * -----------------------------------------------------
+       */
+
+      const isInspector =
+        String(role)
+          .trim()
+          .toLowerCase() ===
+        "inspector";
+
+
+      const isActive =
+        String(status)
+          .trim()
+          .toLowerCase() ===
+        "active";
+
+
+      debug(
+        "Role: " +
+        role
+      );
+
+
+      debug(
+        "Status: " +
+        status
+      );
+
+
+      debug(
+        "isInspector = " +
+        isInspector
+      );
+
+
+      debug(
+        "isActive = " +
+        isActive
+      );
+
+
+      if (
+        isInspector &&
+        isActive
+      ) {
+
+        setProfileStatus(
+          "LOGIN INSPECTOR BERHASIL — AKUN VALID.",
+          "success"
+        );
+
+
+        debug(
+          "================================"
+        );
+
+
+        debug(
+          "INSPECTOR VALID"
+        );
+
+
+        debug(
+          "================================"
+        );
+
+
+        debug(
+          "role = inspector"
+        );
+
+
+        debug(
+          "status = active"
+        );
+
+
+        debug(
+          "User boleh dianggap Inspector aktif."
+        );
+
+        scannerCard.classList.remove("hidden");
+
+        setScannerStatus(
+          "Siap. Pilih APAR dari daftar atau scan QR Code APAR.",
+          "info"
+        );
+
+        await loadAparList();
+
+
+      } else {
+
+        setProfileStatus(
+          "Login berhasil, tetapi role/status belum sesuai.",
+          "error"
+        );
+
+
+        debug(
+          "================================"
+        );
+
+
+        debug(
+          "INSPECTOR TIDAK VALID"
+        );
+
+
+        debug(
+          "================================"
+        );
+
+
+        debug(
+          "Role yang diperlukan: inspector"
+        );
+
+
+        debug(
+          "Status yang diperlukan: active"
+        );
+
+
+        debug(
+          "Role sekarang: " +
+          role
+        );
+
+
+        debug(
+          "Status sekarang: " +
+          status
+        );
+
+      }
+
+
+    } catch (error) {
+
+      console.error(error);
+
+
+      debug(
+        "================================"
+      );
+
+
+      debug(
+        "GAGAL MEMBACA FIRESTORE"
+      );
+
+
+      debug(
+        "================================"
+      );
+
+
+      debug(
+        "Code: " +
+        (error.code || "-")
+      );
+
+
+      debug(
+        "Message: " +
+        (error.message || "-")
+      );
+
+
+      if (
+        error.code ===
+        "permission-denied"
+      ) {
+
+        debug(
+          "Security Rules menolak pembacaan users/{UID}."
+        );
+
+      }
+
+
+      setProfileStatus(
+        "Tidak dapat membaca profil Inspector dari Firestore.",
+        "error"
+      );
+
+    }
+
+  }
+
+
+  // =========================================================
+  // LOAD APAR
+  // =========================================================
+
+  async function loadAparList() {
+
+    aparCard.classList.remove("hidden");
+    aparStatus.textContent = "Membaca collection apar dari Firestore...";
+    aparStatus.className = "status status-info";
+    aparList.innerHTML = "";
+    selectedAparBox.classList.add("hidden");
+
+    debug("================================");
+    debug("MEMBACA COLLECTION APAR");
+    debug("================================");
+    debug("Collection: apar");
+
+    try {
+      const snapshot = await getDocs(collection(db, "apar"));
+      debug("Jumlah dokumen APAR: " + snapshot.size);
+
+      if (snapshot.empty) {
+        aparStatus.textContent = "Collection apar berhasil dibaca, tetapi belum ada data APAR.";
+        aparStatus.className = "status status-warning";
+        aparList.innerHTML = '<div class="apar-empty">Belum ada data APAR di Firestore.</div>';
+        return;
+      }
+
+      const rawItems = snapshot.docs.map(function(documentSnapshot) {
+        const data = documentSnapshot.data() || {};
+
+        return {
+          id: documentSnapshot.id,
+          data: data,
+          assetNumber:
+            data.assetNumber ||
+            data.asset_number ||
+            data.assetNo ||
+            data.asset_no ||
+            data.kode ||
+            data.code ||
+            data.Field ||
+            documentSnapshot.id,
+          brand: data.brand || data.merk || "-",
+          capacity: data.capacity || data.kapasitas || "-",
+          location:
+            data.location ||
+            data.lokasi ||
+            data.locationName ||
+            data.lokasiNama ||
+            data.locationId ||
+            "-",
+          serial:
+            data.serialNumber ||
+            data.serial_number ||
+            data.serial ||
+            "-",
+          type:
+            data.type ||
+            data.tipe ||
+            data.typeId ||
+            "-",
+          status: data.status || "-"
+        };
+      });
+
+      /*
+       * Hilangkan duplikat Asset Number.
+       * Jika ada beberapa dokumen dengan Asset Number yang sama,
+       * dokumen dengan ID = Asset Number diprioritaskan.
+       */
+      const itemMap = new Map();
+
+      rawItems.forEach(function(item) {
+        const key =
+          String(item.assetNumber || item.id)
+            .trim()
+            .toUpperCase();
+
+        const existing = itemMap.get(key);
+
+        if (
+          !existing ||
+          String(item.id).trim().toUpperCase() === key
+        ) {
+          itemMap.set(key, item);
+        }
+      });
+
+      const items = Array.from(itemMap.values());
+
+      debug("Data APAR berhasil dibaca:");
+      debug(JSON.stringify(items, null, 2));
+
+      aparStatus.textContent =
+        items.length + " APAR unik berhasil ditemukan.";
+      aparStatus.className = "status status-success";
+
+      items.forEach(function(item) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "apar-item";
+
+        const title = document.createElement("div");
+        title.className = "apar-item-title";
+        title.textContent = item.assetNumber;
+
+        const meta = document.createElement("div");
+        meta.className = "apar-item-meta";
+        meta.textContent =
+          "Brand: " + item.brand +
+          " | Capacity: " + item.capacity +
+          " | Location: " + item.location +
+          " | Status: " + item.status;
+
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "btn-primary";
+        button.textContent = "Pilih APAR";
+        button.addEventListener("click", function() {
+          selectApar(item);
+        });
+
+        wrapper.appendChild(title);
+        wrapper.appendChild(meta);
+        wrapper.appendChild(button);
+        aparList.appendChild(wrapper);
+      });
+
+    } catch (error) {
+      console.error(error);
+      debug("================================");
+      debug("GAGAL MEMBACA COLLECTION APAR");
+      debug("================================");
+      debug("Code: " + (error.code || "-"));
+      debug("Message: " + (error.message || "-"));
+
+      if (error.code === "permission-denied") {
+        debug("Security Rules menolak pembacaan collection apar.");
+      }
+
+      aparStatus.textContent = "Gagal membaca data APAR dari Firestore.";
+      aparStatus.className = "status status-error";
+      aparList.innerHTML = '<div class="apar-empty">Periksa Firestore Rules dan pastikan collection "apar" dapat dibaca oleh Inspector.</div>';
+    }
+  }
+
+
+
+  // =========================================================
+  // QR SCANNER APAR
+  // =========================================================
+
+  function setScannerStatus(message, type = "info") {
+    scannerStatus.textContent = message;
+    scannerStatus.className = `status status-${type}`;
+  }
+
+
+  function normalizeQrValue(value) {
+    let result = String(value || "").trim();
+
+    /*
+     * Mendukung QR berisi:
+     * APAR-0001
+     * atau URL yang memiliki assetNumber/asset/apar
+     * atau path terakhir URL.
+     */
+    try {
+      if (/^https?:\/\//i.test(result)) {
+        const url = new URL(result);
+
+        const fromQuery =
+          url.searchParams.get("assetNumber") ||
+          url.searchParams.get("asset") ||
+          url.searchParams.get("apar");
+
+        if (fromQuery) {
+          result = fromQuery;
+        } else {
+          result =
+            decodeURIComponent(
+              url.pathname
+                .split("/")
+                .filter(Boolean)
+                .pop() || result
+            );
+        }
+      }
+    } catch (error) {
+      // Jika bukan URL valid, gunakan nilai QR apa adanya.
+    }
+
+    return result.trim();
+  }
+
+
+  function normalizeAssetKey(value) {
+    return String(value || "")
+      .trim()
+      .toUpperCase();
+  }
+
+
+  function buildAparItem(id, data) {
+    return {
+      id: id,
+      data: data,
+
+      assetNumber:
+        data.assetNumber ||
+        data.asset_number ||
+        data.assetNo ||
+        data.asset_no ||
+        data.kode ||
+        data.code ||
+        data.Field ||
+        id,
+
+      brand:
+        data.brand ||
+        data.merk ||
+        "-",
+
+      capacity:
+        data.capacity ||
+        data.kapasitas ||
+        "-",
+
+      location:
+        data.location ||
+        data.lokasi ||
+        data.locationName ||
+        data.lokasiNama ||
+        data.locationId ||
+        "-",
+
+      serial:
+        data.serialNumber ||
+        data.serial_number ||
+        data.serial ||
+        "-",
+
+      type:
+        data.type ||
+        data.tipe ||
+        data.typeId ||
+        "-",
+
+      status:
+        data.status ||
+        "-"
+    };
+  }
+
+
+  async function findAparByQrValue(rawValue) {
+
+    const qrValue =
+      normalizeQrValue(rawValue);
+
+    if (!qrValue) {
+      throw new Error("QR Code kosong.");
+    }
+
+    debug("================================");
+    debug("SCAN QR APAR");
+    debug("================================");
+    debug("Isi QR: " + qrValue);
+
+    /*
+     * Prioritas pertama:
+     * QR = Document ID Firestore.
+     */
+    const directSnapshot =
+      await getDoc(
+        doc(db, "apar", qrValue)
+      );
+
+    if (directSnapshot.exists()) {
+
+      debug(
+        "Dokumen apar/" +
+        qrValue +
+        " ditemukan."
+      );
+
+      return buildAparItem(
+        directSnapshot.id,
+        directSnapshot.data() || {}
+      );
+    }
+
+    /*
+     * Fallback:
+     * QR = Asset Number.
+     */
+    debug(
+      "Dokumen ID tidak ditemukan. " +
+      "Mencari berdasarkan assetNumber..."
+    );
+
+    const snapshot =
+      await getDocs(
+        collection(db, "apar")
+      );
+
+    const target =
+      normalizeAssetKey(qrValue);
+
+    for (
+      const documentSnapshot of snapshot.docs
+    ) {
+
+      const data =
+        documentSnapshot.data() || {};
+
+      const assetNumber =
+        data.assetNumber ||
+        data.asset_number ||
+        data.assetNo ||
+        data.asset_no ||
+        data.kode ||
+        data.code ||
+        data.Field ||
+        documentSnapshot.id;
+
+      if (
+        normalizeAssetKey(assetNumber) ===
+        target
+      ) {
+
+        debug(
+          "Asset Number ditemukan: " +
+          assetNumber
+        );
+
+        return buildAparItem(
+          documentSnapshot.id,
+          data
+        );
+      }
+    }
+
+    throw new Error(
+      "APAR dengan QR/Asset Number " +
+      qrValue +
+      " tidak ditemukan di Firestore."
+    );
+  }
+
+
+  async function stopQrScanner() {
+
+    if (
+      !qrScanner ||
+      !scannerRunning
+    ) {
+
+      qrReader.classList.add(
+        "hidden"
+      );
+
+      stopScanBtn.disabled =
+        true;
+
+      startScanBtn.disabled =
+        false;
+
+      return;
+    }
+
+    try {
+
+      await qrScanner.stop();
+
+      debug(
+        "Scanner kamera dihentikan."
+      );
+
+    } catch (error) {
+
+      debug(
+        "Warning saat menghentikan scanner: " +
+        (error.message || error)
+      );
+    }
+
+    scannerRunning = false;
+
+    qrReader.classList.add(
+      "hidden"
+    );
+
+    stopScanBtn.disabled =
+      true;
+
+    startScanBtn.disabled =
+      false;
+  }
+
+
+  async function handleQrSuccess(
+    decodedText
+  ) {
+
+    if (scannerHandlingResult) {
+      return;
+    }
+
+    scannerHandlingResult =
+      true;
+
+    setScannerStatus(
+      "QR terbaca. Mencari APAR di Firestore...",
+      "info"
+    );
+
+    scanResult.textContent =
+      "QR: " +
+      normalizeQrValue(decodedText);
+
+    scanResult.classList.remove(
+      "hidden"
+    );
+
+    try {
+
+      await stopQrScanner();
+
+      const item =
+        await findAparByQrValue(
+          decodedText
+        );
+
+      selectApar(item);
+
+      setScannerStatus(
+        "APAR " +
+        item.assetNumber +
+        " berhasil ditemukan dan dipilih.",
+        "success"
+      );
+
+      scanResult.textContent =
+        "APAR ditemukan: " +
+        item.assetNumber;
+
+    } catch (error) {
+
+      console.error(error);
+
+      debug(
+        "GAGAL MEMPROSES HASIL SCAN"
+      );
+
+      debug(
+        "Code: " +
+        (error.code || "-")
+      );
+
+      debug(
+        "Message: " +
+        (error.message || "-")
+      );
+
+      setScannerStatus(
+        error.message ||
+        "QR tidak dapat diproses.",
+        "error"
+      );
+
+      scanResult.textContent =
+        "QR terbaca, tetapi APAR tidak ditemukan.";
+
+    } finally {
+
+      scannerHandlingResult =
+        false;
+    }
+  }
+
+
+  startScanBtn.addEventListener(
+    "click",
+    async function() {
+
+      if (!window.Html5Qrcode) {
+
+        setScannerStatus(
+          "Library QR Scanner belum berhasil dimuat. Periksa koneksi internet.",
+          "error"
+        );
+
+        return;
+      }
+
+      if (scannerRunning) {
+        return;
+      }
+
+      qrReader.classList.remove(
+        "hidden"
+      );
+
+      scanResult.classList.add(
+        "hidden"
+      );
+
+      setScannerStatus(
+        "Meminta akses kamera...",
+        "info"
+      );
+
+      startScanBtn.disabled =
+        true;
+
+      stopScanBtn.disabled =
+        false;
+
+      try {
+
+        if (!qrScanner) {
+
+          qrScanner =
+            new Html5Qrcode(
+              "qr-reader"
+            );
+        }
+
+        await qrScanner.start(
+          {
+            facingMode:
+              "environment"
+          },
+          {
+            fps: 10,
+
+            qrbox: {
+              width: 250,
+              height: 250
+            },
+
+            aspectRatio: 1.0
+          },
+          handleQrSuccess,
+          function() {
+            // Callback scan frame yang belum berisi QR.
+          }
+        );
+
+        scannerRunning = true;
+
+        setScannerStatus(
+          "Scanner aktif. Arahkan kamera ke QR Code APAR.",
+          "success"
+        );
+
+        debug(
+          "Scanner kamera aktif."
+        );
+
+      } catch (error) {
+
+        console.error(error);
+
+        debug(
+          "GAGAL MEMULAI SCANNER"
+        );
+
+        debug(
+          "Code: " +
+          (error.code || "-")
+        );
+
+        debug(
+          "Message: " +
+          (error.message || "-")
+        );
+
+        setScannerStatus(
+          "Kamera tidak dapat digunakan. Izinkan akses kamera dan coba lagi.",
+          "error"
+        );
+
+        scannerRunning =
+          false;
+
+        qrReader.classList.add(
+          "hidden"
+        );
+
+        startScanBtn.disabled =
+          false;
+
+        stopScanBtn.disabled =
+          true;
+      }
+    }
+  );
+
+
+  stopScanBtn.addEventListener(
+    "click",
+    async function() {
+
+      await stopQrScanner();
+
+      setScannerStatus(
+        "Scanner dihentikan. Tekan Mulai Scan untuk mencoba lagi.",
+        "info"
+      );
+    }
+  );
+
+
+  // =========================================================
+  // SELECT APAR
+  // =========================================================
+
+  function selectApar(item) {
+
+    selectedApar = item;
+
+    document.getElementById("selectedAssetNumber").textContent = item.assetNumber;
+    document.getElementById("selectedBrand").textContent = item.brand;
+    document.getElementById("selectedCapacity").textContent = item.capacity;
+    document.getElementById("selectedLocation").textContent = item.location;
+    document.getElementById("selectedSerial").textContent = item.serial;
+    document.getElementById("selectedType").textContent = item.type;
+    document.getElementById("selectedStatus").innerHTML = formatStatus(item.status);
+
+    selectedAparBox.classList.remove("hidden");
+
+    document.getElementById("inspectionAssetNumber").textContent = item.assetNumber;
+    document.getElementById("inspectionBrand").textContent = item.brand;
+    document.getElementById("inspectionLocation").textContent = item.location;
+    document.getElementById("inspectionSerial").textContent = item.serial;
+
+    inspectionCard.classList.remove("hidden");
+    inspectionStatus.textContent = "APAR siap diperiksa.";
+    inspectionStatus.className = "status status-info";
+
+    debug("================================");
+    debug("APAR DIPILIH");
+    debug("================================");
+    debug("Document ID: " + item.id);
+    debug("Asset Number: " + item.assetNumber);
+    debug("Brand: " + item.brand);
+    debug("Capacity: " + item.capacity);
+    debug("Location: " + item.location);
+    debug("Serial: " + item.serial);
+    debug("Type: " + item.type);
+    debug("Status: " + item.status);
+
+    aparStatus.textContent =
+      "APAR " + item.assetNumber + " berhasil dipilih.";
+    aparStatus.className = "status status-success";
+
+    inspectionCard.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }
+
+
+  // =========================================================
+  // FORMAT ROLE
+  // =========================================================
+
+  function formatRole(
+    role
+  ) {
+
+    const value =
+      String(role);
+
+
+    if (
+      value
+        .toLowerCase() ===
+      "inspector"
+    ) {
+
+      return `
+        <span class="badge badge-success">
+          INSPECTOR
+        </span>
+      `;
+
+    }
+
+
+    if (
+      value
+        .toLowerCase() ===
+      "admin"
+    ) {
+
+      return `
+        <span class="badge badge-warning">
+          ADMIN
+        </span>
+      `;
+
+    }
+
+
+    return `
+      <span class="badge badge-danger">
+        ${escapeHtml(value)}
+      </span>
+    `;
+
+  }
+
+
+  // =========================================================
+  // FORMAT STATUS
+  // =========================================================
+
+  function formatStatus(
+    status
+  ) {
+
+    const value =
+      String(status);
+
+
+    if (
+      value
+        .toLowerCase() ===
+      "active"
+    ) {
+
+      return `
+        <span class="badge badge-success">
+          ACTIVE
+        </span>
+      `;
+
+    }
+
+
+    return `
+      <span class="badge badge-danger">
+        ${escapeHtml(value)}
+      </span>
+    `;
+
+  }
+
+
+  // =========================================================
+  // ESCAPE HTML
+  // =========================================================
+
+  function escapeHtml(
+    value
+  ) {
+
+    return String(value)
+
+      .replaceAll(
+        "&",
+        "&amp;"
+      )
+
+      .replaceAll(
+        "<",
+        "&lt;"
+      )
+
+      .replaceAll(
+        ">",
+        "&gt;"
+      )
+
+      .replaceAll(
+        '"',
+        "&quot;"
+      )
+
+      .replaceAll(
+        "'",
+        "&#039;"
+      );
+
+  }
+
+
+  // =========================================================
+  // SAVE INSPECTION
+  // =========================================================
+
+  saveInspectionBtn.addEventListener(
+    "click",
+    async function() {
+
+      if (!currentUser) {
+        alert("Inspector belum login.");
+        return;
+      }
+
+      if (!selectedApar) {
+        alert("Silakan pilih APAR terlebih dahulu.");
+        return;
+      }
+
+      saveInspectionBtn.disabled = true;
+      cancelInspectionBtn.disabled = true;
+
+      inspectionStatus.textContent =
+        "Menyimpan hasil pemeriksaan...";
+      inspectionStatus.className = "status status-info";
+
+      debug("================================");
+      debug("MENYIMPAN PEMERIKSAAN APAR");
+      debug("================================");
+
+      const inspectionData = {
+        aparId: selectedApar.id,
+        aparAssetNumber: selectedApar.assetNumber,
+        inspectorId: currentUser.uid,
+        inspectorPhone: currentUser.phoneNumber || null,
+        inspectionDate: serverTimestamp(),
+        physicalCondition: document.getElementById("physicalCondition").value,
+        seal: document.getElementById("seal").value,
+        safetyPin: document.getElementById("safetyPin").value,
+        pressure: document.getElementById("pressure").value,
+        nozzle: document.getElementById("nozzle").value,
+        hose: document.getElementById("hose").value,
+        signage: document.getElementById("signage").value,
+        result: document.getElementById("result").value,
+        notes: document.getElementById("notes").value.trim(),
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp()
+      };
+
+      debug("Collection: inspections");
+      debug("APAR ID: " + selectedApar.id);
+      debug("Asset Number: " + selectedApar.assetNumber);
+      debug("Inspector UID: " + currentUser.uid);
+      debug("Result: " + inspectionData.result);
+
+      try {
+
+        const inspectionRef = await addDoc(
+          collection(db, "inspections"),
+          inspectionData
+        );
+
+        debug("Pemeriksaan berhasil disimpan.");
+        debug("Inspection Document ID: " + inspectionRef.id);
+
+        inspectionStatus.textContent =
+          "Pemeriksaan berhasil disimpan. ID: " + inspectionRef.id;
+        inspectionStatus.className = "status status-success";
+
+        alert(
+          "Pemeriksaan APAR berhasil disimpan.\n\n" +
+          "ID: " + inspectionRef.id
+        );
+
+      } catch (error) {
+
+        console.error(error);
+        debug("GAGAL MENYIMPAN PEMERIKSAAN");
+        debug("Code: " + (error.code || "-"));
+        debug("Message: " + (error.message || "-"));
+
+        inspectionStatus.textContent =
+          "Gagal menyimpan pemeriksaan: " +
+          (error.message || "Unknown error");
+        inspectionStatus.className = "status status-error";
+
+      } finally {
+
+        saveInspectionBtn.disabled = false;
+        cancelInspectionBtn.disabled = false;
+
+      }
+    }
+  );
+
+
+  // =========================================================
+  // CANCEL INSPECTION
+  // =========================================================
+
+  cancelInspectionBtn.addEventListener(
+    "click",
+    function() {
+
+      document.getElementById("physicalCondition").value = "good";
+      document.getElementById("seal").value = "good";
+      document.getElementById("safetyPin").value = "good";
+      document.getElementById("pressure").value = "normal";
+      document.getElementById("nozzle").value = "good";
+      document.getElementById("hose").value = "good";
+      document.getElementById("signage").value = "good";
+      document.getElementById("result").value = "pass";
+      document.getElementById("notes").value = "";
+
+      inspectionStatus.textContent =
+        "Form pemeriksaan dikosongkan. APAR tetap terpilih.";
+      inspectionStatus.className = "status status-info";
+
+      debug("Form pemeriksaan di-reset.");
+    }
+  );
+
+
+  // =========================================================
+  // RESET LOGIN
+  // =========================================================
+
+  resetLoginBtn.addEventListener(
+    "click",
+    function() {
+
+      otpCard.classList.add(
+        "hidden"
+      );
+
+
+      loginCard.classList.remove(
+        "hidden"
+      );
+
+
+      otpCodeInput.value = "";
+
+
+      aparCard.classList.add("hidden");
+      scannerCard.classList.add("hidden");
+      inspectionCard.classList.add("hidden");
+      selectedApar = null;
+
+
+      confirmationResult =
+        null;
+
+
+      setGlobalStatus(
+        "Silakan masukkan nomor HP kembali.",
+        "info"
+      );
+
+
+      clearDebug();
+
+
+      debug(
+        "Login di-reset."
+      );
+
+    }
+  );
+
+
+  // =========================================================
+  // LOGOUT
+  // =========================================================
+
+  logoutBtn.addEventListener(
+    "click",
+    async function() {
+
+      if (!auth) {
+
+        return;
+
+      }
+
+
+      try {
+
+        await stopQrScanner();
+
+        await signOut(
+          auth
+        );
+
+
+        profileCard.classList.add(
+          "hidden"
+        );
+
+
+        aparCard.classList.add(
+          "hidden"
+        );
+
+
+        scannerCard.classList.add(
+          "hidden"
+        );
+
+        inspectionCard.classList.add(
+          "hidden"
+        );
+
+
+        selectedApar = null;
+        currentUser = null;
+
+
+        otpCard.classList.add(
+          "hidden"
+        );
+
+
+        loginCard.classList.remove(
+          "hidden"
+        );
+
+
+        otpCodeInput.value =
+          "";
+
+
+        confirmationResult =
+          null;
+
+
+        setGlobalStatus(
+          "Berhasil logout.",
+          "info"
+        );
+
+
+        clearDebug();
+
+
+        debug(
+          "User berhasil logout."
+        );
+
+
+      } catch (error) {
+
+        debug(
+          "Logout error: " +
+          error.message
+        );
+
+      }
+
+    }
+  );
+
+
+  // =========================================================
+  // AUTH STATE
+  // =========================================================
+
+  function initializeAuthListener() {
+
+    if (!auth) {
+
+      return;
+
+    }
+
+
+    onAuthStateChanged(
+      auth,
+      function(user) {
+
+        if (user) {
+
+          currentUser = user;
+
+          debug(
+            "Auth State: USER LOGIN"
+          );
+
+
+          debug(
+            "UID: " +
+            user.uid
+          );
+
+        } else {
+
+          currentUser = null;
+
+          debug(
+            "Auth State: BELUM LOGIN"
+          );
+
+        }
+
+      }
+    );
+
+  }
+
+
+  // =========================================================
+  // START APPLICATION
+  // =========================================================
+
+  const firebaseReady =
+    initializeFirebase();
+
+
+  if (firebaseReady) {
+
+    initializeAuthListener();
+
+  }
+
+</script>
+
+</body>
+</html>
