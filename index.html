@@ -191,6 +191,40 @@
       white-space:pre-wrap;
       font:12px/1.5 Consolas,monospace;
     }
+    .login-card{
+      max-width:560px;
+      margin:55px auto;
+      background:#fff;
+      border:1px solid #dbe2ea;
+      border-radius:16px;
+      padding:26px;
+      box-shadow:0 8px 25px rgba(15,23,42,.05);
+    }
+    .login-card h2{margin:0 0 7px;font-size:22px}
+    .login-card .subtitle{margin-bottom:20px}
+    .field{margin-bottom:15px}
+    .field label{
+      display:block;
+      margin-bottom:7px;
+      font-size:13px;
+      font-weight:800;
+    }
+    .field input{
+      width:100%;
+      border:1px solid #cbd5e1;
+      border-radius:9px;
+      padding:12px 13px;
+      font-size:14px;
+      outline:none;
+    }
+    .field input:focus{border-color:#2563eb}
+    .login-actions{display:flex;gap:10px;align-items:center}
+    .login-note{
+      margin-top:15px;
+      font-size:12px;
+      color:#64748b;
+      line-height:1.5;
+    }
     .hidden{display:none!important}
     @media(max-width:900px){
       .sidebar{width:205px}
@@ -236,6 +270,33 @@
   </aside>
 
   <main class="main">
+
+    <section id="loginCard" class="login-card hidden">
+      <h2>Login Admin</h2>
+      <div class="subtitle">Masuk menggunakan akun Admin yang terdaftar di Firebase Authentication.</div>
+
+      <div id="loginStatus" class="status info hidden"></div>
+
+      <div class="field">
+        <label for="loginEmail">Email Admin</label>
+        <input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test">
+      </div>
+
+      <div class="field">
+        <label for="loginPassword">Password Admin</label>
+        <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
+      </div>
+
+      <div class="login-actions">
+        <button id="loginBtn" class="action primary" type="button">Login Admin</button>
+      </div>
+
+      <div class="login-note">
+        Setelah logout, form ini akan muncul kembali sehingga Admin dapat login lagi tanpa perlu membuka halaman lain.
+      </div>
+    </section>
+
+    <div id="dashboardContent" class="hidden">
 
     <div class="topbar">
       <div>
@@ -335,6 +396,7 @@
       <div id="debugBox" class="debug">Memulai Admin Dashboard V14.1...</div>
     </section>
 
+    </div>
   </main>
 </div>
 
@@ -345,6 +407,7 @@
   import {
     getAuth,
     onAuthStateChanged,
+    signInWithEmailAndPassword,
     signOut
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
@@ -370,6 +433,25 @@
   let currentAdmin = null;
 
   const $ = id => document.getElementById(id);
+
+  function showLogin() {
+    $("loginCard").classList.remove("hidden");
+    $("dashboardContent").classList.add("hidden");
+    $("adminEmail").textContent = "-";
+    $("loginPassword").value = "";
+  }
+
+  function showDashboard() {
+    $("loginCard").classList.add("hidden");
+    $("dashboardContent").classList.remove("hidden");
+  }
+
+  function setLoginStatus(message, type="info") {
+    const el = $("loginStatus");
+    el.textContent = message;
+    el.className = `status ${type}`;
+    el.classList.remove("hidden");
+  }
 
   function debug(message) {
     const box = $("debugBox");
@@ -604,6 +686,46 @@
 
   $("reloadBtn").addEventListener("click", loadDashboard);
 
+  $("loginBtn").addEventListener("click", async () => {
+    const email = $("loginEmail").value.trim();
+    const password = $("loginPassword").value;
+
+    if (!email || !password) {
+      setLoginStatus("Email dan password wajib diisi.", "warning");
+      return;
+    }
+
+    $("loginBtn").disabled = true;
+    setLoginStatus("Sedang login...", "info");
+
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      setLoginStatus("Authentication berhasil. Memeriksa profil Admin...", "success");
+      debug("Login berhasil: " + email);
+      // onAuthStateChanged akan melanjutkan validasi role/status dan menampilkan dashboard.
+    } catch (error) {
+      console.error(error);
+      let message = "Login gagal.";
+      if (error.code === "auth/invalid-credential") {
+        message = "Email atau password salah.";
+      } else if (error.code === "auth/user-disabled") {
+        message = "Akun Firebase dinonaktifkan.";
+      } else if (error.code === "auth/too-many-requests") {
+        message = "Terlalu banyak percobaan login. Coba lagi beberapa saat.";
+      } else if (error.message) {
+        message = error.message;
+      }
+      setLoginStatus(message, "error");
+      debug("LOGIN ERROR: " + (error.code || "-") + " | " + (error.message || "-"));
+    } finally {
+      $("loginBtn").disabled = false;
+    }
+  });
+
+  $("loginPassword").addEventListener("keydown", event => {
+    if (event.key === "Enter") $("loginBtn").click();
+  });
+
   $("logoutBtn").addEventListener("click", async () => {
     try {
       await signOut(auth);
@@ -641,6 +763,8 @@
 
     onAuthStateChanged(auth, async user => {
       if (!user) {
+        currentAdmin = null;
+        showLogin();
         setStatus(
           "Belum login. Silakan login menggunakan akun Admin.",
           "warning"
@@ -653,6 +777,7 @@
 
       try {
         await validateAdmin(user);
+        showDashboard();
         await loadDashboard();
       } catch (error) {
         setStatus(
@@ -663,9 +788,11 @@
         debug("VALIDASI ADMIN GAGAL.");
         debug(error.message);
 
-        setTimeout(async () => {
-          try { await signOut(auth); } catch (_) {}
-        }, 2500);
+        try { await signOut(auth); } catch (_) {}
+        setLoginStatus(
+          "Akun tidak memiliki akses Admin aktif.",
+          "error"
+        );
       }
     });
 
