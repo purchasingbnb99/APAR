@@ -709,6 +709,24 @@
     }
 
   
+
+    /* DASHBOARD APAR */
+    .dashboard-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:12px}
+    .dashboard-stat{border:1px solid #e5e7eb;border-radius:12px;padding:15px;background:#fff}
+    .dashboard-stat .stat-label{font-size:12px;color:#6b7280;font-weight:700;text-transform:uppercase}
+    .dashboard-stat .stat-value{font-size:28px;font-weight:800;margin-top:6px}
+    .dashboard-stat .stat-note{margin-top:4px;font-size:11px;color:#6b7280}
+    .dashboard-section{margin-top:18px}
+    .dashboard-table-wrap{overflow-x:auto;margin-top:10px}
+    .dashboard-table{width:100%;border-collapse:collapse;min-width:700px}
+    .dashboard-table th,.dashboard-table td{border:1px solid #e5e7eb;padding:9px 10px;text-align:left;font-size:12px;vertical-align:top}
+    .dashboard-table th{background:#f9fafb;font-weight:700}
+    .dashboard-empty{padding:16px;border:1px dashed #d1d5db;border-radius:10px;color:#6b7280;text-align:center;margin-top:10px}
+    .dashboard-toolbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}
+    .dashboard-toolbar .small{margin-right:auto}
+    @media(max-width:900px){.dashboard-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media(max-width:600px){.dashboard-grid{grid-template-columns:1fr}.dashboard-stat .stat-value{font-size:24px}}
+
     /* =========================================================
        PRINT PEMERIKSAAN
     ========================================================== */
@@ -797,7 +815,7 @@
   <div class="card">
 
     <h1>
-      APAR - Test Inspector V11 DETAIL FILTER PRINT
+      APAR - Test Inspector V12 DASHBOARD APAR
     </h1>
 
     <div class="subtitle">
@@ -1249,6 +1267,26 @@
   </div>
 
 
+
+  <!-- DASHBOARD APAR -->
+  <div id="dashboardCard" class="card hidden">
+    <h2>Dashboard APAR</h2>
+    <div id="dashboardStatus" class="status status-info">Memuat ringkasan APAR...</div>
+    <div class="dashboard-toolbar">
+      <div class="small">Status dihitung berdasarkan pemeriksaan <strong>terakhir</strong> dari setiap APAR.</div>
+      <button id="refreshDashboardBtn" class="btn-secondary" type="button">🔄 Muat Ulang</button>
+    </div>
+    <div class="dashboard-grid">
+      <div class="dashboard-stat"><div class="stat-label">🧯 Total APAR</div><div id="dashTotal" class="stat-value">0</div><div class="stat-note">Seluruh APAR di master</div></div>
+      <div class="dashboard-stat"><div class="stat-label">✅ PASS</div><div id="dashPass" class="stat-value">0</div><div class="stat-note">Pemeriksaan terakhir PASS</div></div>
+      <div class="dashboard-stat"><div class="stat-label">❌ FAIL</div><div id="dashFail" class="stat-value">0</div><div class="stat-note">Pemeriksaan terakhir FAIL</div></div>
+      <div class="dashboard-stat"><div class="stat-label">⏳ Belum Diperiksa</div><div id="dashUnchecked" class="stat-value">0</div><div class="stat-note">Belum memiliki pemeriksaan</div></div>
+      <div class="dashboard-stat"><div class="stat-label">⚠️ Perlu Perhatian</div><div id="dashAttention" class="stat-value">0</div><div class="stat-note">Pemeriksaan terakhir FAIL</div></div>
+    </div>
+    <div class="dashboard-section"><h3>Daftar Status APAR</h3><div id="dashboardTableWrap" class="dashboard-table-wrap"></div></div>
+    <div class="dashboard-section"><h3>⚠️ APAR Perlu Perhatian</h3><div id="dashboardAttentionWrap"></div></div>
+  </div>
+
   <!-- =====================================================
        QR SCANNER APAR
   ====================================================== -->
@@ -1551,7 +1589,7 @@
       id="debugBox"
       class="debug"
     >
-Memulai Test Inspector V11 DETAIL FILTER PRINT...
+Memulai Test Inspector V12 DASHBOARD APAR...
     </div>
 
   </div>
@@ -1872,6 +1910,17 @@ Memulai Test Inspector V11 DETAIL FILTER PRINT...
   const stopScanBtn =
     document.getElementById("stopScanBtn");
 
+  const dashboardCard = document.getElementById("dashboardCard");
+  const dashboardStatus = document.getElementById("dashboardStatus");
+  const refreshDashboardBtn = document.getElementById("refreshDashboardBtn");
+  const dashTotal = document.getElementById("dashTotal");
+  const dashPass = document.getElementById("dashPass");
+  const dashFail = document.getElementById("dashFail");
+  const dashUnchecked = document.getElementById("dashUnchecked");
+  const dashAttention = document.getElementById("dashAttention");
+  const dashboardTableWrap = document.getElementById("dashboardTableWrap");
+  const dashboardAttentionWrap = document.getElementById("dashboardAttentionWrap");
+
 
   let currentUser = null;
 
@@ -1891,6 +1940,7 @@ Memulai Test Inspector V11 DETAIL FILTER PRINT...
   let inspectionHistory = [];
 
   let selectedHistoryItem = null;
+  let dashboardAparItems = [];
 
 
   // =========================================================
@@ -3053,6 +3103,9 @@ Memulai Test Inspector V11 DETAIL FILTER PRINT...
           "User boleh dianggap Inspector aktif."
         );
 
+        dashboardCard.classList.remove("hidden");
+        await loadDashboard();
+
         scannerCard.classList.remove("hidden");
 
         setScannerStatus(
@@ -3983,6 +4036,48 @@ Memulai Test Inspector V11 DETAIL FILTER PRINT...
 
 
   // =========================================================
+  // DASHBOARD APAR
+  // =========================================================
+  function dashMillis(v){
+    if(!v) return 0;
+    if(typeof v.toMillis==='function') return v.toMillis();
+    if(v instanceof Date) return v.getTime();
+    if(typeof v==='number') return v;
+    const n=new Date(v).getTime(); return Number.isNaN(n)?0:n;
+  }
+  function dashDate(v){
+    const n=dashMillis(v); if(!n) return '-';
+    return new Intl.DateTimeFormat('id-ID',{dateStyle:'medium',timeStyle:'short'}).format(new Date(n));
+  }
+  function dashAsset(d,id){return d.assetNumber||d.asset_number||d.assetNo||d.asset_no||d.kode||d.code||id||'-';}
+  function dashKey(v){return String(v||'').trim().toUpperCase();}
+  function dashResult(v){const x=dashKey(v);return x==='PASS'?'PASS':x==='FAIL'?'FAIL':'Belum Diperiksa';}
+  function dashLatest(docs){
+    const m=new Map();
+    docs.forEach(s=>{const d=s.data()||{};const k=dashKey(d.aparId||d.aparAssetNumber||d.assetNumber);if(!k)return;const c={id:s.id,data:d,t:dashMillis(d.inspectionDate||d.updatedAt||d.createdAt)};const old=m.get(k);if(!old||c.t>old.t)m.set(k,c);});
+    return m;
+  }
+  function renderDashboard(items,latest){
+    let pass=0,fail=0,unchecked=0,attention=[];
+    const rows=items.map(item=>{const i=latest.get(item.key);const r=i?dashResult(i.data.result):'Belum Diperiksa';if(r==='PASS')pass++;else if(r==='FAIL'){fail++;attention.push({item,i});}else unchecked++;return `<tr><td><strong>${escapePrintHtml(item.asset)}</strong></td><td>${escapePrintHtml(item.brand)}</td><td>${escapePrintHtml(item.capacity)}</td><td>${escapePrintHtml(item.location)}</td><td><strong>${escapePrintHtml(r)}</strong></td><td>${escapePrintHtml(i?dashDate(i.data.inspectionDate||i.data.updatedAt||i.data.createdAt):'-')}</td><td>${escapePrintHtml(i?(i.data.inspectorPhone||i.data.inspectorId||'-'):'-')}</td><td>${escapePrintHtml(item.status||'-')}</td></tr>`;}).join('');
+    dashTotal.textContent=items.length;dashPass.textContent=pass;dashFail.textContent=fail;dashUnchecked.textContent=unchecked;dashAttention.textContent=attention.length;
+    dashboardTableWrap.innerHTML=rows?`<table class="dashboard-table"><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Hasil Terakhir</th><th>Tanggal Pemeriksaan</th><th>Inspector</th><th>Status APAR</th></tr></thead><tbody>${rows}</tbody></table>`:'<div class="dashboard-empty">Belum ada data APAR.</div>';
+    dashboardAttentionWrap.innerHTML=attention.length?attention.map(x=>`<div class="dashboard-stat" style="margin-top:10px"><strong>${escapePrintHtml(x.item.asset)}</strong><div class="small">Hasil terakhir: <strong>FAIL</strong> · ${escapePrintHtml(dashDate(x.i.data.inspectionDate||x.i.data.updatedAt||x.i.data.createdAt))}</div><div class="small">Catatan: ${escapePrintHtml(x.i.data.notes||'-')}</div></div>`).join(''):'<div class="dashboard-empty">Tidak ada APAR yang perlu perhatian berdasarkan pemeriksaan terakhir.</div>';
+  }
+  async function loadDashboard(){
+    try{
+      dashboardStatus.textContent='Memuat dashboard APAR...';dashboardStatus.className='status status-info';
+      const [aSnap,iSnap]=await Promise.all([getDocs(collection(db,'apar')),getDocs(collection(db,'inspections'))]);
+      const map=new Map();
+      aSnap.docs.forEach(s=>{const d=s.data()||{};const asset=dashAsset(d,s.id),key=dashKey(asset);const item={id:s.id,data:d,asset,key,brand:d.brand||d.merk||'-',capacity:d.capacity||d.kapasitas||'-',location:d.location||d.lokasi||d.locationName||d.lokasiNama||d.locationId||'-',status:d.status||'-'};const old=map.get(key);if(!old||dashKey(item.id)===key)map.set(key,item);});
+      dashboardAparItems=[...map.values()].sort((a,b)=>a.asset.localeCompare(b.asset,undefined,{numeric:true,sensitivity:'base'}));
+      renderDashboard(dashboardAparItems,dashLatest(iSnap.docs));
+      dashboardStatus.textContent=`Dashboard berhasil diperbarui. ${dashboardAparItems.length} APAR ditemukan.`;dashboardStatus.className='status status-success';
+    }catch(e){console.error(e);dashboardStatus.textContent='Gagal memuat Dashboard APAR: '+(e.message||e);dashboardStatus.className='status status-error';debug('Dashboard error: '+(e.message||e));}
+  }
+  refreshDashboardBtn.addEventListener('click',loadDashboard);
+
+  // =========================================================
   // QR SCANNER APAR
   // =========================================================
 
@@ -4820,6 +4915,7 @@ Memulai Test Inspector V11 DETAIL FILTER PRINT...
 
 
       aparCard.classList.add("hidden");
+      dashboardCard.classList.add("hidden");
       scannerCard.classList.add("hidden");
       inspectionCard.classList.add("hidden");
       selectedApar = null;
@@ -5640,6 +5736,10 @@ Memulai Test Inspector V11 DETAIL FILTER PRINT...
           "hidden"
         );
 
+
+        dashboardCard.classList.add(
+          "hidden"
+        );
 
         scannerCard.classList.add(
           "hidden"
