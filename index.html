@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.8.3</title>
+<title>APAR - Admin Dashboard V14.9</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -81,7 +81,7 @@ tr:last-child td{border-bottom:0}
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.8.3</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.9</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -296,7 +296,7 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.8.3...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.9...</div>
 </section>
 </div>
 </main>
@@ -421,7 +421,7 @@ async function validateAdmin(user){
   debug("Role: "+role);debug("Status: "+status);
   if(role!=="admin")throw new Error("Akun bukan Admin. Role: "+role);
   if(status!=="active")throw new Error("Akun Admin tidak aktif. Status: "+status);
-  currentAdmin=data;
+  currentAdmin={...data,uid:user.uid};
   $("adminEmail").textContent=data.email||user.email||"-";
 }
 
@@ -918,6 +918,9 @@ function renderUsers(){
       <button class="small-btn" data-edit-user="${esc(x.id)}" type="button">Edit</button>
       <button class="small-btn" data-change-password="${esc(x.id)}" type="button">🔐 Ubah Password</button>
       <button class="small-btn" data-reset-user="${esc(x.id)}" type="button">✉️ Reset Email</button>
+      ${String(x.status||"").toLowerCase()==="active"
+        ? `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔒 Nonaktifkan</button>`
+        : `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔓 Aktifkan</button>`}
     </td>
   </tr>`).join("");
 
@@ -929,6 +932,9 @@ function renderUsers(){
   });
   body.querySelectorAll("[data-reset-user]").forEach(btn=>{
     btn.addEventListener("click",()=>resetUserPassword(btn.dataset.resetUser));
+  });
+  body.querySelectorAll("[data-toggle-status]").forEach(btn=>{
+    btn.addEventListener("click",()=>toggleUserStatus(btn.dataset.toggleStatus));
   });
 }
 
@@ -990,7 +996,8 @@ async function saveUserEdit(){
       name,
       role,
       status,
-      updatedAt:new Date()
+      updatedAt:serverTimestamp(),
+      updatedBy:currentAdmin?.email||currentAdmin?.uid||"admin"
     });
 
     const idx=userRows.findIndex(u=>u.id===editingUserId);
@@ -1008,6 +1015,61 @@ async function saveUserEdit(){
     debug("UPDATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
   }finally{
     $("saveUserBtn").disabled=false;
+  }
+}
+
+
+async function toggleUserStatus(id){
+  const target=userRows.find(u=>u.id===id);
+  if(!target){
+    setUsersStatus("User tidak ditemukan.","error");
+    return;
+  }
+
+  const currentStatus=String(target.status||"").trim().toLowerCase();
+  const nextStatus=currentStatus==="active"?"inactive":"active";
+
+  // Admin yang sedang login tidak boleh dinonaktifkan dari sesi ini.
+  if(id===currentAdmin?.uid && nextStatus==="inactive"){
+    setUsersStatus("Admin yang sedang login tidak boleh dinonaktifkan dari sesi ini.","warning");
+    debug("BLOK STATUS SELF-INACTIVE: "+id);
+    return;
+  }
+
+  const targetName=target.name||target.email||id;
+  const actionText=nextStatus==="inactive"?"menonaktifkan":"mengaktifkan";
+  const confirmText=nextStatus==="inactive"
+    ? `Nonaktifkan user ${targetName}? User akan ditolak saat proses login yang memeriksa status Firestore.`
+    : `Aktifkan kembali user ${targetName}?`;
+
+  if(!confirm(confirmText)) return;
+
+  try{
+    setUsersStatus(`${actionText[0].toUpperCase()+actionText.slice(1)} user...`,"info");
+
+    await updateDoc(doc(db,"users",id),{
+      status:nextStatus,
+      updatedAt:serverTimestamp(),
+      updatedBy:currentAdmin?.email||currentAdmin?.uid||"admin"
+    });
+
+    const idx=userRows.findIndex(u=>u.id===id);
+    if(idx>=0){
+      userRows[idx]={...userRows[idx],status:nextStatus};
+    }
+
+    renderUsers();
+    setUsersStatus(
+      nextStatus==="inactive"
+        ? `User ${targetName} berhasil dinonaktifkan.`
+        : `User ${targetName} berhasil diaktifkan kembali.`,
+      "success"
+    );
+    debug(`STATUS USER DIUBAH: ${id} -> ${nextStatus}`);
+  }catch(e){
+    console.error(e);
+    setUsersStatus("Gagal mengubah status user: "+(e.message||"Unknown error"),"error");
+    debug("TOGGLE STATUS ERROR: "+(e.code||"-")+" | "+(e.message||""));
   }
 }
 
