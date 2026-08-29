@@ -8,7 +8,7 @@
     content="width=device-width, initial-scale=1.0"
   >
 
-  <title>APAR - Test Inspector V5 QR FIX</title>
+  <title>APAR - Test Inspector V9 QR AUTO SELECT</title>
 
   <style>
 
@@ -1076,7 +1076,7 @@
     <h2>Scan QR Code APAR</h2>
 
     <div id="scannerStatus" class="status status-info">
-      Tekan "Mulai Scan" lalu arahkan kamera ke QR Code APAR.
+      Tekan "Mulai Scan" lalu arahkan kamera ke QR Code APAR. Setelah terbaca, APAR akan otomatis dipilih.
     </div>
 
     <div class="scanner-box">
@@ -1107,6 +1107,10 @@
         >
           Hentikan Scan
         </button>
+      </div>
+
+      <div class="small" style="margin-top:10px;">
+        Setelah QR valid terbaca, kamera otomatis berhenti, APAR otomatis dipilih, dan form pemeriksaan dibuka.
       </div>
 
     </div>
@@ -3909,17 +3913,21 @@ Memulai Test Inspector V5 QR FIX...
           decodedText
         );
 
-      selectApar(item);
+      const selected = selectApar(item, "scan");
+
+      if (!selected) {
+        throw new Error("APAR ditemukan, tetapi tidak dapat dipilih.");
+      }
 
       setScannerStatus(
         "APAR " +
         item.assetNumber +
-        " berhasil ditemukan dan dipilih.",
+        " berhasil ditemukan. Pemeriksaan siap dilakukan.",
         "success"
       );
 
       scanResult.textContent =
-        "APAR ditemukan: " +
+        "✓ APAR ditemukan dan otomatis dipilih: " +
         item.assetNumber;
 
     } catch (error) {
@@ -4098,7 +4106,28 @@ Memulai Test Inspector V5 QR FIX...
   // SELECT APAR
   // =========================================================
 
-  function selectApar(item) {
+  function selectApar(item, source = "manual") {
+
+    if (!item) {
+      return false;
+    }
+
+    const statusValue = String(item.status || "")
+      .trim()
+      .toLowerCase();
+
+    if (statusValue && statusValue !== "active") {
+      const message =
+        "APAR " + item.assetNumber +
+        " berstatus " + item.status +
+        " dan tidak dapat diperiksa.";
+
+      setScannerStatus(message, "error");
+      aparStatus.textContent = message;
+      aparStatus.className = "status status-error";
+      debug(message);
+      return false;
+    }
 
     selectedApar = item;
 
@@ -4122,11 +4151,15 @@ Memulai Test Inspector V5 QR FIX...
     document.getElementById("inspectionSerial").textContent = item.serial;
 
     inspectionCard.classList.remove("hidden");
-    inspectionStatus.textContent = "APAR siap diperiksa.";
+    inspectionStatus.textContent =
+      source === "scan"
+        ? "APAR berhasil dipilih dari QR. Silakan lakukan pemeriksaan."
+        : "APAR siap diperiksa.";
     inspectionStatus.className = "status status-info";
 
     debug("================================");
     debug("APAR DIPILIH");
+    debug("Sumber: " + source);
     debug("================================");
     debug("Document ID: " + item.id);
     debug("Asset Number: " + item.assetNumber);
@@ -4137,9 +4170,24 @@ Memulai Test Inspector V5 QR FIX...
     debug("Type: " + item.type);
     debug("Status: " + item.status);
 
-    aparStatus.textContent =
-      "APAR " + item.assetNumber + " berhasil dipilih.";
+    if (source === "scan") {
+      aparStatus.textContent =
+        "QR berhasil dibaca. APAR " + item.assetNumber +
+        " otomatis dipilih untuk pemeriksaan.";
+    } else {
+      aparStatus.textContent =
+        "APAR " + item.assetNumber + " berhasil dipilih.";
+    }
     aparStatus.className = "status status-success";
+
+    if (source === "scan") {
+      scanResult.textContent =
+        "✓ QR valid: " + item.assetNumber +
+        " — APAR otomatis dipilih.";
+      scanResult.classList.remove("hidden");
+    }
+
+    return true;
 
     inspectionCard.scrollIntoView({
       behavior: "smooth",
