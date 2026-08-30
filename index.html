@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<!-- V14.9.2: Validasi status INACTIVE sebelum role; pesan login diperbaiki. -->
+<!-- V14.10 CORE: Modul Pemeriksaan Admin aktif; validasi status INACTIVE tetap diprioritaskan; pesan login diperbaiki. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.9.2</title>
+<title>APAR - Admin Dashboard V14.10 CORE</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -82,7 +82,7 @@ tr:last-child td{border-bottom:0}
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.9</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.10 CORE</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -192,6 +192,24 @@ tr:last-child td{border-bottom:0}
 </section>
 
 
+<section id="inspectionView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div><h2>Pemeriksaan APAR</h2><div class="subtitle">Pilih APAR dengan status <b>ACTIVE</b> untuk melakukan pemeriksaan.</div></div>
+      <div class="toolbar-left"><button id="reloadInspectionBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
+    </div>
+    <div class="history-filters">
+      <input id="inspectionSearch" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
+      <span id="inspectionCount" class="history-count">0 APAR dapat diperiksa</span>
+    </div>
+    <div id="inspectionListStatus" class="status info hidden"></div>
+    <div class="table-wrap"><table>
+      <thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Aksi</th></tr></thead>
+      <tbody id="inspectionAparBody"><tr><td colspan="8" class="empty">Memuat APAR...</td></tr></tbody>
+    </table></div>
+  </section>
+</section>
+
 <section id="historyView" class="hidden">
   <section class="card">
     <div class="toolbar">
@@ -297,7 +315,7 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.9...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.10 CORE...</div>
 </section>
 </div>
 </main>
@@ -377,7 +395,7 @@ tr:last-child td{border-bottom:0}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
@@ -391,7 +409,7 @@ const firebaseConfig={
 const userCreationApp=initializeApp(firebaseConfig,"userCreationApp");
 const userCreationAuth=getAuth(userCreationApp);
 
-let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
+let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],inspectionAparRows=[],selectedInspectionApar=null,aparFormMode="create",aparEditId=null;
 let changingPasswordUserId=null;
 
 const $=id=>document.getElementById(id);
@@ -755,6 +773,49 @@ function showDetail(id){
 }
 function closeDetail(){$("detailModal").classList.add("hidden")}
 
+
+function setInspectionListStatus(message,type="info"){
+  const e=$("inspectionListStatus"); e.textContent=message; e.className=`status ${type}`; e.classList.remove("hidden");
+}
+function setInspectionFormStatus(message,type="info"){
+  const e=$("inspectionFormStatus"); e.textContent=message; e.className=`status ${type}`; e.classList.remove("hidden");
+}
+function loadInspectionCandidates(){
+  const q=String($("inspectionSearch").value||"").trim().toLowerCase();
+  inspectionAparRows=aparRows.filter(x=>String(x.status||"").toLowerCase()==="active" && (!q || [x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.id].some(v=>String(v??"").toLowerCase().includes(q))));
+  inspectionAparRows.sort((a,b)=>String(a.assetNumber||a.id).localeCompare(String(b.assetNumber||b.id),undefined,{numeric:true,sensitivity:"base"}));
+  $("inspectionCount").textContent=`${inspectionAparRows.length} APAR dapat diperiksa`;
+  const body=$("inspectionAparBody");
+  if(!inspectionAparRows.length){body.innerHTML='<tr><td colspan="8" class="empty">Tidak ada APAR ACTIVE yang sesuai.</td></tr>';return;}
+  body.innerHTML=inspectionAparRows.map(x=>`<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${esc(x.typeId)}</td><td>${badge(x.status)}</td><td><button class="small-btn" data-inspect-id="${esc(x.id)}" type="button">📋 Periksa</button></td></tr>`).join("");
+  body.querySelectorAll("[data-inspect-id]").forEach(btn=>btn.addEventListener("click",()=>openInspectionForm(btn.dataset.inspectId)));
+}
+function openInspectionForm(id){
+  const x=aparRows.find(r=>r.id===id); if(!x)return;
+  if(String(x.status||"").toLowerCase()!=="active"){setInspectionListStatus(`APAR ${x.assetNumber||id} tidak ACTIVE dan tidak dapat diperiksa.` ,"warning");return;}
+  selectedInspectionApar=x;
+  $("inspectionFormAsset").textContent=x.assetNumber||x.id||"-"; $("inspectionFormBrand").textContent=x.brand||"-"; $("inspectionFormCapacity").textContent=x.capacity||"-"; $("inspectionFormLocation").textContent=x.locationId||"-"; $("inspectionFormSerial").textContent=x.serialNumber||"-"; $("inspectionFormType").textContent=x.typeId||"-";
+  $("inspectionResultPass").checked=false; $("inspectionResultFail").checked=false; $("inspectionNotes").value=""; $("inspectionFormStatus").classList.add("hidden"); $("saveInspectionBtn").disabled=false; $("inspectionModal").classList.remove("hidden");
+}
+function closeInspectionForm(){selectedInspectionApar=null;$("inspectionModal").classList.add("hidden");}
+async function saveInspection(){
+  if(!selectedInspectionApar){setInspectionFormStatus("APAR belum dipilih.","warning");return;}
+  if(!currentAdmin){setInspectionFormStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");return;}
+  const result=document.querySelector('input[name="inspectionResult"]:checked')?.value||""; const notes=$("inspectionNotes").value.trim();
+  if(!["pass","fail"].includes(result)){setInspectionFormStatus("Pilih hasil pemeriksaan PASS atau FAIL.","warning");return;}
+  const btn=$("saveInspectionBtn"); btn.disabled=true; setInspectionFormStatus("Memverifikasi status APAR dari Firestore...","info");
+  try{
+    const latest=await getDoc(doc(db,"apar",selectedInspectionApar.id));
+    if(!latest.exists())throw new Error("Data APAR tidak ditemukan di Firestore.");
+    const apar=latest.data()||{};
+    if(String(apar.status||"").toLowerCase()!=="active")throw new Error(`APAR ${apar.assetNumber||selectedInspectionApar.id} sudah tidak ACTIVE. Pemeriksaan dibatalkan.`);
+    setInspectionFormStatus("Status valid. Menyimpan hasil pemeriksaan...","info");
+    const data={aparId:selectedInspectionApar.id,aparAssetNumber:String(apar.assetNumber||selectedInspectionApar.id),aparBrand:String(apar.brand||""),aparCapacity:String(apar.capacity||""),aparLocationId:String(apar.locationId||""),aparSerialNumber:String(apar.serialNumber||""),aparTypeId:String(apar.typeId||""),result,notes,inspectorId:currentAdmin.uid||"",inspectorEmail:currentAdmin.email||"",inspectorName:currentAdmin.name||currentAdmin.email||"Admin",inspectionDate:serverTimestamp(),createdAt:serverTimestamp(),updatedAt:serverTimestamp()};
+    await addDoc(collection(db,"inspections"),data);
+    debug(`PEMERIKSAAN DISIMPAN: ${data.aparAssetNumber} -> ${result.toUpperCase()}`); closeInspectionForm(); setInspectionListStatus(`Pemeriksaan ${data.aparAssetNumber} berhasil disimpan sebagai ${result.toUpperCase()}.`,"success"); setStatus(`Pemeriksaan ${data.aparAssetNumber} berhasil disimpan ke Firestore.` ,"success"); await loadAll(); loadInspectionCandidates();
+  }catch(e){console.error(e);setInspectionFormStatus(e.message||"Gagal menyimpan pemeriksaan.","error");debug("SIMPAN PEMERIKSAAN ERROR: "+(e.code||"-")+" | "+(e.message||""));}
+  finally{btn.disabled=false;}
+}
 
 function setHistoryStatus(message,type="info"){
   const e=$("historyStatus");
@@ -1341,6 +1402,7 @@ function setView(view){
     dashboard:$("dashboardView"),
     data:$("dataAparView"),
     monitoring:$("monitoringView"),
+    inspection:$("inspectionView"),
     history:$("historyView"),
     users:$("usersView"),
     placeholder:$("placeholderView")
@@ -1364,6 +1426,12 @@ function setView(view){
     $("pageTitle").textContent="Monitoring APAR";
     $("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";
     loadMonitoring();
+  }
+  if(view==="inspection"){
+    $("navInspection").classList.add("active");
+    $("pageTitle").textContent="Pemeriksaan APAR";
+    $("pageSubtitle").textContent="Pemeriksaan APAR ACTIVE oleh Admin";
+    loadInspectionCandidates();
   }
   if(view==="history"){
     $("navHistory").classList.add("active");
@@ -1421,7 +1489,13 @@ $("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))clo
 $("navDashboard").addEventListener("click",()=>setView("dashboard"));
 $("navDataApar").addEventListener("click",()=>setView("data"));
 $("navMonitoring").addEventListener("click",()=>setView("monitoring"));
-$("navInspection").addEventListener("click",()=>placeholder("Pemeriksaan","Modul Pemeriksaan Admin akan dibangun pada tahap berikutnya.","navInspection"));
+$("navInspection").addEventListener("click",()=>setView("inspection"));
+$("reloadInspectionBtn").addEventListener("click",async()=>{await loadAll();loadInspectionCandidates();});
+$("inspectionSearch").addEventListener("input",loadInspectionCandidates);
+$("closeInspectionModal").addEventListener("click",closeInspectionForm);
+$("cancelInspectionBtn").addEventListener("click",closeInspectionForm);
+$("saveInspectionBtn").addEventListener("click",saveInspection);
+$("inspectionModal").addEventListener("click",e=>{if(e.target===$("inspectionModal"))closeInspectionForm()});
 $("navHistory").addEventListener("click",()=>setView("history"));
 $("navUsers").addEventListener("click",()=>{
   $("navUsers").classList.add("active");
@@ -1476,6 +1550,30 @@ try{
   console.error(e);setStatus("Gagal menginisialisasi Firebase.","error");debug("Firebase INIT ERROR: "+e.message);showLogin();
 }
 </script>
+
+<div id="inspectionModal" class="modal hidden">
+  <div class="modal-box" style="max-width:680px">
+    <div class="modal-head"><h2>Pemeriksaan APAR</h2><button id="closeInspectionModal" class="close" type="button">✕ Tutup</button></div>
+    <div id="inspectionFormStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Asset Number</div><div id="inspectionFormAsset" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Brand</div><div id="inspectionFormBrand" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Capacity</div><div id="inspectionFormCapacity" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Location</div><div id="inspectionFormLocation" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Serial Number</div><div id="inspectionFormSerial" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Type</div><div id="inspectionFormType" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:18px"><label>Hasil Pemeriksaan *</label>
+      <div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">
+        <label style="display:flex;gap:7px;align-items:center;font-weight:700;cursor:pointer"><input id="inspectionResultPass" name="inspectionResult" type="radio" value="pass"> PASS</label>
+        <label style="display:flex;gap:7px;align-items:center;font-weight:700;cursor:pointer"><input id="inspectionResultFail" name="inspectionResult" type="radio" value="fail"> FAIL</label>
+      </div>
+    </div>
+    <div class="field"><label for="inspectionNotes">Catatan</label><textarea id="inspectionNotes" rows="4" placeholder="Isi catatan hasil pemeriksaan (opsional)" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;resize:vertical"></textarea></div>
+    <div class="login-note" style="margin-bottom:15px">Pemeriksaan disimpan dengan Admin yang sedang login sebagai pemeriksa. Status APAR diverifikasi ulang dari Firestore sebelum penyimpanan.</div>
+    <div class="modal-actions"><button id="cancelInspectionBtn" class="action secondary" type="button">Batal</button><button id="saveInspectionBtn" class="action primary" type="button">💾 Simpan Pemeriksaan</button></div>
+  </div>
+</div>
 
 <div id="userEditModal" class="modal hidden">
   <div class="modal-box">
