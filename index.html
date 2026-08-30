@@ -78,10 +78,63 @@ tr:last-child td{border-bottom:0}
 .history-count{font-size:12px;color:#64748b}
 
 
-.lifecycle-reminder-card .lifecycle-stats{margin-top:16px}
-.lifecycle-reminder-card .stat-card.danger{border-left:4px solid #ef4444}
-.lifecycle-reminder-card .stat-card.warning{border-left:4px solid #f59e0b}
-.lifecycle-reminder-card .stat-card{min-height:92px}
+.lifecycle-reminder-card .lifecycle-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:14px;
+  margin-top:16px;
+}
+.lifecycle-reminder-card .stat-card{
+  min-height:92px;
+  background:#fff;
+  border:2px solid #dbe2ea;
+  border-radius:14px;
+  padding:16px 18px;
+  box-sizing:border-box;
+}
+.lifecycle-reminder-card .stat-card.danger{
+  border-color:#ef4444;
+  border-left:6px solid #ef4444;
+  background:#fff1f2;
+}
+.lifecycle-reminder-card .stat-card.warning{
+  border-color:#f59e0b;
+  border-left:6px solid #f59e0b;
+  background:#fffbeb;
+}
+.lifecycle-reminder-card .stat-card:nth-child(3){
+  border-color:#eab308;
+  border-left:6px solid #eab308;
+  background:#fefce8;
+}
+.lifecycle-reminder-card .stat-card:nth-child(4){
+  border-color:#94a3b8;
+  border-left:6px solid #94a3b8;
+  background:#f8fafc;
+}
+.lifecycle-reminder-card .stat-label{
+  font-size:14px;
+  font-weight:700;
+  color:#334155;
+  margin-bottom:8px;
+}
+.lifecycle-reminder-card .stat-value{
+  font-size:32px;
+  font-weight:800;
+  margin-top:0;
+}
+.lifecycle-reminder-card .stat-card.danger .stat-value{color:#b91c1c}
+.lifecycle-reminder-card .stat-card.warning .stat-value{color:#b45309}
+.lifecycle-reminder-card .stat-card:nth-child(3) .stat-value{color:#a16207}
+.lifecycle-reminder-card .stat-card:nth-child(4) .stat-value{color:#475569}
+@media(max-width:900px){
+  .lifecycle-reminder-card .lifecycle-stats{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:650px){
+  .lifecycle-reminder-card .lifecycle-stats{grid-template-columns:1fr 1fr;gap:10px}
+  .lifecycle-reminder-card .stat-card{padding:14px}
+  .lifecycle-reminder-card .stat-value{font-size:27px}
+}
 </style>
 </head>
 <body>
