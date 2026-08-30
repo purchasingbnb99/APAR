@@ -111,6 +111,32 @@ tr:last-child td{border-bottom:0}
   border-color:#94a3b8;
   border-left:6px solid #94a3b8;
   background:#f8fafc;
+}\n\n/* V14.10.7 MOBILE FRIENDLY - desktop layout preserved */
+@media(max-width:650px){
+  .card{padding:14px;border-radius:12px}
+  .card h2{font-size:18px;margin-bottom:10px}
+  .toolbar{align-items:stretch;gap:10px}
+  .toolbar>div:first-child{width:100%}
+  .toolbar-left{width:100%;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .toolbar-left .action{width:100%;min-height:42px;padding:10px 8px;font-size:13px}
+  .admin-info{width:100%;font-size:12px}
+  .table-wrap{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+  table{min-width:760px}
+  .lifecycle-reminder-card .lifecycle-stats{grid-template-columns:1fr 1fr;gap:8px}
+  .lifecycle-reminder-card .stat-card{min-height:82px;padding:12px}
+  .lifecycle-reminder-card .stat-label{font-size:12px;margin-bottom:5px}
+  .lifecycle-reminder-card .stat-value{font-size:25px}
+  .login-card{margin:20px auto;padding:18px;border-radius:12px}
+  .login-card h2{font-size:20px}
+  .modal{padding:10px}
+  .modal-box{padding:16px;border-radius:12px}
+  .modal-actions{display:grid;grid-template-columns:1fr 1fr}
+  .modal-actions .action{width:100%}
+}
+@media(max-width:380px){
+  .nav{grid-template-columns:1fr}
+  .toolbar-left{grid-template-columns:1fr}
+  .lifecycle-reminder-card .lifecycle-stats{grid-template-columns:1fr}
 }
 .lifecycle-reminder-card .stat-label{
   font-size:14px;
@@ -242,6 +268,7 @@ tr:last-child td{border-bottom:0}
       </div>
       <div class="toolbar-left">
         <button id="reloadMonitoringBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+        <button id="printMonitoringBtn" class="action primary" type="button">🖨️ Cetak</button>
       </div>
     </div>
 
@@ -1125,6 +1152,74 @@ function printLifecycle(){
   win.document.close();
 }
 
+function printMonitoring(){
+  try{
+    buildMonitoringRows();
+    if(!monitorRows.length){
+      setMonitoringStatus("Tidak ada data monitoring yang bisa dicetak.","warning");
+      return;
+    }
+
+    const win=window.open("","_blank","width=1200,height=800");
+    if(!win){
+      setMonitoringStatus("Popup diblokir browser. Izinkan popup untuk mencetak Monitoring APAR.","error");
+      return;
+    }
+
+    const generatedAt=new Date().toLocaleString("id-ID");
+    const pass=monitorRows.filter(x=>x.result==="pass").length;
+    const fail=monitorRows.filter(x=>x.result==="fail").length;
+    const never=monitorRows.filter(x=>x.condition==="Belum diperiksa").length;
+    const attention=monitorRows.filter(x=>x.condition==="PERLU PERHATIAN").length;
+
+    const body=monitorRows.map(x=>{
+      const apar=x.apar, latest=x.latest;
+      return `<tr>
+        <td>${esc(apar.assetNumber||apar.id||"-")}</td>
+        <td>${esc(String(apar.status||"-").toUpperCase())}</td>
+        <td>${esc(latest ? String(latest.result||"-").toUpperCase() : "-")}</td>
+        <td>${esc(latest ? formatDate(latest.inspectionDate||latest.createdAt) : "-")}</td>
+        <td>${esc(latest ? inspectorLabel(latest) : "-")}</td>
+        <td>${esc(x.condition||"-")}</td>
+      </tr>`;
+    }).join("");
+
+    win.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Laporan Monitoring APAR</title>
+    <style>
+    *{box-sizing:border-box}
+    body{font-family:Arial,Helvetica,sans-serif;padding:25px;color:#111;margin:0}
+    h1{font-size:22px;margin:0 0 5px}
+    .meta{font-size:12px;color:#555;margin-bottom:18px}
+    .summary{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:12px 0 18px}
+    .box{border:1px solid #ccc;border-radius:6px;padding:10px}
+    .label{font-size:11px;color:#555}.value{font-size:20px;font-weight:700;margin-top:4px}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{border:1px solid #ccc;padding:8px;font-size:11px;text-align:left;vertical-align:top}
+    th{background:#f3f4f6}
+    @media(max-width:700px){body{padding:14px}.summary{grid-template-columns:1fr 1fr}table{font-size:10px}th,td{padding:6px;font-size:10px}}
+    @media print{button{display:none}.summary{grid-template-columns:repeat(4,1fr)}}
+    </style></head><body>
+    <h1>Laporan Monitoring APAR</h1>
+    <div class="meta">Dicetak: ${esc(generatedAt)} | Jumlah APAR: ${monitorRows.length}</div>
+    <div class="summary">
+      <div class="box"><div class="label">PASS</div><div class="value">${pass}</div></div>
+      <div class="box"><div class="label">FAIL</div><div class="value">${fail}</div></div>
+      <div class="box"><div class="label">BELUM DIPERIKSA</div><div class="value">${never}</div></div>
+      <div class="box"><div class="label">PERLU PERHATIAN</div><div class="value">${attention}</div></div>
+    </div>
+    <table><thead><tr><th>Asset Number</th><th>Status APAR</th><th>Hasil Terakhir</th><th>Tanggal Terakhir</th><th>Inspector Terakhir</th><th>Kondisi</th></tr></thead>
+    <tbody>${body}</tbody></table>
+    <script>window.onload=function(){window.print()}<\/script>
+    </body></html>`);
+    win.document.close();
+    setMonitoringStatus("Laporan Monitoring APAR siap dicetak.","success");
+  }catch(e){
+    console.error(e);
+    setMonitoringStatus("Gagal menyiapkan cetak Monitoring APAR: "+(e.message||"Unknown error"),"error");
+    debug("PRINT MONITORING ERROR: "+(e.message||""));
+  }
+}
+
 function printHistory(){
   const rows=getHistoryRows();
   if(!rows.length){
@@ -1701,6 +1796,7 @@ $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(
 $("reloadBtn").addEventListener("click",loadAll);
 $("reloadAparBtn").addEventListener("click",loadAll);
 $("reloadMonitoringBtn").addEventListener("click",async()=>{await loadAll();loadMonitoring();});
+$("printMonitoringBtn").addEventListener("click",printMonitoring);
 $("reloadHistoryBtn").addEventListener("click",async()=>{await loadAll();renderHistory();});
 $("printHistoryBtn").addEventListener("click",printHistory);
 $("printLifecycleBtn").addEventListener("click",printLifecycle);
