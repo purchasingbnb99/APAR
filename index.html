@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<!-- V14.11.2: Recovery modul Pemeriksaan Admin + QR Generator + Scan QR. -->
+<!-- V14.11.3: Recovery modul Pemeriksaan Admin + QR Generator + Scan QR + Mobile Login Fix. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.11.2</title>
+<title>APAR - Admin Dashboard V14.11.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -192,12 +192,46 @@ tr:last-child td{border-bottom:0}
 .inspection-full{grid-column:1/-1}
 @media(max-width:700px){.qr-generator-controls{grid-template-columns:1fr}.qr-print-grid{grid-template-columns:1fr 1fr}.inspection-grid{grid-template-columns:1fr}.inspection-full{grid-column:auto}}
 @media(max-width:380px){.qr-print-grid{grid-template-columns:1fr}}
+
+/* V14.11.3 - MOBILE LOGIN FIX
+   Saat belum login, sidebar/menu dashboard disembunyikan.
+   Form Login menjadi halaman penuh dan tidak lagi muncul di bawah menu.
+*/
+body:not(.authenticated) .sidebar{
+  display:none!important;
+}
+.main.login-mode{
+  margin-left:0!important;
+  width:100%!important;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.main.login-mode .login-card{
+  width:100%;
+  max-width:560px;
+  margin:0;
+}
+@media(max-width:650px){
+  .main.login-mode{
+    min-height:100vh;
+    padding:16px;
+  }
+  .main.login-mode .login-card{
+    width:100%;
+    max-width:none;
+    padding:20px 16px;
+    border-radius:14px;
+  }
+}
 </style>
 </head>
-<body>
+<body class="unauthenticated">
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.9</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.11.3</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -211,7 +245,7 @@ tr:last-child td{border-bottom:0}
 </aside>
 
 <main class="main">
-<section id="loginCard" class="login-card hidden">
+<section id="loginCard" class="login-card">
   <h2>Login Admin</h2>
   <div class="subtitle">Masuk menggunakan akun Admin yang terdaftar di Firebase Authentication.</div>
   <div id="loginStatus" class="status info hidden"></div>
@@ -750,12 +784,18 @@ function autoNextLifecycleDates(){
 }
 
 function showLogin(){
+  document.body.classList.remove("authenticated");
   $("loginCard").classList.remove("hidden");
   $("dashboardContent").classList.add("hidden");
+  const main=document.querySelector(".main");
+  if(main) main.classList.add("login-mode");
 }
 function showDashboard(){
+  document.body.classList.add("authenticated");
   $("loginCard").classList.add("hidden");
   $("dashboardContent").classList.remove("hidden");
+  const main=document.querySelector(".main");
+  if(main) main.classList.remove("login-mode");
 }
 
 async function validateAdmin(user){
