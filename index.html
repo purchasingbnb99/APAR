@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<!-- V14.12.2: Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
+<!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.12.2</title>
+<title>APAR - Admin Dashboard V14.12.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -232,7 +232,7 @@ body:not(.authenticated) .sidebar{
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.12.2</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.12.3</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -276,7 +276,7 @@ body:not(.authenticated) .sidebar{
   <section class="card">
     <div class="toolbar">
       <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.3 menambahkan Tambah dan Edit data APAR.</div></div>
-      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button><button id="printAparListBtn" class="action primary" type="button">🖨️ Cetak</button></div>
+      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="importAparBtn" class="action primary" type="button">📥 Import Excel</button><button id="exportAparBtn" class="action primary" type="button">📤 Export Excel</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button><button id="printAparListBtn" class="action primary" type="button">🖨️ Cetak</button></div>
     </div>
     <div class="toolbar-left" style="margin-bottom:15px">
       <input id="aparSearch" class="search" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
@@ -706,6 +706,18 @@ body:not(.authenticated) .sidebar{
   </div>
 </div>
 
+
+<div id="importAparModal" class="modal hidden">
+  <div class="modal-box" style="max-width:1100px">
+    <div class="modal-head"><h2>📥 Import Excel Master APAR</h2><button id="closeImportApar" class="close" type="button">✕ Tutup</button></div>
+    <div class="subtitle" style="margin-bottom:12px">Pilih file .xlsx/.xls. Data divalidasi dan ditampilkan terlebih dahulu sebelum disimpan ke Firestore.</div>
+    <div class="toolbar-left" style="margin-bottom:12px"><button id="downloadAparTemplateBtn" class="action secondary" type="button">⬇️ Download Template</button><label class="action primary" style="cursor:pointer">📂 Pilih Excel<input id="aparExcelFile" type="file" accept=".xlsx,.xls" style="display:none"></label></div>
+    <div id="importAparStatus" class="status info">Belum ada file dipilih.</div>
+    <div class="table-wrap" style="max-height:430px;margin-top:12px"><table><thead><tr><th>Baris</th><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial</th><th>Type</th><th>Status</th><th>Validasi</th></tr></thead><tbody id="importAparPreview"><tr><td colspan="9" class="empty">Preview akan tampil di sini.</td></tr></tbody></table></div>
+    <div class="modal-actions"><button id="cancelImportApar" class="action secondary" type="button">Batal</button><button id="confirmImportApar" class="action primary" type="button" disabled>Import Data Valid</button></div>
+  </div>
+</div>
+
 <div id="detailModal" class="modal hidden">
   <div class="modal-box">
     <div class="modal-head"><h2>Detail APAR</h2><button id="closeDetail" class="close" type="button">✕ Tutup</button></div>
@@ -713,6 +725,7 @@ body:not(.authenticated) .sidebar{
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -839,6 +852,17 @@ function renderDashboardInspectionKpis(){const latest=buildLatestInspectionMap()
 function renderDashboardLifecycle(){const all=(aparRows||[]).flatMap(x=>[["Refill",x.nextRefillDate],["Hydrotest",x.nextHydrotestDate],["Masa Berlaku",x.expiryDate]]).map(([kind,value])=>({kind,value,diff:lifecycleDayDiff(lifecycleDateValue(value))}));const overdue=all.filter(x=>x.diff!==null&&x.diff<=0).length,d14=all.filter(x=>x.diff!==null&&x.diff>0&&x.diff<=14).length,d30=all.filter(x=>x.diff!==null&&x.diff>14&&x.diff<=30).length,noSchedule=all.filter(x=>x.diff===null).length;$("dashboardLifecycleOverdue").textContent=overdue;$("dashboardLifecycle14").textContent=d14;$("dashboardLifecycle30").textContent=d30;$("dashboardLifecycleNoSchedule").textContent=noSchedule;}
 function renderDashboardApar(){const b=$("aparTableBody"),latest=buildLatestInspectionMap();if(!aparRows.length){b.innerHTML='<tr><td colspan="8" class="empty">Belum ada data APAR.</td></tr>';return}b.innerHTML=aparRows.map(x=>{const k=String(x.assetNumber||x.id||"").trim(),ins=latest.get(k),r=String(ins?.result||"").toLowerCase();let condition='<span class="dashboard-condition-never">BELUM DIPERIKSA</span>';if(r==="pass")condition='<span class="dashboard-condition-good">BAIK</span>';if(r==="fail")condition='<span class="dashboard-condition-bad">PERLU PERHATIAN</span>';return `<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td><td>${ins?badge(ins.result)+`<br><span style="font-size:11px;color:#64748b">${formatDate(ins.inspectionDate||ins.createdAt)}</span>`:"-"}</td><td>${condition}</td></tr>`;}).join("");}
 function printAparList(){const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR yang dapat dicetak.","warning");return}const win=window.open("","_blank","width=1200,height=800");if(!win){alert("Popup diblokir browser. Izinkan popup untuk mencetak Daftar APAR.");return}const body=rows.map(x=>`<tr><td>${esc(x.assetNumber||x.id||"-")}</td><td>${esc(x.brand||"-")}</td><td>${esc(x.capacity||"-")}</td><td>${esc(x.locationId||"-")}</td><td>${esc(x.serialNumber||"-")}</td><td>${esc(x.typeId||"-")}</td><td>${esc(String(x.status||"-").toUpperCase())}</td><td>${esc(x.nextRefillDate?formatLifecycleDate(x.nextRefillDate):"-")}</td></tr>`).join("");win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Daftar Master APAR</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 6px}.meta{font-size:12px;color:#555;margin-bottom:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;font-size:10px;text-align:left}th{background:#f3f4f6}</style></head><body><h1>Daftar Master APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah data: ${rows.length}</div><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Refill Berikutnya</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`);win.document.close();}
+let pendingAparImport=[];
+const APAR_EXCEL_HEADERS=["Asset Number","Brand","Capacity","Location","Serial Number","Type","Status","Tanggal Produksi","Tanggal Mulai Digunakan","Masa Berlaku","Tanggal Refill Terakhir","Interval Refill (bulan)","Tanggal Refill Berikutnya","Tanggal Hydrotest Terakhir","Interval Hydrotest (bulan)","Tanggal Hydrotest Berikutnya"];
+function excelDate(v){if(v===null||v===undefined||v==="")return "";if(typeof v==="number"&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,"0")}-${String(d.d).padStart(2,"0")}`;}const t=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(t))return t;const m=t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;return null;}
+function normalizeAparExcelRow(r,rowNo){const get=(...keys)=>{for(const k of keys)if(r[k]!==undefined&&r[k]!==null)return String(r[k]).trim();return ""};const dates={manufactureDate:excelDate(r["Tanggal Produksi"]),commissionDate:excelDate(r["Tanggal Mulai Digunakan"]),expiryDate:excelDate(r["Masa Berlaku"]),lastRefillDate:excelDate(r["Tanggal Refill Terakhir"]),nextRefillDate:excelDate(r["Tanggal Refill Berikutnya"]),lastHydrotestDate:excelDate(r["Tanggal Hydrotest Terakhir"]),nextHydrotestDate:excelDate(r["Tanggal Hydrotest Berikutnya"])};const data={assetNumber:get("Asset Number","assetNumber"),brand:get("Brand","brand"),capacity:get("Capacity","capacity"),locationId:get("Location","Location ID","locationId"),serialNumber:get("Serial Number","serialNumber"),typeId:get("Type","Type ID","typeId"),status:get("Status","status").toLowerCase(),manufactureDate:dates.manufactureDate||null,commissionDate:dates.commissionDate||null,expiryDate:dates.expiryDate||null,lastRefillDate:dates.lastRefillDate||null,refillIntervalMonths:Number(r["Interval Refill (bulan)"]||0)||null,nextRefillDate:dates.nextRefillDate||null,lastHydrotestDate:dates.lastHydrotestDate||null,hydrotestIntervalMonths:Number(r["Interval Hydrotest (bulan)"]||0)||null,nextHydrotestDate:dates.nextHydrotestDate||null};const errors=[];["assetNumber","brand","capacity","locationId","serialNumber","typeId"].forEach(k=>{if(!data[k])errors.push(`${k} kosong`)});if(!["active","inactive"].includes(data.status))errors.push("status harus ACTIVE/INACTIVE");Object.entries(dates).forEach(([k,v])=>{if(v===null&&r[{manufactureDate:"Tanggal Produksi",commissionDate:"Tanggal Mulai Digunakan",expiryDate:"Masa Berlaku",lastRefillDate:"Tanggal Refill Terakhir",nextRefillDate:"Tanggal Refill Berikutnya",lastHydrotestDate:"Tanggal Hydrotest Terakhir",nextHydrotestDate:"Tanggal Hydrotest Berikutnya"}[k]])errors.push(`tanggal ${k} tidak valid`)});return {rowNo,data,errors,valid:errors.length===0};}
+function openImportApar(){pendingAparImport=[];$("aparExcelFile").value="";$("importAparPreview").innerHTML='<tr><td colspan="9" class="empty">Preview akan tampil di sini.</td></tr>';$("importAparStatus").className="status info";$("importAparStatus").textContent="Belum ada file dipilih.";$("confirmImportApar").disabled=true;$("importAparModal").classList.remove("hidden");}
+function closeImportApar(){$("importAparModal").classList.add("hidden");}
+function downloadAparTemplate(){if(!window.XLSX){alert("Library Excel belum termuat. Muat ulang halaman.");return}const sample=[{"Asset Number":"APAR-0001","Brand":"ABC","Capacity":"6 Kg","Location":"LOC-001","Serial Number":"SN-001","Type":"TYPE-001","Status":"ACTIVE","Tanggal Produksi":"2026-01-01","Tanggal Mulai Digunakan":"2026-01-15","Masa Berlaku":"2031-01-01","Tanggal Refill Terakhir":"2026-08-01","Interval Refill (bulan)":12,"Tanggal Refill Berikutnya":"2027-08-01","Tanggal Hydrotest Terakhir":"2026-08-01","Interval Hydrotest (bulan)":60,"Tanggal Hydrotest Berikutnya":"2031-08-01"}];const ws=XLSX.utils.json_to_sheet(sample,{header:APAR_EXCEL_HEADERS});const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Master APAR");XLSX.writeFile(wb,"Template_Master_APAR.xlsx");}
+function exportAparExcel(){if(!window.XLSX){setStatus("Library Excel belum termuat. Muat ulang halaman.","error");return}const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR untuk diexport.","warning");return}const out=rows.map(x=>({"Asset Number":x.assetNumber||x.id||"","Brand":x.brand||"","Capacity":x.capacity||"","Location":x.locationId||"","Serial Number":x.serialNumber||"","Type":x.typeId||"","Status":String(x.status||"").toUpperCase(),"Tanggal Produksi":x.manufactureDate||"","Tanggal Mulai Digunakan":x.commissionDate||"","Masa Berlaku":x.expiryDate||"","Tanggal Refill Terakhir":x.lastRefillDate||"","Interval Refill (bulan)":x.refillIntervalMonths||"","Tanggal Refill Berikutnya":x.nextRefillDate||"","Tanggal Hydrotest Terakhir":x.lastHydrotestDate||"","Interval Hydrotest (bulan)":x.hydrotestIntervalMonths||"","Tanggal Hydrotest Berikutnya":x.nextHydrotestDate||""}));const ws=XLSX.utils.json_to_sheet(out,{header:APAR_EXCEL_HEADERS});const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Master APAR");XLSX.writeFile(wb,`Master_APAR_${new Date().toISOString().slice(0,10)}.xlsx`);setStatus(`${rows.length} data APAR berhasil diexport ke Excel.`,"success");}
+async function readAparExcel(file){if(!file||!window.XLSX)return;try{const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:"array",cellDates:false});const ws=wb.Sheets[wb.SheetNames[0]];const raw=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true});pendingAparImport=raw.map((r,i)=>normalizeAparExcelRow(r,i+2));const seen=new Map();pendingAparImport.forEach(x=>{const k=x.data.assetNumber.toLowerCase();if(k){if(seen.has(k)){x.errors.push("Asset Number duplikat di file");x.valid=false;const first=seen.get(k);first.errors.push("Asset Number duplikat di file");first.valid=false}else seen.set(k,x)}});const valid=pendingAparImport.filter(x=>x.valid).length,invalid=pendingAparImport.length-valid;$("importAparStatus").className=`status ${invalid?"warning":"success"}`;$("importAparStatus").textContent=`${pendingAparImport.length} baris ditemukan • ${valid} valid • ${invalid} perlu diperbaiki.`;$("importAparPreview").innerHTML=pendingAparImport.map(x=>`<tr><td>${x.rowNo}</td><td><strong>${esc(x.data.assetNumber)}</strong></td><td>${esc(x.data.brand)}</td><td>${esc(x.data.capacity)}</td><td>${esc(x.data.locationId)}</td><td>${esc(x.data.serialNumber)}</td><td>${esc(x.data.typeId)}</td><td>${esc(x.data.status.toUpperCase())}</td><td>${x.valid?'<span class="badge active">VALID</span>':`<span style="color:#b91c1c;font-weight:700">${esc(x.errors.join("; "))}</span>`}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">File tidak berisi data.</td></tr>';$("confirmImportApar").disabled=valid===0;}catch(e){console.error(e);$("importAparStatus").className="status error";$("importAparStatus").textContent="Gagal membaca Excel: "+(e.message||"format tidak valid");$("confirmImportApar").disabled=true;}}
+async function confirmAparImport(){if(!currentAdmin)return;const valid=pendingAparImport.filter(x=>x.valid);if(!valid.length)return;if(!confirm(`Import ${valid.length} data valid ke Firestore? Asset Number yang sudah ada akan diperbarui.`))return;const btn=$("confirmImportApar");btn.disabled=true;$("importAparStatus").className="status info";$("importAparStatus").textContent="Mengimport data ke Firestore...";let created=0,updated=0,failed=0;for(const x of valid){try{const ref=doc(db,"apar",x.data.assetNumber);const old=await getDoc(ref);if(old.exists()){await setDoc(ref,{...x.data,updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin"},{merge:true});updated++;}else{await setDoc(ref,{...x.data,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin"});created++;}}catch(e){console.error("Import APAR",x.data.assetNumber,e);failed++;}}await loadApar();$("importAparStatus").className=`status ${failed?"warning":"success"}`;$("importAparStatus").textContent=`Import selesai: ${created} baru, ${updated} diperbarui, ${failed} gagal.`;setStatus(`Import Excel selesai: ${created} baru, ${updated} diperbarui${failed?`, ${failed} gagal`:""}.`,failed?"warning":"success");btn.disabled=false;}
+
 function renderMasterApar(){
   const q=String($("aparSearch").value||"").trim().toLowerCase();
   const rows=aparRows.filter(x=>{
@@ -1984,6 +2008,13 @@ $("refillFrom").addEventListener("change",renderRefills);
 $("refillTo").addEventListener("change",renderRefills);
 $("refillStatusFilter").addEventListener("change",renderRefills);
 $("addAparBtn").addEventListener("click",()=>openAparForm("create"));
+$("importAparBtn")?.addEventListener("click",openImportApar);
+$("exportAparBtn")?.addEventListener("click",exportAparExcel);
+$("closeImportApar")?.addEventListener("click",closeImportApar);
+$("cancelImportApar")?.addEventListener("click",closeImportApar);
+$("downloadAparTemplateBtn")?.addEventListener("click",downloadAparTemplate);
+$("aparExcelFile")?.addEventListener("change",e=>readAparExcel(e.target.files?.[0]));
+$("confirmImportApar")?.addEventListener("click",confirmAparImport);
 $("printAparListBtn")?.addEventListener("click",printAparList);
 $("closeAparForm").addEventListener("click",closeAparForm);
 $("cancelAparForm").addEventListener("click",closeAparForm);
