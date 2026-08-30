@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
+<!-- V14.12.6: Lifecycle hardening, default Hydrotest 60 bulan, dan deduplikasi reminder. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.12.3</title>
+<title>APAR - Admin Dashboard V14.12.6</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -168,71 +168,12 @@ tr:last-child td{border-bottom:0}
 .refill-status-badge.late{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
 .refill-status-badge.on-time{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
 @media(max-width:650px){#refillsView .history-filters{display:grid;grid-template-columns:1fr}#refillsView .history-filters input,#refillsView .history-filters select{width:100%;box-sizing:border-box}#refillModal .detail-grid{grid-template-columns:1fr}}
-
-/* V14.11.2 - RECOVERED QR + PEMERIKSAAN ADMIN */
-.qr-generator-box,.qr-scanner-box{margin-top:14px;padding:16px;background:#f8fafc;border:1px solid #dbe2ea;border-radius:12px}
-.qr-generator-controls{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:end}
-.qr-generator-controls select{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;background:#fff}
-.qr-preview{margin-top:16px;padding:18px;background:#fff;border:1px solid #dbe2ea;border-radius:12px;text-align:center}
-.qr-preview-code{display:flex;justify-content:center;align-items:center;min-height:270px;margin:8px auto 14px;overflow:hidden}
-#qr-generator-canvas{display:block;max-width:100%;height:auto}
-.qr-asset-title{font-size:22px;font-weight:800;margin-top:8px}
-.qr-asset-meta{margin-top:6px;color:#64748b;font-size:13px;line-height:1.5}
-.qr-print-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:16px}
-.qr-print-item{border:1px solid #d1d5db;border-radius:10px;padding:12px;text-align:center;background:#fff}
-#qr-reader{width:100%;max-width:520px;margin:12px auto;overflow:hidden;border-radius:10px;background:#111827}
-#qr-reader video{width:100%!important;border-radius:10px}
-.scan-result{margin-top:12px;padding:12px 14px;border-radius:10px;background:#effdf4;border:1px solid #b7efcc;color:#087a3d;font-weight:700;word-break:break-word}
-.inspection-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:16px}
-.inspection-item{background:#f8fafc;border:1px solid #dbe2ea;border-radius:10px;padding:14px}
-.inspection-item label{display:block;margin-bottom:7px;font-size:13px;font-weight:800}
-.inspection-item select,.inspection-item textarea{width:100%;padding:11px 12px;border:1px solid #cbd5e1;border-radius:9px;font-size:14px;background:#fff;font-family:inherit}
-.inspection-item textarea{min-height:110px;resize:vertical}
-.inspection-summary{background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:14px;margin-top:14px}
-.inspection-full{grid-column:1/-1}
-@media(max-width:700px){.qr-generator-controls{grid-template-columns:1fr}.qr-print-grid{grid-template-columns:1fr 1fr}.inspection-grid{grid-template-columns:1fr}.inspection-full{grid-column:auto}}
-@media(max-width:380px){.qr-print-grid{grid-template-columns:1fr}}
-
-/* V14.11.3 - MOBILE LOGIN FIX
-   Saat belum login, sidebar/menu dashboard disembunyikan.
-   Form Login menjadi halaman penuh dan tidak lagi muncul di bawah menu.
-*/
-body:not(.authenticated) .sidebar{
-  display:none!important;
-}
-.main.login-mode{
-  margin-left:0!important;
-  width:100%!important;
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-.main.login-mode .login-card{
-  width:100%;
-  max-width:560px;
-  margin:0;
-}
-@media(max-width:650px){
-  .main.login-mode{
-    min-height:100vh;
-    padding:16px;
-  }
-  .main.login-mode .login-card{
-    width:100%;
-    max-width:none;
-    padding:20px 16px;
-    border-radius:14px;
-  }
-}
-/* V14.12.2 Dashboard + Mobile Drawer */
-.dashboard-kpi-section{margin-bottom:20px}.dashboard-section-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:0 0 12px}.dashboard-section-title h2{margin:0;font-size:18px}.dashboard-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.dashboard-kpi{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:17px 18px;min-height:108px}.dashboard-kpi .kpi-label{font-size:12px;color:#64748b;font-weight:800;letter-spacing:.25px}.dashboard-kpi .kpi-value{font-size:30px;font-weight:800;margin-top:9px}.dashboard-kpi .kpi-note{font-size:11px;color:#64748b;margin-top:5px}.dashboard-kpi.alert{border-left:5px solid #dc2626}.dashboard-kpi.warn{border-left:5px solid #f59e0b}.dashboard-kpi.safe{border-left:5px solid #16a34a}.dashboard-kpi.neutral{border-left:5px solid #94a3b8}.dashboard-kpi.danger-value .kpi-value{color:#b91c1c}.dashboard-kpi.warning-value .kpi-value{color:#b45309}.dashboard-alert-card{padding:20px}.dashboard-alert-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.dashboard-alert-item{border:1px solid #e2e8f0;border-radius:12px;padding:14px;background:#f8fafc}.dashboard-alert-item .alert-label{font-size:12px;color:#475569;font-weight:800}.dashboard-alert-item .alert-value{font-size:26px;font-weight:800;margin-top:6px}.dashboard-alert-item.danger{background:#fff1f2;border-color:#fecaca}.dashboard-alert-item.warning{background:#fffbeb;border-color:#fde68a}.dashboard-alert-item.neutral{background:#f8fafc}.dashboard-alert-actions{display:flex;justify-content:flex-end;margin-top:14px}.dashboard-condition-good{color:#15803d;font-weight:800}.dashboard-condition-bad{color:#b91c1c;font-weight:800}.dashboard-condition-never{color:#64748b;font-weight:800}.mobile-topbar,.mobile-overlay{display:none}@media(max-width:900px){.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){body{padding-top:58px}.mobile-topbar{position:fixed;left:0;right:0;top:0;height:58px;background:#10233f;color:#fff;display:flex;align-items:center;gap:12px;padding:8px 12px;z-index:60;box-shadow:0 2px 8px rgba(15,23,42,.18)}.mobile-menu-btn{width:40px;height:40px;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;font-size:22px;cursor:pointer}.mobile-brand{font-size:17px;font-weight:800}.mobile-brand span{display:block;font-size:10px;font-weight:400;opacity:.7}.sidebar{position:fixed!important;left:0;top:0;bottom:0;width:260px!important;height:100vh;transform:translateX(-105%);transition:transform .22s ease;z-index:70;box-shadow:6px 0 20px rgba(15,23,42,.22);overflow-y:auto}.sidebar.mobile-open{transform:translateX(0)}.mobile-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:65}.mobile-overlay:not(.hidden){display:block}.main{margin:0!important;width:100%!important;padding:14px!important}.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:1fr 1fr;gap:9px}.dashboard-kpi{padding:13px;min-height:96px}.dashboard-kpi .kpi-value{font-size:25px}.dashboard-alert-card{padding:14px}.dashboard-alert-item{padding:11px}.dashboard-alert-item .alert-value{font-size:23px}.toolbar-left{width:100%}.toolbar-left .action{flex:1;min-width:120px}}@media(max-width:380px){.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:1fr}}</style>
+</style>
 </head>
-<body class="unauthenticated">
-<div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
-<aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.12.3</small></div>
+<body>
+<div class="app">
+<aside class="sidebar">
+  <div class="brand">APAR<small>Admin Dashboard V14.9</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -246,7 +187,7 @@ body:not(.authenticated) .sidebar{
 </aside>
 
 <main class="main">
-<section id="loginCard" class="login-card">
+<section id="loginCard" class="login-card hidden">
   <h2>Login Admin</h2>
   <div class="subtitle">Masuk menggunakan akun Admin yang terdaftar di Firebase Authentication.</div>
   <div id="loginStatus" class="status info hidden"></div>
@@ -265,18 +206,27 @@ body:not(.authenticated) .sidebar{
 <div id="pageStatus" class="status info">Menyiapkan dashboard...</div>
 
 <section id="dashboardView">
-<div class="dashboard-kpi-section"><div class="dashboard-section-title"><div><h2>Ringkasan Kondisi APAR</h2><div class="subtitle">Gambaran cepat kondisi master APAR dan pemeriksaan terakhir.</div></div></div><div class="dashboard-kpi-grid"><div class="dashboard-kpi neutral"><div class="kpi-label">TOTAL APAR</div><div id="totalApar" class="kpi-value">-</div><div class="kpi-note">Seluruh master APAR</div></div><div class="dashboard-kpi safe"><div class="kpi-label">ACTIVE</div><div id="activeApar" class="kpi-value">-</div><div class="kpi-note">APAR aktif</div></div><div class="dashboard-kpi neutral"><div class="kpi-label">INACTIVE</div><div id="inactiveApar" class="kpi-value">-</div><div class="kpi-note">APAR tidak aktif</div></div><div class="dashboard-kpi neutral"><div class="kpi-label">BELUM DIPERIKSA</div><div id="dashboardNever" class="kpi-value">-</div><div class="kpi-note">Belum memiliki pemeriksaan terakhir</div></div></div></div>
-<div class="dashboard-kpi-section"><div class="dashboard-section-title"><div><h2>Ringkasan Pemeriksaan Terakhir</h2><div class="subtitle">Setiap APAR dihitung berdasarkan hasil pemeriksaan paling baru.</div></div></div><div class="dashboard-kpi-grid"><div class="dashboard-kpi safe"><div class="kpi-label">PASS</div><div id="passApar" class="kpi-value">-</div><div class="kpi-note">Hasil terakhir PASS</div></div><div class="dashboard-kpi alert danger-value"><div class="kpi-label">FAIL</div><div id="dashboardFail" class="kpi-value">-</div><div class="kpi-note">Hasil terakhir FAIL</div></div><div class="dashboard-kpi neutral"><div class="kpi-label">BELUM DIPERIKSA</div><div id="dashboardNeverInspection" class="kpi-value">-</div><div class="kpi-note">Belum ada histori pemeriksaan</div></div><div class="dashboard-kpi warn warning-value"><div class="kpi-label">PERLU PERHATIAN</div><div id="dashboardAttention" class="kpi-value">-</div><div class="kpi-note">Hasil terakhir FAIL</div></div></div></div>
-<section class="card dashboard-alert-card"><div class="toolbar"><div><h2>🔔 Lifecycle APAR</h2><div class="subtitle">Refill, Hydrotest, dan Masa Berlaku yang membutuhkan perhatian.</div></div><button id="dashboardLifecycleReloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div><div class="dashboard-alert-grid"><div class="dashboard-alert-item danger"><div class="alert-label">🔴 Terlambat / Hari Ini</div><div id="dashboardLifecycleOverdue" class="alert-value">0</div></div><div class="dashboard-alert-item warning"><div class="alert-label">🟠 ≤ 14 Hari</div><div id="dashboardLifecycle14" class="alert-value">0</div></div><div class="dashboard-alert-item warning"><div class="alert-label">🟡 15–30 Hari</div><div id="dashboardLifecycle30" class="alert-value">0</div></div><div class="dashboard-alert-item neutral"><div class="alert-label">⚪ Belum Ada Jadwal</div><div id="dashboardLifecycleNoSchedule" class="alert-value">0</div></div></div><div class="dashboard-alert-actions"><button id="dashboardLifecycleDetailBtn" class="action primary" type="button">🔍 Lihat Lifecycle</button></div></section>
-<section class="card"><div class="toolbar"><div><h2>Ringkasan Status APAR</h2><div class="subtitle">Data APAR yang tersimpan di Firestore.</div></div><button id="reloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div><div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Status</th><th>Pemeriksaan Terakhir</th><th>Kondisi</th></tr></thead><tbody id="aparTableBody"><tr><td colspan="8" class="empty">Memuat data APAR...</td></tr></tbody></table></div></section>
-<section class="card"><div class="toolbar"><div><h2>Pemeriksaan Terbaru</h2><div class="subtitle">10 pemeriksaan terbaru dari collection <b>inspections</b>.</div></div></div><div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectionTableBody"><tr><td colspan="5" class="empty">Memuat pemeriksaan...</td></tr></tbody></table></div></section>
+  <div class="stats">
+    <div class="stat"><div class="stat-title">Total APAR</div><div id="totalApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">Active</div><div id="activeApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">Inactive</div><div id="inactiveApar" class="stat-value">-</div></div>
+    <div class="stat"><div class="stat-title">PASS Terakhir</div><div id="passApar" class="stat-value">-</div></div>
+  </div>
+  <section class="card">
+    <div class="toolbar"><div><h2>Ringkasan Status APAR</h2><div class="subtitle">Data APAR yang tersimpan di Firestore.</div></div><button id="reloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Status</th></tr></thead><tbody id="aparTableBody"><tr><td colspan="6" class="empty">Memuat data APAR...</td></tr></tbody></table></div>
+  </section>
+  <section class="card">
+    <div class="toolbar"><div><h2>Pemeriksaan Terbaru</h2><div class="subtitle">Data dari collection <b>inspections</b>.</div></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectionTableBody"><tr><td colspan="5" class="empty">Memuat pemeriksaan...</td></tr></tbody></table></div>
+  </section>
 </section>
 
 <section id="dataAparView" class="hidden">
   <section class="card">
     <div class="toolbar">
       <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.3 menambahkan Tambah dan Edit data APAR.</div></div>
-      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="importAparBtn" class="action primary" type="button">📥 Import Excel</button><button id="exportAparBtn" class="action primary" type="button">📤 Export Excel</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button><button id="printAparListBtn" class="action primary" type="button">🖨️ Cetak</button></div>
+      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
     </div>
     <div class="toolbar-left" style="margin-bottom:15px">
       <input id="aparSearch" class="search" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
@@ -289,37 +239,8 @@ body:not(.authenticated) .sidebar{
       </table>
     </div>
   </section>
-<section class="card" id="qrGeneratorCard">
-  <div class="toolbar">
-    <div>
-      <h2>🧾 Generator QR Code APAR</h2>
-      <div class="subtitle">QR berisi Asset Number APAR dan dapat digunakan untuk proses scan pemeriksaan.</div>
-    </div>
-  </div>
-  <div id="qrGeneratorStatus" class="status info">Pilih APAR untuk membuat QR Code.</div>
-  <div class="qr-generator-box">
-    <div class="qr-generator-controls">
-      <div class="field" style="margin-bottom:0">
-        <label for="qrAparSelect">Pilih APAR</label>
-        <select id="qrAparSelect"><option value="">Memuat data APAR...</option></select>
-      </div>
-      <button id="generateQrBtn" class="action primary" type="button" disabled>Generate QR</button>
-    </div>
-    <div id="qrPreview" class="qr-preview hidden">
-      <div class="small">QR Code APAR</div>
-      <div class="qr-preview-code"><canvas id="qr-generator-canvas" width="260" height="260"></canvas></div>
-      <div id="qrAssetTitle" class="qr-asset-title">-</div>
-      <div id="qrAssetMeta" class="qr-asset-meta">-</div>
-      <div class="toolbar-left" style="justify-content:center;margin-top:14px">
-        <button id="downloadQrBtn" class="action primary" type="button" disabled>⬇️ Simpan PNG</button>
-        <button id="printQrBtn" class="action primary" type="button" disabled>🖨️ Print QR</button>
-      </div>
-    </div>
-    <div style="margin-top:14px"><button id="printAllQrBtn" class="action secondary" type="button" disabled>🖨️ Print Semua QR APAR</button></div>
-    <div id="qrAllPreview" class="qr-print-grid hidden"></div>
-  </div>
 </section>
-</section>
+
 
 <section id="monitoringView" class="hidden">
   <section class="card lifecycle-reminder-card" id="lifecycleReminderPanel">
@@ -421,64 +342,6 @@ body:not(.authenticated) .sidebar{
     </div>
   </section>
 </section>
-
-<section id="inspectionView" class="hidden">
-  <section class="card">
-    <div class="toolbar">
-      <div>
-        <h2>📋 Pemeriksaan APAR</h2>
-        <div class="subtitle">Pilih APAR secara manual atau gunakan Scan QR Code untuk membuka form pemeriksaan.</div>
-      </div>
-    </div>
-    <div class="history-filters">
-      <div style="min-width:260px;flex:1">
-        <label for="inspectionAparSelect" style="display:block;margin-bottom:7px;font-size:13px;font-weight:800">Pilih APAR ACTIVE</label>
-        <select id="inspectionAparSelect" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;background:#fff">
-          <option value="">Memuat data APAR...</option>
-        </select>
-      </div>
-      <button id="startScanBtn" class="action primary" type="button">📷 Scan QR</button>
-    </div>
-    <div id="scannerStatus" class="status info">Pilih APAR atau tekan Scan QR.</div>
-    <div class="qr-scanner-box">
-      <div id="qr-reader" class="hidden"></div>
-      <div id="scanResult" class="scan-result hidden"></div>
-      <button id="stopScanBtn" class="action secondary" type="button" disabled>⏹ Hentikan Scan</button>
-    </div>
-  </section>
-
-  <section id="inspectionForm" class="card hidden">
-    <h2>Form Pemeriksaan APAR</h2>
-    <div id="inspectionStatus" class="status info">APAR siap diperiksa.</div>
-    <div class="inspection-summary">
-      <strong>APAR yang diperiksa</strong>
-      <div class="detail-grid">
-        <div class="detail-item"><div class="detail-label">Asset Number</div><div id="inspectionAssetNumber" class="detail-value">-</div></div>
-        <div class="detail-item"><div class="detail-label">Brand</div><div id="inspectionBrand" class="detail-value">-</div></div>
-        <div class="detail-item"><div class="detail-label">Capacity</div><div id="inspectionCapacity" class="detail-value">-</div></div>
-        <div class="detail-item"><div class="detail-label">Location</div><div id="inspectionLocation" class="detail-value">-</div></div>
-        <div class="detail-item"><div class="detail-label">Serial Number</div><div id="inspectionSerial" class="detail-value">-</div></div>
-        <div class="detail-item"><div class="detail-label">Type</div><div id="inspectionType" class="detail-value">-</div></div>
-      </div>
-    </div>
-    <div class="inspection-grid">
-      <div class="inspection-item"><label for="physicalCondition">Kondisi Fisik</label><select id="physicalCondition"><option value="good">Baik</option><option value="minor_damage">Rusak Ringan</option><option value="damaged">Rusak</option></select></div>
-      <div class="inspection-item"><label for="seal">Seal</label><select id="seal"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="missing">Tidak Ada</option></select></div>
-      <div class="inspection-item"><label for="safetyPin">Safety Pin</label><select id="safetyPin"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="missing">Tidak Ada</option></select></div>
-      <div class="inspection-item"><label for="pressure">Pressure</label><select id="pressure"><option value="normal">Normal</option><option value="low">Rendah</option><option value="high">Tinggi</option></select></div>
-      <div class="inspection-item"><label for="nozzle">Nozzle</label><select id="nozzle"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="blocked">Tersumbat</option></select></div>
-      <div class="inspection-item"><label for="hose">Selang</label><select id="hose"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="missing">Tidak Ada</option></select></div>
-      <div class="inspection-item"><label for="signage">Signage</label><select id="signage"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="missing">Tidak Ada</option></select></div>
-      <div class="inspection-item"><label for="inspectionResult">Hasil Pemeriksaan</label><select id="inspectionResult"><option value="pass">PASS</option><option value="fail">FAIL</option></select></div>
-      <div class="inspection-item inspection-full"><label for="inspectionNotes">Catatan</label><textarea id="inspectionNotes" placeholder="Masukkan catatan pemeriksaan jika ada..."></textarea></div>
-    </div>
-    <div class="modal-actions">
-      <button id="cancelInspectionBtn" class="action secondary" type="button">Reset Form</button>
-      <button id="saveInspectionBtn" class="action primary" type="button">💾 Simpan Pemeriksaan</button>
-    </div>
-  </section>
-</section>
-
 
 <section id="historyView" class="hidden">
   <section class="card">
@@ -684,7 +547,8 @@ body:not(.authenticated) .sidebar{
 
         <div class="form-field">
           <label for="fHydrotestInterval">Interval Hydrotest (bulan)</label>
-          <input id="fHydrotestInterval" type="number" min="1" step="1" placeholder="Contoh: 60">
+          <input id="fHydrotestInterval" type="number" min="1" step="1" value="60" placeholder="Contoh: 60">
+          <div class="form-help">Default aplikasi: 60 bulan (5 tahun). Admin dapat mengubah sesuai ketentuan teknis/K3 perusahaan.</div>
         </div>
 
         <div class="form-field">
@@ -706,18 +570,6 @@ body:not(.authenticated) .sidebar{
   </div>
 </div>
 
-
-<div id="importAparModal" class="modal hidden">
-  <div class="modal-box" style="max-width:1100px">
-    <div class="modal-head"><h2>📥 Import Excel Master APAR</h2><button id="closeImportApar" class="close" type="button">✕ Tutup</button></div>
-    <div class="subtitle" style="margin-bottom:12px">Pilih file .xlsx/.xls. Data divalidasi dan ditampilkan terlebih dahulu sebelum disimpan ke Firestore.</div>
-    <div class="toolbar-left" style="margin-bottom:12px"><button id="downloadAparTemplateBtn" class="action secondary" type="button">⬇️ Download Template</button><label class="action primary" style="cursor:pointer">📂 Pilih Excel<input id="aparExcelFile" type="file" accept=".xlsx,.xls" style="display:none"></label></div>
-    <div id="importAparStatus" class="status info">Belum ada file dipilih.</div>
-    <div class="table-wrap" style="max-height:430px;margin-top:12px"><table><thead><tr><th>Baris</th><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial</th><th>Type</th><th>Status</th><th>Validasi</th></tr></thead><tbody id="importAparPreview"><tr><td colspan="9" class="empty">Preview akan tampil di sini.</td></tr></tbody></table></div>
-    <div class="modal-actions"><button id="cancelImportApar" class="action secondary" type="button">Batal</button><button id="confirmImportApar" class="action primary" type="button" disabled>Import Data Valid</button></div>
-  </div>
-</div>
-
 <div id="detailModal" class="modal hidden">
   <div class="modal-box">
     <div class="modal-head"><h2>Detail APAR</h2><button id="closeDetail" class="close" type="button">✕ Tutup</button></div>
@@ -725,11 +577,9 @@ body:not(.authenticated) .sidebar{
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,browserSessionPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
@@ -761,6 +611,24 @@ function formatLifecycleDate(v){
   if(Number.isNaN(d.getTime())) return esc(v);
   return d.toLocaleDateString("id-ID",{day:"2-digit",month:"2-digit",year:"numeric"});
 }
+const DEFAULT_HYDROTEST_INTERVAL_MONTHS=60;
+
+function effectiveHydrotestInterval(x){
+  const n=Number(x?.hydrotestIntervalMonths||0);
+  return n>0?n:DEFAULT_HYDROTEST_INTERVAL_MONTHS;
+}
+function effectiveNextHydrotestDate(x){
+  if(!x)return "";
+  if(x.nextHydrotestDate)return x.nextHydrotestDate;
+  if(x.lastHydrotestDate)return addMonthsToDateString(x.lastHydrotestDate,effectiveHydrotestInterval(x));
+  return "";
+}
+function lifecycleKey(assetNumber,kind,date){
+  const d=lifecycleDateValue(date);
+  const keyDate=d?`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`:"";
+  return `${String(assetNumber||"").trim().toUpperCase()}|${String(kind||"").trim().toLowerCase()}|${keyDate}`;
+}
+
 function addMonthsToDateString(dateString, months){
   if(!dateString || !Number.isFinite(Number(months)) || Number(months)<=0) return "";
   const parts=String(dateString).split("-").map(Number);
@@ -781,7 +649,9 @@ function autoNextLifecycleDates(){
     refillNext.value=addMonthsToDateString(refillLast,refillInterval);
   }
   const hydroLast=$("fLastHydrotestDate")?.value||"";
-  const hydroInterval=Number($("fHydrotestInterval")?.value||0);
+  const hydroIntervalInput=$("fHydrotestInterval");
+  const hydroInterval=Number(hydroIntervalInput?.value||0)||DEFAULT_HYDROTEST_INTERVAL_MONTHS;
+  if(hydroIntervalInput && !hydroIntervalInput.value) hydroIntervalInput.value=String(DEFAULT_HYDROTEST_INTERVAL_MONTHS);
   const hydroNext=$("fNextHydrotestDate");
   if(hydroNext && hydroLast && hydroInterval>0 && !hydroNext.dataset.manual){
     hydroNext.value=addMonthsToDateString(hydroLast,hydroInterval);
@@ -789,18 +659,12 @@ function autoNextLifecycleDates(){
 }
 
 function showLogin(){
-  document.body.classList.remove("authenticated");
   $("loginCard").classList.remove("hidden");
   $("dashboardContent").classList.add("hidden");
-  const main=document.querySelector(".main");
-  if(main) main.classList.add("login-mode");
 }
 function showDashboard(){
-  document.body.classList.add("authenticated");
   $("loginCard").classList.add("hidden");
   $("dashboardContent").classList.remove("hidden");
-  const main=document.querySelector(".main");
-  if(main) main.classList.remove("login-mode");
 }
 
 async function validateAdmin(user){
@@ -843,26 +707,13 @@ async function loadApar(){
   $("inactiveApar").textContent=inactive;
   renderDashboardApar();
   renderMasterApar();
-  initializeQrGenerator();
-  initializeInspectionUi();
   debug(`APAR ditemukan: ${aparRows.length}`);
 }
-function buildLatestInspectionMap(){const map=new Map();(inspectionRows||[]).forEach(ins=>{const key=String(ins.aparAssetNumber||ins.aparId||"").trim();if(!key)return;const time=dateValue(ins.inspectionDate||ins.createdAt);const existing=map.get(key);if(!existing||time>existing._time)map.set(key,{...ins,_time:time});});return map;}
-function renderDashboardInspectionKpis(){const latest=buildLatestInspectionMap();let pass=0,fail=0,never=0;(aparRows||[]).forEach(x=>{const k=String(x.assetNumber||x.id||"").trim();const r=String(latest.get(k)?.result||"").toLowerCase();if(r==="pass")pass++;else if(r==="fail")fail++;else never++;});$("passApar").textContent=pass;$("dashboardFail").textContent=fail;$("dashboardNever").textContent=never;$("dashboardNeverInspection").textContent=never;$("dashboardAttention").textContent=fail;}
-function renderDashboardLifecycle(){const all=(aparRows||[]).flatMap(x=>[["Refill",x.nextRefillDate],["Hydrotest",x.nextHydrotestDate],["Masa Berlaku",x.expiryDate]]).map(([kind,value])=>({kind,value,diff:lifecycleDayDiff(lifecycleDateValue(value))}));const overdue=all.filter(x=>x.diff!==null&&x.diff<=0).length,d14=all.filter(x=>x.diff!==null&&x.diff>0&&x.diff<=14).length,d30=all.filter(x=>x.diff!==null&&x.diff>14&&x.diff<=30).length,noSchedule=all.filter(x=>x.diff===null).length;$("dashboardLifecycleOverdue").textContent=overdue;$("dashboardLifecycle14").textContent=d14;$("dashboardLifecycle30").textContent=d30;$("dashboardLifecycleNoSchedule").textContent=noSchedule;}
-function renderDashboardApar(){const b=$("aparTableBody"),latest=buildLatestInspectionMap();if(!aparRows.length){b.innerHTML='<tr><td colspan="8" class="empty">Belum ada data APAR.</td></tr>';return}b.innerHTML=aparRows.map(x=>{const k=String(x.assetNumber||x.id||"").trim(),ins=latest.get(k),r=String(ins?.result||"").toLowerCase();let condition='<span class="dashboard-condition-never">BELUM DIPERIKSA</span>';if(r==="pass")condition='<span class="dashboard-condition-good">BAIK</span>';if(r==="fail")condition='<span class="dashboard-condition-bad">PERLU PERHATIAN</span>';return `<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td><td>${ins?badge(ins.result)+`<br><span style="font-size:11px;color:#64748b">${formatDate(ins.inspectionDate||ins.createdAt)}</span>`:"-"}</td><td>${condition}</td></tr>`;}).join("");}
-function printAparList(){const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR yang dapat dicetak.","warning");return}const win=window.open("","_blank","width=1200,height=800");if(!win){alert("Popup diblokir browser. Izinkan popup untuk mencetak Daftar APAR.");return}const body=rows.map(x=>`<tr><td>${esc(x.assetNumber||x.id||"-")}</td><td>${esc(x.brand||"-")}</td><td>${esc(x.capacity||"-")}</td><td>${esc(x.locationId||"-")}</td><td>${esc(x.serialNumber||"-")}</td><td>${esc(x.typeId||"-")}</td><td>${esc(String(x.status||"-").toUpperCase())}</td><td>${esc(x.nextRefillDate?formatLifecycleDate(x.nextRefillDate):"-")}</td></tr>`).join("");win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Daftar Master APAR</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 6px}.meta{font-size:12px;color:#555;margin-bottom:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;font-size:10px;text-align:left}th{background:#f3f4f6}</style></head><body><h1>Daftar Master APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah data: ${rows.length}</div><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Refill Berikutnya</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`);win.document.close();}
-let pendingAparImport=[];
-const APAR_EXCEL_HEADERS=["Asset Number","Brand","Capacity","Location","Serial Number","Type","Status","Tanggal Produksi","Tanggal Mulai Digunakan","Masa Berlaku","Tanggal Refill Terakhir","Interval Refill (bulan)","Tanggal Refill Berikutnya","Tanggal Hydrotest Terakhir","Interval Hydrotest (bulan)","Tanggal Hydrotest Berikutnya"];
-function excelDate(v){if(v===null||v===undefined||v==="")return "";if(typeof v==="number"&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,"0")}-${String(d.d).padStart(2,"0")}`;}const t=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(t))return t;const m=t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;return null;}
-function normalizeAparExcelRow(r,rowNo){const get=(...keys)=>{for(const k of keys)if(r[k]!==undefined&&r[k]!==null)return String(r[k]).trim();return ""};const dates={manufactureDate:excelDate(r["Tanggal Produksi"]),commissionDate:excelDate(r["Tanggal Mulai Digunakan"]),expiryDate:excelDate(r["Masa Berlaku"]),lastRefillDate:excelDate(r["Tanggal Refill Terakhir"]),nextRefillDate:excelDate(r["Tanggal Refill Berikutnya"]),lastHydrotestDate:excelDate(r["Tanggal Hydrotest Terakhir"]),nextHydrotestDate:excelDate(r["Tanggal Hydrotest Berikutnya"])};const data={assetNumber:get("Asset Number","assetNumber"),brand:get("Brand","brand"),capacity:get("Capacity","capacity"),locationId:get("Location","Location ID","locationId"),serialNumber:get("Serial Number","serialNumber"),typeId:get("Type","Type ID","typeId"),status:get("Status","status").toLowerCase(),manufactureDate:dates.manufactureDate||null,commissionDate:dates.commissionDate||null,expiryDate:dates.expiryDate||null,lastRefillDate:dates.lastRefillDate||null,refillIntervalMonths:Number(r["Interval Refill (bulan)"]||0)||null,nextRefillDate:dates.nextRefillDate||null,lastHydrotestDate:dates.lastHydrotestDate||null,hydrotestIntervalMonths:Number(r["Interval Hydrotest (bulan)"]||0)||null,nextHydrotestDate:dates.nextHydrotestDate||null};const errors=[];["assetNumber","brand","capacity","locationId","serialNumber","typeId"].forEach(k=>{if(!data[k])errors.push(`${k} kosong`)});if(!["active","inactive"].includes(data.status))errors.push("status harus ACTIVE/INACTIVE");Object.entries(dates).forEach(([k,v])=>{if(v===null&&r[{manufactureDate:"Tanggal Produksi",commissionDate:"Tanggal Mulai Digunakan",expiryDate:"Masa Berlaku",lastRefillDate:"Tanggal Refill Terakhir",nextRefillDate:"Tanggal Refill Berikutnya",lastHydrotestDate:"Tanggal Hydrotest Terakhir",nextHydrotestDate:"Tanggal Hydrotest Berikutnya"}[k]])errors.push(`tanggal ${k} tidak valid`)});return {rowNo,data,errors,valid:errors.length===0};}
-function openImportApar(){pendingAparImport=[];$("aparExcelFile").value="";$("importAparPreview").innerHTML='<tr><td colspan="9" class="empty">Preview akan tampil di sini.</td></tr>';$("importAparStatus").className="status info";$("importAparStatus").textContent="Belum ada file dipilih.";$("confirmImportApar").disabled=true;$("importAparModal").classList.remove("hidden");}
-function closeImportApar(){$("importAparModal").classList.add("hidden");}
-function downloadAparTemplate(){if(!window.XLSX){alert("Library Excel belum termuat. Muat ulang halaman.");return}const sample=[{"Asset Number":"APAR-0001","Brand":"ABC","Capacity":"6 Kg","Location":"LOC-001","Serial Number":"SN-001","Type":"TYPE-001","Status":"ACTIVE","Tanggal Produksi":"2026-01-01","Tanggal Mulai Digunakan":"2026-01-15","Masa Berlaku":"2031-01-01","Tanggal Refill Terakhir":"2026-08-01","Interval Refill (bulan)":12,"Tanggal Refill Berikutnya":"2027-08-01","Tanggal Hydrotest Terakhir":"2026-08-01","Interval Hydrotest (bulan)":60,"Tanggal Hydrotest Berikutnya":"2031-08-01"}];const ws=XLSX.utils.json_to_sheet(sample,{header:APAR_EXCEL_HEADERS});const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Master APAR");XLSX.writeFile(wb,"Template_Master_APAR.xlsx");}
-function exportAparExcel(){if(!window.XLSX){setStatus("Library Excel belum termuat. Muat ulang halaman.","error");return}const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR untuk diexport.","warning");return}const out=rows.map(x=>({"Asset Number":x.assetNumber||x.id||"","Brand":x.brand||"","Capacity":x.capacity||"","Location":x.locationId||"","Serial Number":x.serialNumber||"","Type":x.typeId||"","Status":String(x.status||"").toUpperCase(),"Tanggal Produksi":x.manufactureDate||"","Tanggal Mulai Digunakan":x.commissionDate||"","Masa Berlaku":x.expiryDate||"","Tanggal Refill Terakhir":x.lastRefillDate||"","Interval Refill (bulan)":x.refillIntervalMonths||"","Tanggal Refill Berikutnya":x.nextRefillDate||"","Tanggal Hydrotest Terakhir":x.lastHydrotestDate||"","Interval Hydrotest (bulan)":x.hydrotestIntervalMonths||"","Tanggal Hydrotest Berikutnya":x.nextHydrotestDate||""}));const ws=XLSX.utils.json_to_sheet(out,{header:APAR_EXCEL_HEADERS});const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,"Master APAR");XLSX.writeFile(wb,`Master_APAR_${new Date().toISOString().slice(0,10)}.xlsx`);setStatus(`${rows.length} data APAR berhasil diexport ke Excel.`,"success");}
-async function readAparExcel(file){if(!file||!window.XLSX)return;try{const buf=await file.arrayBuffer();const wb=XLSX.read(buf,{type:"array",cellDates:false});const ws=wb.Sheets[wb.SheetNames[0]];const raw=XLSX.utils.sheet_to_json(ws,{defval:"",raw:true});pendingAparImport=raw.map((r,i)=>normalizeAparExcelRow(r,i+2));const seen=new Map();pendingAparImport.forEach(x=>{const k=x.data.assetNumber.toLowerCase();if(k){if(seen.has(k)){x.errors.push("Asset Number duplikat di file");x.valid=false;const first=seen.get(k);first.errors.push("Asset Number duplikat di file");first.valid=false}else seen.set(k,x)}});const valid=pendingAparImport.filter(x=>x.valid).length,invalid=pendingAparImport.length-valid;$("importAparStatus").className=`status ${invalid?"warning":"success"}`;$("importAparStatus").textContent=`${pendingAparImport.length} baris ditemukan • ${valid} valid • ${invalid} perlu diperbaiki.`;$("importAparPreview").innerHTML=pendingAparImport.map(x=>`<tr><td>${x.rowNo}</td><td><strong>${esc(x.data.assetNumber)}</strong></td><td>${esc(x.data.brand)}</td><td>${esc(x.data.capacity)}</td><td>${esc(x.data.locationId)}</td><td>${esc(x.data.serialNumber)}</td><td>${esc(x.data.typeId)}</td><td>${esc(x.data.status.toUpperCase())}</td><td>${x.valid?'<span class="badge active">VALID</span>':`<span style="color:#b91c1c;font-weight:700">${esc(x.errors.join("; "))}</span>`}</td></tr>`).join("")||'<tr><td colspan="9" class="empty">File tidak berisi data.</td></tr>';$("confirmImportApar").disabled=valid===0;}catch(e){console.error(e);$("importAparStatus").className="status error";$("importAparStatus").textContent="Gagal membaca Excel: "+(e.message||"format tidak valid");$("confirmImportApar").disabled=true;}}
-async function confirmAparImport(){if(!currentAdmin)return;const valid=pendingAparImport.filter(x=>x.valid);if(!valid.length)return;if(!confirm(`Import ${valid.length} data valid ke Firestore? Asset Number yang sudah ada akan diperbarui.`))return;const btn=$("confirmImportApar");btn.disabled=true;$("importAparStatus").className="status info";$("importAparStatus").textContent="Mengimport data ke Firestore...";let created=0,updated=0,failed=0;for(const x of valid){try{const ref=doc(db,"apar",x.data.assetNumber);const old=await getDoc(ref);if(old.exists()){await setDoc(ref,{...x.data,updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin"},{merge:true});updated++;}else{await setDoc(ref,{...x.data,createdAt:serverTimestamp(),updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin"});created++;}}catch(e){console.error("Import APAR",x.data.assetNumber,e);failed++;}}await loadApar();$("importAparStatus").className=`status ${failed?"warning":"success"}`;$("importAparStatus").textContent=`Import selesai: ${created} baru, ${updated} diperbarui, ${failed} gagal.`;setStatus(`Import Excel selesai: ${created} baru, ${updated} diperbarui${failed?`, ${failed} gagal`:""}.`,failed?"warning":"success");btn.disabled=false;}
-
+function renderDashboardApar(){
+  const b=$("aparTableBody");
+  if(!aparRows.length){b.innerHTML='<tr><td colspan="6" class="empty">Belum ada data APAR.</td></tr>';return}
+  b.innerHTML=aparRows.map(x=>`<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td></tr>`).join("");
+}
 function renderMasterApar(){
   const q=String($("aparSearch").value||"").trim().toLowerCase();
   const rows=aparRows.filter(x=>{
@@ -890,6 +741,7 @@ async function loadInspections(){
   inspectionRows=[];
   snap.forEach(s=>inspectionRows.push({id:s.id,...(s.data()||{})}));
   inspectionRows.sort((a,b)=>dateValue(b.inspectionDate||b.createdAt)-dateValue(a.inspectionDate||a.createdAt));
+  $("passApar").textContent=inspectionRows.filter(x=>String(x.result||"").toLowerCase()==="pass").length;
   const b=$("inspectionTableBody");
   if(!inspectionRows.length){b.innerHTML='<tr><td colspan="5" class="empty">Belum ada data pemeriksaan.</td></tr>';return}
   b.innerHTML=inspectionRows.slice(0,10).map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId)}</strong></td><td>${esc(x.inspectorPhone||x.inspectorId)}</td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes)}</td></tr>`).join("");
@@ -901,7 +753,6 @@ async function loadAll(){
     $("reloadBtn").disabled=true;$("reloadAparBtn").disabled=true;
     setStatus("Memuat data Dashboard dari Firestore...","info");
     await Promise.all([loadApar(),loadInspections()]);
-    renderDashboardInspectionKpis();renderDashboardApar();renderDashboardLifecycle();
     renderMonitoring();
     if(!$("historyView").classList.contains("hidden")) renderHistory();
     setStatus("Dashboard Admin berhasil dimuat dari Firestore.","success");
@@ -955,8 +806,8 @@ function openAparForm(mode="create",id=null){
     $("fRefillInterval").value=x.refillIntervalMonths||"";
     $("fNextRefillDate").value=x.nextRefillDate||"";
     $("fLastHydrotestDate").value=x.lastHydrotestDate||"";
-    $("fHydrotestInterval").value=x.hydrotestIntervalMonths||"";
-    $("fNextHydrotestDate").value=x.nextHydrotestDate||"";
+    $("fHydrotestInterval").value=x.hydrotestIntervalMonths||DEFAULT_HYDROTEST_INTERVAL_MONTHS;
+    $("fNextHydrotestDate").value=effectiveNextHydrotestDate(x)||"";
     ["fNextRefillDate","fNextHydrotestDate"].forEach(id=>{if($(id)){ $(id).dataset.manual="true"; }});
   }else{
     $("aparFormTitle").textContent="Tambah APAR";
@@ -990,7 +841,7 @@ function getAparFormData(){
     refillIntervalMonths:Number($("fRefillInterval").value||0) || null,
     nextRefillDate:$("fNextRefillDate").value || null,
     lastHydrotestDate:$("fLastHydrotestDate").value || null,
-    hydrotestIntervalMonths:Number($("fHydrotestInterval").value||0) || null,
+    hydrotestIntervalMonths:Number($("fHydrotestInterval").value||0) || DEFAULT_HYDROTEST_INTERVAL_MONTHS,
     nextHydrotestDate:$("fNextHydrotestDate").value || null
   };
 }
@@ -1213,8 +1064,8 @@ function showDetail(id){
     ["Interval Refill",x.refillIntervalMonths?x.refillIntervalMonths+" bulan":"Belum diisi"],
     ["Refill Berikutnya",x.nextRefillDate||"Belum ada jadwal"],
     ["Hydrotest Terakhir",x.lastHydrotestDate||"Belum diisi"],
-    ["Interval Hydrotest",x.hydrotestIntervalMonths?x.hydrotestIntervalMonths+" bulan":"Belum diisi"],
-    ["Hydrotest Berikutnya",x.nextHydrotestDate||"Belum ada jadwal"],
+    ["Interval Hydrotest",effectiveHydrotestInterval(x)+" bulan"],
+    ["Hydrotest Berikutnya",effectiveNextHydrotestDate(x)||"Belum ada jadwal"],
     ["Document ID",x.id]
   ];
   $("detailContent").innerHTML=`<div class="detail-grid">${fields.map(([l,v])=>`<div class="detail-item"><div class="detail-label">${esc(l)}</div><div class="detail-value">${esc(v)}</div></div>`).join("")}</div>`;
@@ -1317,7 +1168,7 @@ function printLifecycle(){
   const generatedAt=new Date().toLocaleString("id-ID");
   const all=(aparRows||[]).flatMap(x=>[
     ["Refill",x.nextRefillDate],
-    ["Hydrotest",x.nextHydrotestDate],
+    ["Hydrotest",effectiveNextHydrotestDate(x)],
     ["Masa Berlaku",x.expiryDate]
   ]).map(([kind,value])=>({kind,value,diff:lifecycleDayDiff(lifecycleDateValue(value))}));
   const overdue=all.filter(x=>x.diff!==null && x.diff<=0).length;
@@ -1941,7 +1792,6 @@ function setView(view){
     data:$("dataAparView"),
     monitoring:$("monitoringView"),
     history:$("historyView"),
-    inspection:$("inspectionView"),
     refills:$("refillsView"),
     users:$("usersView"),
     placeholder:$("placeholderView")
@@ -1952,7 +1802,6 @@ function setView(view){
 
   if(view==="dashboard"){
     $("navDashboard").classList.add("active");
-    renderDashboardInspectionKpis();renderDashboardApar();renderDashboardLifecycle();
     $("pageTitle").textContent="Admin Dashboard";
     $("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru";
   }
@@ -1966,12 +1815,6 @@ function setView(view){
     $("pageTitle").textContent="Monitoring APAR";
     $("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";
     loadMonitoring();
-  }
-  if(view==="inspection"){
-    $("navInspection").classList.add("active");
-    $("pageTitle").textContent="Pemeriksaan APAR";
-    $("pageSubtitle").textContent="Generate/Scan QR dan input pemeriksaan APAR";
-    initializeInspectionUi();
   }
   if(view==="history"){
     $("navHistory").classList.add("active");
@@ -1996,7 +1839,6 @@ function placeholder(title,text,id){
 }
 
 
-function closeMobileDrawer(){$("mobileOverlay")?.classList.add("hidden");$("sidebar")?.classList.remove("mobile-open");}function openMobileDrawer(){$("mobileOverlay")?.classList.remove("hidden");$("sidebar")?.classList.add("mobile-open");}$("mobileMenuBtn")?.addEventListener("click",openMobileDrawer);$("mobileOverlay")?.addEventListener("click",closeMobileDrawer);document.querySelectorAll(".nav button").forEach(btn=>{if(btn.id!=="logoutBtn")btn.addEventListener("click",()=>setTimeout(closeMobileDrawer,60));});$("dashboardLifecycleReloadBtn")?.addEventListener("click",async()=>{const b=$("dashboardLifecycleReloadBtn");b.disabled=true;try{await loadApar();renderDashboardLifecycle();setStatus("Ringkasan lifecycle Dashboard berhasil diperbarui.","success");}catch(e){console.error(e);setStatus("Gagal memperbarui lifecycle Dashboard.","error");}finally{b.disabled=false;}});$("dashboardLifecycleDetailBtn")?.addEventListener("click",()=>{setView("monitoring");setTimeout(()=>$("lifecycleReminderPanel")?.scrollIntoView({behavior:"smooth",block:"start"}),60);});
 $("addRefillBtn").addEventListener("click",()=>openRefillModal(null));
 $("closeRefillModal").addEventListener("click",closeRefillModal);
 $("refillModal").addEventListener("click",e=>{if(e.target===$("refillModal"))closeRefillModal()});
@@ -2008,14 +1850,6 @@ $("refillFrom").addEventListener("change",renderRefills);
 $("refillTo").addEventListener("change",renderRefills);
 $("refillStatusFilter").addEventListener("change",renderRefills);
 $("addAparBtn").addEventListener("click",()=>openAparForm("create"));
-$("importAparBtn")?.addEventListener("click",openImportApar);
-$("exportAparBtn")?.addEventListener("click",exportAparExcel);
-$("closeImportApar")?.addEventListener("click",closeImportApar);
-$("cancelImportApar")?.addEventListener("click",closeImportApar);
-$("downloadAparTemplateBtn")?.addEventListener("click",downloadAparTemplate);
-$("aparExcelFile")?.addEventListener("change",e=>readAparExcel(e.target.files?.[0]));
-$("confirmImportApar")?.addEventListener("click",confirmAparImport);
-$("printAparListBtn")?.addEventListener("click",printAparList);
 $("closeAparForm").addEventListener("click",closeAparForm);
 $("cancelAparForm").addEventListener("click",closeAparForm);
 $("aparForm").addEventListener("submit",saveAparForm);
@@ -2056,7 +1890,7 @@ $("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))clo
 $("navDashboard").addEventListener("click",()=>setView("dashboard"));
 $("navDataApar").addEventListener("click",()=>setView("data"));
 $("navMonitoring").addEventListener("click",()=>setView("monitoring"));
-$("navInspection").addEventListener("click",()=>setView("inspection"));
+$("navInspection").addEventListener("click",()=>placeholder("Pemeriksaan","Modul Pemeriksaan Admin akan dibangun pada tahap berikutnya.","navInspection"));
 $("navHistory").addEventListener("click",()=>setView("history"));
 $("navRefills").addEventListener("click",()=>setView("refills"));
 $("navUsers").addEventListener("click",()=>{
@@ -2085,9 +1919,6 @@ try{
   debug("Menginisialisasi Firebase...");
   const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
-  await setPersistence(auth,browserSessionPersistence);
-  await signOut(auth);
-  showLogin();
   onAuthStateChanged(auth,async user=>{
     if(!user){showLogin();setStatus("Belum login. Silakan login menggunakan akun Admin.","warning");debug("Tidak ada user Firebase yang login.");return}
     try{
@@ -2136,569 +1967,6 @@ function renderRefills(){const rows=getRefillFilteredRows();$("refillCount").tex
 async function loadRefills(){if(!db)return;setRefillsStatus("Memuat riwayat refill dari Firestore...","info");try{const snap=await getDocs(collection(db,"refills"));refillRows=[];snap.forEach(s=>refillRows.push({id:s.id,...(s.data()||{})}));refillRows.sort((a,b)=>String(b.actualDate||"").localeCompare(String(a.actualDate||""))||dateValue(b.createdAt)-dateValue(a.createdAt));renderRefills();setRefillsStatus(`Riwayat refill berhasil dimuat. ${refillRows.length} data.`,"success");debug(`Riwayat refill ditemukan: ${refillRows.length}`);}catch(e){console.error(e);setRefillsStatus("Gagal memuat riwayat refill: "+(e.message||"Unknown error"),"error");debug("LOAD REFILLS ERROR: "+(e.code||"-")+" | "+(e.message||""));}}
 async function saveRefill(){if(!currentAdmin){setRefillFormStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");return;}const id=$("refillAssetSelect").value,x=(aparRows||[]).find(r=>r.id===id);if(!x){setRefillFormStatus("APAR tidak ditemukan.","error");return;}const scheduledDate=$("refillScheduledDate").value||"",actualDate=$("refillActualDate").value||"",vendor=$("refillVendor").value.trim(),notes=$("refillNotes").value.trim();if(!actualDate){setRefillFormStatus("Tanggal Refill Aktual wajib diisi.","warning");return;}if(scheduledDate&&actualDate<scheduledDate&&!confirm("Tanggal aktual lebih awal dari jadwal. Tetap simpan?"))return;const diff=refillDiffDays(scheduledDate,actualDate),interval=Number(x.refillIntervalMonths||0),nextDate=interval>0?addMonthsToDateString(actualDate,interval):"";const btn=$("saveRefillBtn");btn.disabled=true;setRefillFormStatus("Menyimpan histori refill dan memperbarui Master APAR...","info");try{await addDoc(collection(db,"refills"),{aparId:x.id,assetNumber:x.assetNumber||x.id,scheduledDate:scheduledDate||null,actualDate,delayDays:diff!==null&&diff>0?diff:0,status:diff!==null&&diff>0?"TERLAMBAT":"TEPAT WAKTU",vendor:vendor||null,notes:notes||null,inputBy:currentAdmin.email||currentAdmin.uid||"admin",createdAt:serverTimestamp(),updatedAt:serverTimestamp()});const updateData={lastRefillDate:actualDate,updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin",nextRefillDate:interval>0?nextDate:null};await updateDoc(doc(db,"apar",x.id),updateData);await loadApar();await loadRefills();closeRefillModal();const lateText=diff!==null&&diff>0?` Terlambat ${diff} hari.`:"";setStatus(`Refill ${x.assetNumber||x.id} berhasil dicatat.${lateText}`,"success");debug(`REFILL TERSIMPAN: ${x.assetNumber||x.id} | aktual=${actualDate} | jadwal=${scheduledDate||"-"} | delay=${diff??"-"} | next=${nextDate||"-"}`);}catch(e){console.error(e);setRefillFormStatus("Gagal menyimpan refill: "+(e.message||"Unknown error"),"error");debug("SAVE REFILL ERROR: "+(e.code||"-")+" | "+(e.message||""));}finally{btn.disabled=false;}}
 
-const SimpleQr = (() => {
-    const SIZE = 21;
-    const DATA_CODEWORDS = 19;
-    const TOTAL_CODEWORDS = 26;
-    const ECC_CODEWORDS = 7;
-
-    function utf8Bytes(text) {
-      const bytes = [];
-      for (const ch of String(text)) {
-        const cp = ch.codePointAt(0);
-        if (cp <= 0x7f) bytes.push(cp);
-        else if (cp <= 0x7ff) bytes.push(0xc0 | (cp >> 6), 0x80 | (cp & 63));
-        else if (cp <= 0xffff) bytes.push(0xe0 | (cp >> 12), 0x80 | ((cp >> 6) & 63), 0x80 | (cp & 63));
-        else bytes.push(0xf0 | (cp >> 18), 0x80 | ((cp >> 12) & 63), 0x80 | ((cp >> 6) & 63), 0x80 | (cp & 63));
-      }
-      return bytes;
-    }
-
-    function makeData(text) {
-      const bytes = utf8Bytes(text);
-      if (bytes.length > 17) {
-        throw new Error("Asset Number terlalu panjang untuk QR Version 1. Maksimal 17 byte.");
-      }
-      const bits = [];
-      const put = (v, n) => { for (let i = n - 1; i >= 0; i--) bits.push((v >>> i) & 1); };
-      put(0x4, 4); // byte mode
-      put(bytes.length, 8);
-      bytes.forEach(b => put(b, 8));
-      const maxBits = DATA_CODEWORDS * 8;
-      for (let i = 0; i < Math.min(4, maxBits - bits.length); i++) bits.push(0);
-      while (bits.length % 8) bits.push(0);
-      const out = [];
-      for (let i = 0; i < bits.length; i += 8) {
-        let v = 0;
-        for (let j = 0; j < 8; j++) v = (v << 1) | bits[i + j];
-        out.push(v);
-      }
-      let pad = 0;
-      while (out.length < DATA_CODEWORDS) out.push((pad++ % 2 === 0) ? 0xec : 0x11);
-      return out;
-    }
-
-    function rsRemainder(data) {
-      const gen = [127,122,154,164,11,68,117];
-      const rem = new Array(ECC_CODEWORDS).fill(0);
-      for (const b of data) {
-        const factor = b ^ rem[0];
-        for (let i = 0; i < ECC_CODEWORDS - 1; i++) rem[i] = rem[i + 1] ^ gfMul(gen[i], factor);
-        rem[ECC_CODEWORDS - 1] = gfMul(gen[ECC_CODEWORDS - 1], factor);
-      }
-      return rem;
-    }
-
-    function gfMul(x, y) {
-      let z = 0;
-      while (y) {
-        if (y & 1) z ^= x;
-        y >>>= 1;
-        x <<= 1;
-        if (x & 0x100) x ^= 0x11d;
-      }
-      return z;
-    }
-
-    function bchTypeInfo(data) {
-      let v = data << 10;
-      const g = 0x537;
-      while ((v >>> 10) !== 0) {
-        const shift = Math.floor(Math.log2(v)) - 10;
-        v ^= g << shift;
-      }
-      return ((data << 10) | v) ^ 0x5412;
-    }
-
-    function newMatrix() {
-      return Array.from({length: SIZE}, () => Array(SIZE).fill(null));
-    }
-
-    function setFunctionModule(m, r, c, v) {
-      m[r][c] = !!v;
-    }
-
-    function finder(m, r, c) {
-      for (let dr = -1; dr <= 7; dr++) {
-        for (let dc = -1; dc <= 7; dc++) {
-          const rr = r + dr, cc = c + dc;
-          if (rr < 0 || rr >= SIZE || cc < 0 || cc >= SIZE) continue;
-          let v = false;
-          if (dr >= 0 && dr <= 6 && dc >= 0 && dc <= 6 && (dr === 0 || dr === 6 || dc === 0 || dc === 6)) v = true;
-          else if (dr >= 2 && dr <= 4 && dc >= 2 && dc <= 4) v = true;
-          setFunctionModule(m, rr, cc, v);
-        }
-      }
-    }
-
-    function setupFunctionPatterns(m) {
-      finder(m, 0, 0);
-      finder(m, 0, SIZE - 7);
-      finder(m, SIZE - 7, 0);
-      for (let i = 8; i < SIZE - 8; i++) {
-        if (m[6][i] === null) setFunctionModule(m, 6, i, i % 2 === 0);
-        if (m[i][6] === null) setFunctionModule(m, i, 6, i % 2 === 0);
-      }
-      // Version 1 has no alignment patterns.
-      setFunctionModule(m, SIZE - 8, 8, true); // dark module
-      // Reserve format areas.
-      for (let i = 0; i < 9; i++) {
-        if (m[i][8] === null) m[i][8] = false;
-        if (m[8][i] === null) m[8][i] = false;
-      }
-      for (let i = 0; i < 8; i++) {
-        if (m[8][SIZE - 1 - i] === null) m[8][SIZE - 1 - i] = false;
-        if (m[SIZE - 1 - i][8] === null) m[SIZE - 1 - i][8] = false;
-      }
-    }
-
-    function drawFormat(m, mask) {
-      const bits = bchTypeInfo((1 << 3) | mask); // ECC L = 01
-      for (let i = 0; i < 15; i++) {
-        const bit = ((bits >>> i) & 1) !== 0;
-        // Vertical format information around top-left.
-        if (i < 6) m[i][8] = bit;
-        else if (i < 8) m[i + 1][8] = bit;
-        else m[SIZE - 15 + i][8] = bit;
-        // Horizontal format information around top-left.
-        if (i < 8) m[8][SIZE - i - 1] = bit;
-        else if (i < 9) m[8][15 - i] = bit;
-        else m[8][15 - i - 1] = bit;
-      }
-      m[SIZE - 8][8] = true;
-    }
-
-    function isMasked(mask, r, c) {
-      switch (mask) {
-        case 0: return (r + c) % 2 === 0;
-        case 1: return r % 2 === 0;
-        case 2: return c % 3 === 0;
-        case 3: return (r + c) % 3 === 0;
-        case 4: return (Math.floor(r / 2) + Math.floor(c / 3)) % 2 === 0;
-        case 5: return ((r * c) % 2 + (r * c) % 3) === 0;
-        case 6: return (((r * c) % 2 + (r * c) % 3) % 2) === 0;
-        case 7: return (((r * c) % 3 + (r + c) % 2) % 2) === 0;
-        default: return false;
-      }
-    }
-
-    function codewords(text) {
-      const data = makeData(text);
-      return data.concat(rsRemainder(data));
-    }
-
-    function placeData(m, cw, mask) {
-      const bits = [];
-      cw.forEach(b => { for (let i = 7; i >= 0; i--) bits.push((b >>> i) & 1); });
-      let idx = 0, upward = true;
-      for (let right = SIZE - 1; right >= 1; right -= 2) {
-        if (right === 6) right--;
-        for (let k = 0; k < SIZE; k++) {
-          const r = upward ? SIZE - 1 - k : k;
-          for (let j = 0; j < 2; j++) {
-            const c = right - j;
-            if (m[r][c] !== null) continue;
-            let bit = idx < bits.length ? bits[idx++] : 0;
-            if (isMasked(mask, r, c)) bit ^= 1;
-            m[r][c] = !!bit;
-          }
-        }
-        upward = !upward;
-      }
-    }
-
-    function penalty(m) {
-      let p = 0;
-      // Adjacent modules in row/column.
-      for (let r = 0; r < SIZE; r++) {
-        let run = 1;
-        for (let c = 1; c < SIZE; c++) {
-          if (m[r][c] === m[r][c-1]) run++; else { if (run >= 5) p += 3 + run - 5; run = 1; }
-        }
-        if (run >= 5) p += 3 + run - 5;
-      }
-      for (let c = 0; c < SIZE; c++) {
-        let run = 1;
-        for (let r = 1; r < SIZE; r++) {
-          if (m[r][c] === m[r-1][c]) run++; else { if (run >= 5) p += 3 + run - 5; run = 1; }
-        }
-        if (run >= 5) p += 3 + run - 5;
-      }
-      // 2x2 blocks.
-      for (let r = 0; r < SIZE - 1; r++) for (let c = 0; c < SIZE - 1; c++) {
-        const a = m[r][c];
-        if (a === m[r+1][c] && a === m[r][c+1] && a === m[r+1][c+1]) p += 3;
-      }
-      // Finder-like 1:1:3:1:1 patterns with four light modules before/after.
-      const pat = [true,false,true,true,true,false,true];
-      for (let r = 0; r < SIZE; r++) for (let c = 0; c <= SIZE - 7; c++) {
-        let ok = true; for (let k = 0; k < 7; k++) if (m[r][c+k] !== pat[k]) { ok = false; break; }
-        if (ok) { if (c >= 4 && !m[r][c-1] && !m[r][c-2] && !m[r][c-3] && !m[r][c-4]) p += 40; if (c + 11 < SIZE && !m[r][c+7] && !m[r][c+8] && !m[r][c+9] && !m[r][c+10]) p += 40; }
-      }
-      for (let c = 0; c < SIZE; c++) for (let r = 0; r <= SIZE - 7; r++) {
-        let ok = true; for (let k = 0; k < 7; k++) if (m[r+k][c] !== pat[k]) { ok = false; break; }
-        if (ok) { if (r >= 4 && !m[r-1][c] && !m[r-2][c] && !m[r-3][c] && !m[r-4][c]) p += 40; if (r + 11 < SIZE && !m[r+7][c] && !m[r+8][c] && !m[r+9][c] && !m[r+10][c]) p += 40; }
-      }
-      const dark = m.flat().filter(Boolean).length;
-      p += Math.floor(Math.abs(dark * 20 - SIZE * SIZE * 10) / (SIZE * SIZE)) * 10;
-      return p;
-    }
-
-    function make(text) {
-      const cw = codewords(text);
-      let best = null, bestScore = Infinity;
-      for (let mask = 0; mask < 8; mask++) {
-        const m = newMatrix();
-        setupFunctionPatterns(m);
-        placeData(m, cw, mask);
-        drawFormat(m, mask);
-        const score = penalty(m);
-        if (score < bestScore) { bestScore = score; best = m; }
-      }
-      return best;
-    }
-
-    function toCanvas(canvas, text, opts = {}) {
-      const width = Math.max(100, Number(opts.width) || 260);
-      const margin = Math.max(0, Number(opts.margin) || 2);
-      const scale = width / (SIZE + margin * 2);
-      const actual = Math.round(scale * (SIZE + margin * 2));
-      canvas.width = actual;
-      canvas.height = actual;
-      const ctx = canvas.getContext('2d');
-      ctx.imageSmoothingEnabled = false;
-      ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, actual, actual);
-      ctx.fillStyle = '#000000';
-      const m = make(text);
-      for (let r = 0; r < SIZE; r++) for (let c = 0; c < SIZE; c++) if (m[r][c]) {
-        const x0 = Math.round((c + margin) * scale), y0 = Math.round((r + margin) * scale);
-        const x1 = Math.round((c + 1 + margin) * scale), y1 = Math.round((r + 1 + margin) * scale);
-        ctx.fillRect(x0, y0, x1 - x0, y1 - y0);
-      }
-      return canvas;
-    }
-
-    function toDataURL(text, opts = {}) {
-      const canvas = document.createElement('canvas');
-      toCanvas(canvas, text, opts);
-      return canvas.toDataURL('image/png');
-    }
-
-    return { toCanvas, toDataURL };
-  })();
-
-
-// =========================================================
-// V14.11.2 RECOVERY - QR GENERATOR + PEMERIKSAAN ADMIN
-// =========================================================
-let generatedQrApar = null;
-let inspectionSelectedApar = null;
-let qrScanner = null;
-let scannerRunning = false;
-let scannerHandlingResult = false;
-
-function findAparItemById(id){
-  return (aparRows||[]).find(x=>String(x.id)===String(id)) || null;
-}
-
-function buildInspectionAparItem(id,data){
-  data=data||{};
-  return {
-    id,
-    assetNumber:data.assetNumber||data.asset_number||data.assetNo||data.asset_no||data.kode||data.code||id,
-    brand:data.brand||data.merk||"-",
-    capacity:data.capacity||data.kapasitas||"-",
-    location:data.location||data.lokasi||data.locationName||data.lokasiNama||data.locationId||"-",
-    serial:data.serialNumber||data.serial_number||data.serial||"-",
-    type:data.type||data.tipe||data.typeId||"-",
-    status:data.status||"-"
-  };
-}
-
-function setInspectionStatus(message,type="info"){
-  const e=$("inspectionStatus");
-  if(!e)return;
-  e.textContent=message;
-  e.className="status "+type;
-}
-function setScannerStatus(message,type="info"){
-  const e=$("scannerStatus");
-  if(!e)return;
-  e.textContent=message;
-  e.className="status "+type;
-}
-function setQrGeneratorStatus(message,type="info"){
-  const e=$("qrGeneratorStatus");
-  if(!e)return;
-  e.textContent=message;
-  e.className="status "+type;
-}
-function qrMeta(item){
-  return `Brand: ${item.brand||"-"} | Capacity: ${item.capacity||"-"} | Location: ${item.location||"-"} | Serial: ${item.serial||"-"}`;
-}
-
-function initializeQrGenerator(){
-  const select=$("qrAparSelect"), btn=$("generateQrBtn"), allBtn=$("printAllQrBtn");
-  if(!select||!btn||!allBtn)return;
-  select.innerHTML="";
-  const ph=document.createElement("option");
-  ph.value="";
-  ph.textContent=aparRows.length?"-- Pilih APAR --":"Belum ada data APAR";
-  select.appendChild(ph);
-  aparRows.forEach(item=>{
-    const o=document.createElement("option");
-    o.value=item.id;
-    o.textContent=item.assetNumber||item.id;
-    select.appendChild(o);
-  });
-  btn.disabled=!aparRows.length;
-  allBtn.disabled=!aparRows.length;
-  if(!aparRows.length){
-    $("qrPreview")?.classList.add("hidden");
-    $("qrAllPreview")?.classList.add("hidden");
-    setQrGeneratorStatus("Collection apar belum memiliki data untuk dibuat QR Code.","warning");
-  }else{
-    setQrGeneratorStatus(`${aparRows.length} APAR siap dibuatkan QR Code.`,"success");
-  }
-}
-
-async function generateQrForItem(item){
-  if(!item || !item.assetNumber)throw new Error("Asset Number APAR tidak tersedia.");
-  const payload=String(item.assetNumber).trim();
-  if(!payload)throw new Error("Asset Number APAR kosong.");
-  SimpleQr.toCanvas($("qr-generator-canvas"),payload,{width:260,margin:2});
-  generatedQrApar=item;
-  $("qrAssetTitle").textContent=item.assetNumber;
-  $("qrAssetMeta").textContent=qrMeta(item);
-  $("qrPreview").classList.remove("hidden");
-  $("downloadQrBtn").disabled=false;
-  $("printQrBtn").disabled=false;
-  setQrGeneratorStatus(`QR Code ${item.assetNumber} berhasil dibuat.`,"success");
-  debug(`QR GENERATED: ${payload}`);
-}
-
-function qrCanvasDataUrl(){return $("qr-generator-canvas").toDataURL("image/png");}
-
-function openQrPrintWindow(title,bodyHtml){
-  const w=window.open("","_blank","width=900,height=700");
-  if(!w)throw new Error("Popup diblokir browser. Izinkan popup untuk mencetak QR Code.");
-  w.document.open();
-  w.document.write(`<!doctype html><html lang="id"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${esc(title)}</title>
-  <style>@page{margin:10mm}body{font-family:Arial,sans-serif;margin:0;color:#111827}.sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm}.label{border:1px solid #d1d5db;border-radius:8px;padding:6mm;text-align:center;page-break-inside:avoid}.label img{width:100%;max-width:55mm;height:auto;display:block;margin:0 auto 4mm}.asset{font-size:16pt;font-weight:700}.meta{font-size:9pt;color:#4b5563;margin-top:2mm;line-height:1.4}</style></head><body>${bodyHtml}</body></html>`);
-  w.document.close();
-  setTimeout(()=>{w.focus();w.print()},500);
-}
-
-function initializeInspectionUi(){
-  const select=$("inspectionAparSelect");
-  if(!select)return;
-  select.innerHTML="";
-  const ph=document.createElement("option");
-  ph.value="";ph.textContent=aparRows.length?"-- Pilih APAR ACTIVE --":"Belum ada APAR";
-  select.appendChild(ph);
-  aparRows.filter(x=>String(x.status||"").toLowerCase()==="active").forEach(item=>{
-    const o=document.createElement("option");
-    o.value=item.id;o.textContent=item.assetNumber||item.id;select.appendChild(o);
-  });
-}
-
-function selectInspectionApar(item,source="manual"){
-  if(!item)return false;
-  const status=String(item.status||"").trim().toLowerCase();
-  if(status!=="active"){
-    const msg=`APAR ${item.assetNumber} berstatus ${item.status||"tidak diketahui"} dan tidak dapat diperiksa. Hanya APAR ACTIVE yang boleh diperiksa.`;
-    setInspectionStatus(msg,"error");setScannerStatus(msg,"error");
-    inspectionSelectedApar=null;
-    $("inspectionAparSelect").value="";
-    $("inspectionForm").classList.add("hidden");
-    return false;
-  }
-  inspectionSelectedApar=item;
-  $("inspectionAparSelect").value=item.id;
-  $("inspectionAssetNumber").textContent=item.assetNumber;
-  $("inspectionBrand").textContent=item.brand;
-  $("inspectionCapacity").textContent=item.capacity;
-  $("inspectionLocation").textContent=item.location;
-  $("inspectionSerial").textContent=item.serial;
-  $("inspectionType").textContent=item.type;
-  $("inspectionStatus").textContent=source==="scan"?"APAR berhasil dipilih dari QR. Silakan lakukan pemeriksaan.":"APAR siap diperiksa.";
-  $("inspectionStatus").className="status info";
-  $("inspectionForm").classList.remove("hidden");
-  if(source==="scan"){
-    $("scanResult").textContent=`✓ QR valid: ${item.assetNumber} — APAR otomatis dipilih.`;
-    $("scanResult").classList.remove("hidden");
-  }
-  debug(`APAR PEMERIKSAAN DIPILIH: ${item.assetNumber} | sumber=${source}`);
-  return true;
-}
-
-async function verifyInspectionAparStillActive(item){
-  const snap=await getDoc(doc(db,"apar",item.id));
-  if(!snap.exists())throw new Error("Data APAR sudah tidak ditemukan di Firestore.");
-  const data=snap.data()||{};
-  if(String(data.status||"").trim().toLowerCase()!=="active"){
-    throw new Error(`APAR ${data.assetNumber||item.assetNumber} sudah INACTIVE. Pemeriksaan ditolak.`);
-  }
-  return buildInspectionAparItem(snap.id,data);
-}
-
-async function saveAdminInspection(){
-  const btn=$("saveInspectionBtn");
-  if(!inspectionSelectedApar){alert("Silakan pilih APAR terlebih dahulu.");return;}
-  btn.disabled=true;
-  $("cancelInspectionBtn").disabled=true;
-  setInspectionStatus("Memverifikasi status APAR dan menyimpan hasil...","info");
-  try{
-    const verified=await verifyInspectionAparStillActive(inspectionSelectedApar);
-    const result=$("inspectionResult").value;
-    const data={
-      aparId:verified.id,
-      aparAssetNumber:verified.assetNumber,
-      inspectorId:currentAdmin.uid,
-      inspectorName:currentAdmin.name||currentAdmin.displayName||currentAdmin.email||"Admin",
-      inspectorPhone:currentAdmin.phone||currentAdmin.phoneNumber||null,
-      inputByRole:"admin",
-      inspectionDate:serverTimestamp(),
-      physicalCondition:$("physicalCondition").value,
-      seal:$("seal").value,
-      safetyPin:$("safetyPin").value,
-      pressure:$("pressure").value,
-      nozzle:$("nozzle").value,
-      hose:$("hose").value,
-      signage:$("signage").value,
-      result,
-      notes:$("inspectionNotes").value.trim(),
-      createdAt:serverTimestamp(),
-      updatedAt:serverTimestamp()
-    };
-    const ref=await addDoc(collection(db,"inspections"),data);
-    setInspectionStatus(`Pemeriksaan berhasil disimpan. ID: ${ref.id}`,"success");
-    alert(`Pemeriksaan APAR berhasil disimpan.\n\nAsset: ${verified.assetNumber}\nHasil: ${result.toUpperCase()}\nID: ${ref.id}`);
-    await loadInspections();
-    await loadMonitoring();
-    resetAdminInspectionForm(false);
-  }catch(e){
-    console.error(e);
-    setInspectionStatus("Gagal menyimpan pemeriksaan: "+(e.message||"Unknown error"),"error");
-    debug("SAVE ADMIN INSPECTION ERROR: "+(e.code||"-")+" | "+(e.message||""));
-  }finally{
-    btn.disabled=false;$("cancelInspectionBtn").disabled=false;
-  }
-}
-
-function resetAdminInspectionForm(keepApar=true){
-  $("physicalCondition").value="good";$("seal").value="good";$("safetyPin").value="good";
-  $("pressure").value="normal";$("nozzle").value="good";$("hose").value="good";$("signage").value="good";
-  $("inspectionResult").value="pass";$("inspectionNotes").value="";
-  if(!keepApar){
-    inspectionSelectedApar=null;$("inspectionAparSelect").value="";$("inspectionForm").classList.add("hidden");
-  }
-  setInspectionStatus(keepApar?"Form pemeriksaan dikosongkan. APAR tetap terpilih.":"Pilih APAR terlebih dahulu.","info");
-}
-
-async function stopAdminQrScanner(){
-  if(qrScanner && scannerRunning){
-    try{await qrScanner.stop();}catch(e){debug("Scanner stop warning: "+(e.message||e));}
-  }
-  scannerRunning=false;
-  $("qr-reader").classList.add("hidden");
-  $("startScanBtn").disabled=false;$("stopScanBtn").disabled=true;
-}
-
-async function findAparByQrValue(raw){
-  let value=String(raw||"").trim();
-  try{
-    if(/^https?:\/\//i.test(value)){
-      const u=new URL(value);
-      value=u.searchParams.get("assetNumber")||u.searchParams.get("asset")||u.searchParams.get("apar")||decodeURIComponent(u.pathname.split("/").filter(Boolean).pop()||value);
-    }
-  }catch(_){}
-  const direct=await getDoc(doc(db,"apar",value));
-  if(direct.exists())return buildInspectionAparItem(direct.id,direct.data()||{});
-  const target=value.trim().toUpperCase();
-  const snap=await getDocs(collection(db,"apar"));
-  for(const s of snap.docs){
-    const d=s.data()||{}, asset=d.assetNumber||d.asset_number||d.assetNo||d.asset_no||d.kode||d.code||s.id;
-    if(String(asset).trim().toUpperCase()===target)return buildInspectionAparItem(s.id,d);
-  }
-  throw new Error(`APAR dengan QR/Asset Number ${value} tidak ditemukan di Firestore.`);
-}
-
-async function handleAdminQrSuccess(decodedText){
-  if(scannerHandlingResult)return;
-  scannerHandlingResult=true;
-  try{
-    setScannerStatus("QR terbaca. Mencari APAR di Firestore...","info");
-    $("scanResult").textContent="QR: "+String(decodedText||"").trim();
-    $("scanResult").classList.remove("hidden");
-    await stopAdminQrScanner();
-    const item=await findAparByQrValue(decodedText);
-    if(!selectInspectionApar(item,"scan"))throw new Error("APAR ditemukan tetapi tidak dapat dipilih.");
-    setScannerStatus(`APAR ${item.assetNumber} berhasil ditemukan. Pemeriksaan siap dilakukan.`,"success");
-    document.getElementById("inspectionView").scrollIntoView({behavior:"smooth",block:"start"});
-  }catch(e){
-    console.error(e);setScannerStatus(e.message||"QR tidak dapat diproses.","error");
-    $("scanResult").textContent="QR terbaca, tetapi APAR tidak dapat dipilih.";
-  }finally{scannerHandlingResult=false;}
-}
-
-function wireInspectionAndQr(){
-  initializeQrGenerator();initializeInspectionUi();
-
-  $("qrAparSelect")?.addEventListener("change",()=>{
-    const item=findAparItemById($("qrAparSelect").value);
-    if(!item){generatedQrApar=null;$("qrPreview").classList.add("hidden");$("downloadQrBtn").disabled=true;$("printQrBtn").disabled=true;return;}
-    setQrGeneratorStatus(`APAR ${item.assetNumber} dipilih. Tekan Generate QR.`,"info");
-  });
-  $("generateQrBtn")?.addEventListener("click",async()=>{
-    const item=findAparItemById($("qrAparSelect").value);
-    if(!item){setQrGeneratorStatus("Silakan pilih APAR terlebih dahulu.","warning");return;}
-    try{await generateQrForItem(item)}catch(e){setQrGeneratorStatus(e.message||"QR gagal dibuat.","error");}
-  });
-  $("downloadQrBtn")?.addEventListener("click",()=>{
-    if(!generatedQrApar)return;
-    const a=document.createElement("a");a.href=qrCanvasDataUrl();a.download=generatedQrApar.assetNumber+"-QR.png";a.click();
-  });
-  $("printQrBtn")?.addEventListener("click",()=>{
-    if(!generatedQrApar)return;
-    try{
-      const item=generatedQrApar;
-      openQrPrintWindow("QR "+item.assetNumber,`<div class="sheet"><div class="label"><img src="${qrCanvasDataUrl()}"><div class="asset">${esc(item.assetNumber)}</div><div class="meta">${esc(qrMeta(item))}</div></div></div>`);
-    }catch(e){setQrGeneratorStatus(e.message||"QR gagal dicetak.","error");}
-  });
-  $("printAllQrBtn")?.addEventListener("click",()=>{
-    if(!aparRows.length)return;
-    const w=window.open("","_blank","width=900,height=700");
-    if(!w){setQrGeneratorStatus("Popup diblokir browser. Izinkan popup untuk mencetak QR Code.","error");return;}
-    const labels=aparRows.map(item=>`<div class="label"><img src="${SimpleQr.toDataURL(String(item.assetNumber),{width:220,margin:2})}"><div class="asset">${esc(item.assetNumber)}</div><div class="meta">${esc(qrMeta(item))}</div></div>`).join("");
-    w.document.write(`<!doctype html><html><head><meta charset="UTF-8"><title>QR Semua APAR</title><style>@page{margin:10mm}body{font-family:Arial;margin:0}.sheet{display:grid;grid-template-columns:repeat(3,1fr);gap:12mm}.label{text-align:center;border:1px solid #ccc;padding:6mm;page-break-inside:avoid}.label img{width:55mm}.asset{font-size:16pt;font-weight:700}.meta{font-size:9pt;color:#555;margin-top:2mm}</style></head><body><div class="sheet">${labels}</div></body></html>`);
-    w.document.close();setTimeout(()=>{w.focus();w.print()},500);
-  });
-  $("inspectionAparSelect")?.addEventListener("change",()=>{
-    const item=findAparItemById($("inspectionAparSelect").value);
-    if(item)selectInspectionApar(item,"manual");
-    else{$("inspectionForm").classList.add("hidden");inspectionSelectedApar=null;}
-  });
-  $("saveInspectionBtn")?.addEventListener("click",saveAdminInspection);
-  $("cancelInspectionBtn")?.addEventListener("click",()=>resetAdminInspectionForm(true));
-  $("startScanBtn")?.addEventListener("click",async()=>{
-    if(!window.Html5Qrcode){setScannerStatus("Library QR Scanner belum berhasil dimuat. Periksa koneksi internet.","error");return;}
-    if(scannerRunning)return;
-    $("qr-reader").classList.remove("hidden");$("scanResult").classList.add("hidden");
-    $("startScanBtn").disabled=true;$("stopScanBtn").disabled=false;setScannerStatus("Meminta akses kamera...","info");
-    try{
-      if(!qrScanner)qrScanner=new Html5Qrcode("qr-reader");
-      await qrScanner.start({facingMode:"environment"},{fps:10,qrbox:{width:250,height:250},formatsToSupport:[Html5QrcodeSupportedFormats.QR_CODE],aspectRatio:1.0},handleAdminQrSuccess,()=>{});
-      scannerRunning=true;setScannerStatus("Scanner aktif. Arahkan kamera ke QR Code APAR.","success");
-    }catch(e){
-      console.error(e);scannerRunning=false;$("qr-reader").classList.add("hidden");$("startScanBtn").disabled=false;$("stopScanBtn").disabled=true;
-      setScannerStatus("Kamera tidak dapat digunakan. Izinkan akses kamera dan coba lagi.","error");
-    }
-  });
-  $("stopScanBtn")?.addEventListener("click",async()=>{await stopAdminQrScanner();setScannerStatus("Scanner dihentikan. Tekan Mulai Scan untuk mencoba lagi.","info");});
-}
-
-
 // =========================================================
 // V14.10.7 LIFECYCLE REMINDER
 // =========================================================
@@ -2731,31 +1999,36 @@ function lifecycleDateText(v){
 }
 function lifecycleReminderRows(){
   const rows=[];
+  const seen=new Set();
   (aparRows||[]).forEach(x=>{
+    const assetNumber=x.assetNumber||x.id;
     const items=[
       ['Refill',x.nextRefillDate],
-      ['Hydrotest',x.nextHydrotestDate],
+      ['Hydrotest',effectiveNextHydrotestDate(x)],
       ['Masa Berlaku',x.expiryDate]
     ];
     items.forEach(([kind,value])=>{
       const d=lifecycleDateValue(value);
       if(!d)return;
+      const key=lifecycleKey(assetNumber,kind,d);
+      if(seen.has(key))return;
+      seen.add(key);
       const diff=lifecycleDayDiff(d);
       const status=lifecycleStatus(diff);
       // Dashboard hanya menonjolkan jadwal yang perlu perhatian (<=30 hari atau terlambat).
       if(diff!==null && diff<=30){
-        rows.push({assetNumber:x.assetNumber||x.id,kind,date:d,diff,status});
+        rows.push({assetNumber,kind,date:d,diff,status});
       }
     });
   });
-  rows.sort((a,b)=>a.status.rank-b.status.rank || a.diff-b.diff || a.assetNumber.localeCompare(b.assetNumber));
+  rows.sort((a,b)=>a.status.rank-b.status.rank || a.diff-b.diff || String(a.assetNumber).localeCompare(String(b.assetNumber),undefined,{numeric:true,sensitivity:'base'}));
   return rows;
 }
 function renderLifecycleReminder(){
   const body=document.getElementById('lifecycleReminderBody');
   if(!body)return;
   const all=(aparRows||[]).flatMap(x=>[
-    ['Refill',x.nextRefillDate],['Hydrotest',x.nextHydrotestDate],['Masa Berlaku',x.expiryDate]
+    ['Refill',x.nextRefillDate],['Hydrotest',effectiveNextHydrotestDate(x)],['Masa Berlaku',x.expiryDate]
   ]).map(([kind,value])=>({kind,value,diff:lifecycleDayDiff(lifecycleDateValue(value))}));
   const overdue=all.filter(x=>x.diff!==null && x.diff<=0).length;
   const d14=all.filter(x=>x.diff!==null && x.diff>0 && x.diff<=14).length;
@@ -2781,11 +2054,8 @@ if(lifecycleReloadButton) lifecycleReloadButton.addEventListener('click',async()
 const originalLoadApar=typeof loadApar==='function'?loadApar:null;
 if(originalLoadApar && !window.__v147LifecycleWrapped){
   window.__v147LifecycleWrapped=true;
-  loadApar=async function(){const result=await originalLoadApar.apply(this,arguments);renderLifecycleReminder();renderDashboardLifecycle();return result;};
+  loadApar=async function(){const result=await originalLoadApar.apply(this,arguments);renderLifecycleReminder();return result;};
 }
-
-// Initialize recovered QR + Inspection module once DOM and Firebase logic are ready.
-try{wireInspectionAndQr();}catch(e){console.error(e);debug("INIT PEMERIKSAAN/QR ERROR: "+(e.message||e));}
 </script>
 
 <div id="refillModal" class="modal hidden">
