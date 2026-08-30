@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-<!-- V14.9.1: Perbaikan pesan login untuk akun INACTIVE/Non-Admin. -->
+<!-- V14.9.2: Validasi status INACTIVE sebelum role; pesan login diperbaiki. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.9.1</title>
+<title>APAR - Admin Dashboard V14.9.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -420,14 +420,19 @@ async function validateAdmin(user){
   const role=String(data.role||"").trim().toLowerCase();
   const status=String(data.status||"").trim().toLowerCase();
   debug("Role: "+role);debug("Status: "+status);
+  // V14.9.2: status diperiksa TERLEBIH DAHULU.
+  // Jika akun inactive, alasan penolakan harus selalu INACTIVE,
+  // tanpa membedakan role admin atau inspector.
+  if(status!=="active"){
+    const err=new Error("Akun tidak aktif. Status: "+status);
+    err.code="USER_INACTIVE";
+    throw err;
+  }
+
+  // Hanya akun ACTIVE dengan role admin yang boleh masuk Dashboard.
   if(role!=="admin"){
     const err=new Error("Akun bukan Admin. Role: "+role);
     err.code="NOT_ADMIN";
-    throw err;
-  }
-  if(status!=="active"){
-    const err=new Error("Akun Admin tidak aktif. Status: "+status);
-    err.code="ADMIN_INACTIVE";
     throw err;
   }
   currentAdmin={...data,uid:user.uid};
@@ -1453,7 +1458,7 @@ try{
       await loadAll();
     }catch(e){
       debug("VALIDASI ADMIN GAGAL: "+e.message);
-      if(e.code==="ADMIN_INACTIVE"){
+      if(e.code==="USER_INACTIVE" || e.code==="ADMIN_INACTIVE"){
         setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");
         setStatus("Akun INACTIVE. Akses Admin ditolak.","error");
       }else if(e.code==="NOT_ADMIN"){
