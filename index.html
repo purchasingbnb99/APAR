@@ -4,7 +4,7 @@
 <!-- V14.9.2: Validasi status INACTIVE sebelum role; pesan login diperbaiki. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.9.2</title>
+<title>APAR - Admin Dashboard V14.10.7.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -78,16 +78,94 @@ tr:last-child td{border-bottom:0}
 .history-count{font-size:12px;color:#64748b}
 
 
-.lifecycle-reminder-card .lifecycle-stats{margin-top:16px}
-.lifecycle-reminder-card .stat-card.danger{border-left:4px solid #ef4444}
-.lifecycle-reminder-card .stat-card.warning{border-left:4px solid #f59e0b}
-.lifecycle-reminder-card .stat-card{min-height:92px}
+.lifecycle-reminder-card .lifecycle-stats{
+  display:grid;
+  grid-template-columns:repeat(4,minmax(0,1fr));
+  gap:12px;
+  margin-top:16px;
+}
+.lifecycle-reminder-card .stat-card{
+  min-height:100px;
+  padding:15px 16px;
+  border:1px solid #dbe2ea;
+  border-radius:12px;
+  background:#fff;
+  box-shadow:0 1px 2px rgba(15,23,42,.04);
+}
+.lifecycle-reminder-card .stat-card .stat-label{
+  font-size:12px;
+  font-weight:800;
+  color:#475569;
+}
+.lifecycle-reminder-card .stat-card .stat-value{
+  font-size:30px;
+  line-height:1;
+  font-weight:800;
+  margin-top:12px;
+}
+.lifecycle-reminder-card .stat-card.danger{
+  border:2px solid #ef4444;
+  border-left:6px solid #dc2626;
+  background:#fff1f2;
+}
+.lifecycle-reminder-card .stat-card.danger .stat-label,
+.lifecycle-reminder-card .stat-card.danger .stat-value{color:#b91c1c}
+.lifecycle-reminder-card .stat-card.warning-orange{
+  border:2px solid #f59e0b;
+  border-left:6px solid #f97316;
+  background:#fff7ed;
+}
+.lifecycle-reminder-card .stat-card.warning-orange .stat-label,
+.lifecycle-reminder-card .stat-card.warning-orange .stat-value{color:#c2410c}
+.lifecycle-reminder-card .stat-card.warning-yellow{
+  border:2px solid #eab308;
+  border-left:6px solid #eab308;
+  background:#fefce8;
+}
+.lifecycle-reminder-card .stat-card.warning-yellow .stat-label,
+.lifecycle-reminder-card .stat-card.warning-yellow .stat-value{color:#a16207}
+.lifecycle-reminder-card .stat-card.neutral{
+  border:2px solid #cbd5e1;
+  border-left:6px solid #94a3b8;
+  background:#f8fafc;
+}
+.lifecycle-reminder-card .stat-card.neutral .stat-label,
+.lifecycle-reminder-card .stat-card.neutral .stat-value{color:#475569}
+.lifecycle-reminder-card .lifecycle-table tbody tr.lifecycle-overdue td{
+  background:#fff7f7;
+  border-top:1px solid #fecaca;
+  border-bottom:1px solid #fecaca;
+}
+.lifecycle-reminder-card .lifecycle-table tbody tr.lifecycle-today td{
+  background:#fff1f2;
+  border-top:1px solid #fda4af;
+  border-bottom:1px solid #fda4af;
+}
+.lifecycle-reminder-card .lifecycle-table tbody tr.lifecycle-14 td{background:#fff7ed}
+.lifecycle-reminder-card .lifecycle-table tbody tr.lifecycle-30 td{background:#fefce8}
+.lifecycle-reminder-card .lifecycle-status{
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  padding:5px 9px;
+  border-radius:999px;
+  font-size:11px;
+  font-weight:800;
+  white-space:nowrap;
+}
+.lifecycle-status.overdue{background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5}
+.lifecycle-status.orange{background:#ffedd5;color:#c2410c;border:1px solid #fdba74}
+.lifecycle-status.yellow{background:#fef3c7;color:#a16207;border:1px solid #fde68a}
+.lifecycle-status.safe{background:#dcfce7;color:#166534;border:1px solid #86efac}
+.lifecycle-status.neutral{background:#f1f5f9;color:#475569;border:1px solid #cbd5e1}
+@media(max-width:900px){.lifecycle-reminder-card .lifecycle-stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:650px){.lifecycle-reminder-card .lifecycle-stats{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="app">
 <aside class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.9</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.10.7</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -168,12 +246,12 @@ tr:last-child td{border-bottom:0}
     </div>
     <div class="stats-grid lifecycle-stats">
       <div class="stat-card danger"><div class="stat-label">🔴 Terlambat</div><div id="lifecycleOverdue" class="stat-value">0</div></div>
-      <div class="stat-card warning"><div class="stat-label">🟠 ≤ 14 Hari</div><div id="lifecycle14" class="stat-value">0</div></div>
-      <div class="stat-card warning"><div class="stat-label">🟡 ≤ 30 Hari</div><div id="lifecycle30" class="stat-value">0</div></div>
-      <div class="stat-card"><div class="stat-label">⚪ Belum Ada Jadwal</div><div id="lifecycleNoSchedule" class="stat-value">0</div></div>
+      <div class="stat-card warning-orange"><div class="stat-label">🟠 ≤ 14 Hari</div><div id="lifecycle14" class="stat-value">0</div></div>
+      <div class="stat-card warning-yellow"><div class="stat-label">🟡 ≤ 30 Hari</div><div id="lifecycle30" class="stat-value">0</div></div>
+      <div class="stat-card neutral"><div class="stat-label">⚪ Belum Ada Jadwal</div><div id="lifecycleNoSchedule" class="stat-value">0</div></div>
     </div>
     <div class="table-wrap" style="margin-top:16px">
-      <table>
+      <table class="lifecycle-table">
         <thead><tr><th>Asset Number</th><th>Jenis Pengingat</th><th>Tanggal</th><th>Status</th><th>Sisa / Terlambat</th></tr></thead>
         <tbody id="lifecycleReminderBody"><tr><td colspan="5" class="empty">Memuat pengingat lifecycle...</td></tr></tbody>
       </table>
@@ -188,6 +266,7 @@ tr:last-child td{border-bottom:0}
       </div>
       <div class="toolbar-left">
         <button id="reloadMonitoringBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+        <button id="printMonitoringBtn" class="action primary" type="button">🖨️ Print</button>
       </div>
     </div>
 
@@ -326,7 +405,7 @@ tr:last-child td{border-bottom:0}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.9...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.10.7...</div>
 </section>
 </div>
 </main>
@@ -1052,6 +1131,55 @@ function printHistory(){
 }
 
 
+function printMonitoring(){
+  if(!monitorRows.length){
+    setMonitoringStatus("Tidak ada data monitoring yang bisa dicetak.","warning");
+    return;
+  }
+
+  const win=window.open("","_blank","width=1200,height=800");
+  if(!win){
+    setMonitoringStatus("Popup diblokir browser. Izinkan popup untuk mencetak.","error");
+    return;
+  }
+
+  const generatedAt=new Date().toLocaleString("id-ID");
+  const rows=monitorRows.map(x=>{
+    const apar=x.apar, latest=x.latest;
+    const statusApar=String(apar.status||"-").toUpperCase();
+    const result=String(x.result||"-").toUpperCase();
+    const date=latest?formatDate(latest.inspectionDate||latest.createdAt):"-";
+    return `<tr>
+      <td>${esc(apar.assetNumber||apar.id||"-")}</td>
+      <td>${esc(statusApar)}</td>
+      <td>${esc(result)}</td>
+      <td>${esc(date)}</td>
+      <td>${esc(latest?inspectorLabel(latest):"-")}</td>
+      <td>${esc(x.condition)}</td>
+    </tr>`;
+  }).join("");
+
+  win.document.write(`<!doctype html><html><head><title>Monitoring APAR</title>
+  <style>
+    body{font-family:Arial,sans-serif;padding:25px;color:#111}
+    h1{font-size:22px;margin:0 0 5px}
+    p{font-size:12px;color:#555}
+    table{width:100%;border-collapse:collapse;margin-top:18px}
+    th,td{border:1px solid #ccc;padding:8px;font-size:11px;text-align:left}
+    th{background:#f3f4f6}
+    @media print{button{display:none}}
+  </style></head><body>
+  <h1>Monitoring APAR</h1>
+  <p>Dicetak: ${esc(generatedAt)} | Jumlah APAR: ${monitorRows.length}</p>
+  <table><thead><tr>
+    <th>Asset Number</th><th>Status APAR</th><th>Hasil Terakhir</th>
+    <th>Tanggal Terakhir</th><th>Inspector Terakhir</th><th>Kondisi</th>
+  </tr></thead><tbody>${rows}</tbody></table>
+  <script>window.onload=function(){window.print()}<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
 function setUsersStatus(message,type="info"){
   const e=$("usersStatus");
   e.textContent=message;
@@ -1583,6 +1711,7 @@ $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(
 $("reloadBtn").addEventListener("click",loadAll);
 $("reloadAparBtn").addEventListener("click",loadAll);
 $("reloadMonitoringBtn").addEventListener("click",async()=>{await loadAll();loadMonitoring();});
+$("printMonitoringBtn").addEventListener("click",printMonitoring);
 $("reloadHistoryBtn").addEventListener("click",async()=>{await loadAll();renderHistory();});
 $("printHistoryBtn").addEventListener("click",printHistory);
 $("historySearch").addEventListener("input",renderHistory);
@@ -1719,7 +1848,9 @@ function renderLifecycleReminder(){
   if(!rows.length){body.innerHTML='<tr><td colspan="5" class="empty">✅ Tidak ada lifecycle yang perlu perhatian dalam 30 hari ke depan.</td></tr>';return;}
   body.innerHTML=rows.map(r=>{
     const text=r.diff<0?`Terlambat ${Math.abs(r.diff)} hari`:r.diff===0?'Jatuh tempo hari ini':`${r.diff} hari lagi`;
-    return `<tr><td><strong>${esc(r.assetNumber)}</strong></td><td>${esc(r.kind)}</td><td>${lifecycleDateText(r.date)}</td><td>${r.status.icon} ${esc(r.status.label)}</td><td>${esc(text)}</td></tr>`;
+    const rowClass=r.diff<0?'lifecycle-overdue':(r.diff===0?'lifecycle-today':(r.diff<=14?'lifecycle-14':(r.diff<=30?'lifecycle-30':'')));
+    const statusClass=r.diff<=0?'overdue':(r.diff<=14?'orange':(r.diff<=30?'yellow':'safe'));
+    return `<tr class="${rowClass}"><td><strong>${esc(r.assetNumber)}</strong></td><td>${esc(r.kind)}</td><td>${lifecycleDateText(r.date)}</td><td><span class="lifecycle-status ${statusClass}">${r.status.icon} ${esc(r.status.label)}</span></td><td>${esc(text)}</td></tr>`;
   }).join('');
 }
 function refreshLifecycleReminder(){renderLifecycleReminder();}
