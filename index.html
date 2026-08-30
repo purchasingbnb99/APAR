@@ -4,7 +4,7 @@
 <!-- V14.9.2: Validasi status INACTIVE sebelum role; pesan login diperbaiki. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.9.2</title>
+<title>APAR - Admin Dashboard V14.11.1.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -161,6 +161,13 @@ tr:last-child td{border-bottom:0}
   .lifecycle-reminder-card .stat-card{padding:14px}
   .lifecycle-reminder-card .stat-value{font-size:27px}
 }
+
+/* V14.11.1 - Riwayat Refill */
+.refill-late{color:#b91c1c;font-weight:800}
+.refill-status-badge{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 10px;font-weight:800;font-size:12px}
+.refill-status-badge.late{background:#fee2e2;color:#b91c1c;border:1px solid #fecaca}
+.refill-status-badge.on-time{background:#dcfce7;color:#15803d;border:1px solid #bbf7d0}
+@media(max-width:650px){#refillsView .history-filters{display:grid;grid-template-columns:1fr}#refillsView .history-filters input,#refillsView .history-filters select{width:100%;box-sizing:border-box}#refillModal .detail-grid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -173,6 +180,7 @@ tr:last-child td{border-bottom:0}
     <button id="navMonitoring" type="button">🔍 Monitoring</button>
     <button id="navInspection" type="button">📋 Pemeriksaan</button>
     <button id="navHistory" type="button">📜 Riwayat</button>
+    <button id="navRefills" type="button">🧯 Riwayat Refill</button>
     <button id="navUsers" type="button">👥 User Management</button>
     <button id="logoutBtn" type="button">🚪 Logout</button>
   </div>
@@ -301,6 +309,39 @@ tr:last-child td{border-bottom:0}
   </section>
 </section>
 
+
+<section id="refillsView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>🧯 Riwayat Refill APAR</h2>
+        <div class="subtitle">Catat pengisian ulang aktual dan pantau keterlambatan setiap APAR.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="addRefillBtn" class="action primary" type="button">➕ Catat Refill</button>
+        <button id="reloadRefillsBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+      </div>
+    </div>
+    <div class="history-filters">
+      <input id="refillSearch" type="search" placeholder="Cari Asset Number, vendor, keterangan...">
+      <input id="refillFrom" type="date" title="Tanggal aktual mulai">
+      <input id="refillTo" type="date" title="Tanggal aktual akhir">
+      <select id="refillStatusFilter">
+        <option value="">Semua Status</option>
+        <option value="tepat waktu">Tepat Waktu</option>
+        <option value="terlambat">Terlambat</option>
+      </select>
+      <span id="refillCount" class="history-count">0 data</span>
+    </div>
+    <div id="refillsStatus" class="status info hidden"></div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Asset Number</th><th>Jadwal</th><th>Aktual</th><th>Status</th><th>Terlambat</th><th>Vendor</th><th>Keterangan</th><th>Input Oleh</th></tr></thead>
+        <tbody id="refillsBody"><tr><td colspan="8" class="empty">Memuat riwayat refill...</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</section>
 
 <section id="historyView" class="hidden">
   <section class="card">
@@ -538,7 +579,7 @@ tr:last-child td{border-bottom:0}
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
@@ -666,10 +707,11 @@ function renderMasterApar(){
     <td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td>
     <td>${esc(x.serialNumber)}</td><td>${esc(x.typeId)}</td><td>${badge(x.status)}</td>
     <td>${formatLifecycleDate(x.nextRefillDate)}</td>
-    <td><div class="toolbar-left"><button class="small-btn" data-detail-id="${esc(x.id)}" type="button">Detail</button><button class="small-btn" data-edit-id="${esc(x.id)}" type="button">Edit</button></div></td>
+    <td><div class="toolbar-left"><button class="small-btn" data-detail-id="${esc(x.id)}" type="button">Detail</button><button class="small-btn" data-edit-id="${esc(x.id)}" type="button">Edit</button><button class="small-btn" data-refill-id="${esc(x.id)}" type="button">Refill</button></div></td>
   </tr>`).join("");
   b.querySelectorAll("[data-detail-id]").forEach(btn=>btn.addEventListener("click",()=>showDetail(btn.dataset.detailId)));
   b.querySelectorAll("[data-edit-id]").forEach(btn=>btn.addEventListener("click",()=>openAparForm("edit",btn.dataset.editId)));
+  b.querySelectorAll("[data-refill-id]").forEach(btn=>btn.addEventListener("click",()=>openRefillModal(btn.dataset.refillId)));
 }
 
 async function loadInspections(){
@@ -1729,12 +1771,13 @@ function setView(view){
     data:$("dataAparView"),
     monitoring:$("monitoringView"),
     history:$("historyView"),
+    refills:$("refillsView"),
     users:$("usersView"),
     placeholder:$("placeholderView")
   };
   Object.values(views).forEach(v=>v.classList.add("hidden"));
   views[view].classList.remove("hidden");
-  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navUsers"].forEach(id=>$(id).classList.remove("active"));
+  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navRefills","navUsers"].forEach(id=>$(id).classList.remove("active"));
 
   if(view==="dashboard"){
     $("navDashboard").classList.add("active");
@@ -1758,6 +1801,12 @@ function setView(view){
     $("pageSubtitle").textContent="Riwayat pemeriksaan APAR dari Firestore";
     renderHistory();
   }
+  if(view==="refills"){
+    $("navRefills").classList.add("active");
+    $("pageTitle").textContent="Riwayat Refill APAR";
+    $("pageSubtitle").textContent="Histori pengisian ulang APAR dari Firestore";
+    loadRefills();
+  }
   if(view==="users"){
     $("pageTitle").textContent="User Management";
     $("pageSubtitle").textContent="Kelola profil dan hak akses pengguna";
@@ -1769,6 +1818,16 @@ function placeholder(title,text,id){
 }
 
 
+$("addRefillBtn").addEventListener("click",()=>openRefillModal(null));
+$("closeRefillModal").addEventListener("click",closeRefillModal);
+$("refillModal").addEventListener("click",e=>{if(e.target===$("refillModal"))closeRefillModal()});
+$("refillAssetSelect").addEventListener("change",updateRefillModalApar);
+$("saveRefillBtn").addEventListener("click",saveRefill);
+$("reloadRefillsBtn").addEventListener("click",loadRefills);
+$("refillSearch").addEventListener("input",renderRefills);
+$("refillFrom").addEventListener("change",renderRefills);
+$("refillTo").addEventListener("change",renderRefills);
+$("refillStatusFilter").addEventListener("change",renderRefills);
 $("addAparBtn").addEventListener("click",()=>openAparForm("create"));
 $("closeAparForm").addEventListener("click",closeAparForm);
 $("cancelAparForm").addEventListener("click",closeAparForm);
@@ -1867,6 +1926,26 @@ try{
 
 
 // =========================================================
+// V14.11.1 RIWAYAT REFILL APAR
+// =========================================================
+let refillRows=[];
+let selectedRefillAparId=null;
+function todayDateInput(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
+function refillDiffDays(scheduled,actual){if(!scheduled||!actual)return null;const a=new Date(actual+"T00:00:00"),b=new Date(scheduled+"T00:00:00");if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime()))return null;return Math.round((a-b)/86400000);}
+function refillStatusHtml(diff){return diff!==null&&diff>0?`<span class="refill-status-badge late">🔴 TERLAMBAT</span>`:`<span class="refill-status-badge on-time">🟢 TEPAT WAKTU</span>`;}
+function refillDelayText(diff){return diff===null?"-":diff>0?`<span class="refill-late">${diff} hari</span>`:"0 hari";}
+function setRefillFormStatus(message,type="info"){const e=$("refillFormStatus");e.textContent=message;e.className=`status ${type}`;e.classList.remove("hidden");}
+function setRefillsStatus(message,type="info"){const e=$("refillsStatus");e.textContent=message;e.className=`status ${type}`;e.classList.remove("hidden");}
+function populateRefillAparSelect(selectedId){const select=$("refillAssetSelect");if(!select)return;const rows=(aparRows||[]).slice().sort((a,b)=>String(a.assetNumber||a.id).localeCompare(String(b.assetNumber||b.id),undefined,{numeric:true,sensitivity:"base"}));select.innerHTML=rows.map(x=>`<option value="${esc(x.id)}">${esc(x.assetNumber||x.id)} — ${esc(x.brand||"-")}</option>`).join("");if(selectedId&&rows.some(x=>x.id===selectedId))select.value=selectedId;else if(rows[0])select.value=rows[0].id;updateRefillModalApar();}
+function updateRefillModalApar(){const id=$("refillAssetSelect")?.value;const x=(aparRows||[]).find(r=>r.id===id);selectedRefillAparId=id||null;$("refillAssetDisplay").textContent=x?.assetNumber||"-";$("refillScheduledDisplay").textContent=x?.nextRefillDate||"Belum ada jadwal";$("refillScheduledDate").value=x?.nextRefillDate||"";$("refillActualDate").value=todayDateInput();$("refillFormStatus").classList.add("hidden");}
+function openRefillModal(id){if(!currentAdmin){setStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");return;}populateRefillAparSelect(id);$("refillVendor").value="";$("refillNotes").value="";$("refillActualDate").value=todayDateInput();$("refillModal").classList.remove("hidden");}
+function closeRefillModal(){selectedRefillAparId=null;$("refillModal").classList.add("hidden");}
+function getRefillFilteredRows(){const q=String($("refillSearch").value||"").trim().toLowerCase(),from=$("refillFrom").value,to=$("refillTo").value,status=String($("refillStatusFilter").value||"").toLowerCase();const fromTime=from?new Date(from+"T00:00:00").getTime():null,toTime=to?new Date(to+"T23:59:59.999").getTime():null;return refillRows.filter(x=>{const hay=[x.assetNumber,x.aparAssetNumber,x.aparId,x.vendor,x.notes,x.keterangan].map(v=>String(v||"").toLowerCase()).join(" ");if(q&&!hay.includes(q))return false;const t=new Date(String(x.actualDate||"")+"T00:00:00").getTime();if(fromTime!==null&&(Number.isNaN(t)||t<fromTime))return false;if(toTime!==null&&(Number.isNaN(t)||t>toTime))return false;const rowStatus=Number(x.delayDays||0)>0?"terlambat":"tepat waktu";return !status||status===rowStatus;});}
+function renderRefills(){const rows=getRefillFilteredRows();$("refillCount").textContent=`${rows.length} data`;const body=$("refillsBody");if(!rows.length){body.innerHTML='<tr><td colspan="8" class="empty">Belum ada riwayat refill yang sesuai.</td></tr>';return;}body.innerHTML=rows.map(x=>{const diff=Number(x.delayDays||0);return `<tr><td><strong>${esc(x.assetNumber||x.aparAssetNumber||x.aparId||"-")}</strong></td><td>${esc(x.scheduledDate||"-")}</td><td>${esc(x.actualDate||"-")}</td><td>${refillStatusHtml(diff)}</td><td>${refillDelayText(diff)}</td><td>${esc(x.vendor||"-")}</td><td>${esc(x.notes||x.keterangan||"-")}</td><td>${esc(x.inputBy||x.createdBy||"-")}</td></tr>`;}).join("");}
+async function loadRefills(){if(!db)return;setRefillsStatus("Memuat riwayat refill dari Firestore...","info");try{const snap=await getDocs(collection(db,"refills"));refillRows=[];snap.forEach(s=>refillRows.push({id:s.id,...(s.data()||{})}));refillRows.sort((a,b)=>String(b.actualDate||"").localeCompare(String(a.actualDate||""))||dateValue(b.createdAt)-dateValue(a.createdAt));renderRefills();setRefillsStatus(`Riwayat refill berhasil dimuat. ${refillRows.length} data.`,"success");debug(`Riwayat refill ditemukan: ${refillRows.length}`);}catch(e){console.error(e);setRefillsStatus("Gagal memuat riwayat refill: "+(e.message||"Unknown error"),"error");debug("LOAD REFILLS ERROR: "+(e.code||"-")+" | "+(e.message||""));}}
+async function saveRefill(){if(!currentAdmin){setRefillFormStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");return;}const id=$("refillAssetSelect").value,x=(aparRows||[]).find(r=>r.id===id);if(!x){setRefillFormStatus("APAR tidak ditemukan.","error");return;}const scheduledDate=$("refillScheduledDate").value||"",actualDate=$("refillActualDate").value||"",vendor=$("refillVendor").value.trim(),notes=$("refillNotes").value.trim();if(!actualDate){setRefillFormStatus("Tanggal Refill Aktual wajib diisi.","warning");return;}if(scheduledDate&&actualDate<scheduledDate&&!confirm("Tanggal aktual lebih awal dari jadwal. Tetap simpan?"))return;const diff=refillDiffDays(scheduledDate,actualDate),interval=Number(x.refillIntervalMonths||0),nextDate=interval>0?addMonthsToDateString(actualDate,interval):"";const btn=$("saveRefillBtn");btn.disabled=true;setRefillFormStatus("Menyimpan histori refill dan memperbarui Master APAR...","info");try{await addDoc(collection(db,"refills"),{aparId:x.id,assetNumber:x.assetNumber||x.id,scheduledDate:scheduledDate||null,actualDate,delayDays:diff!==null&&diff>0?diff:0,status:diff!==null&&diff>0?"TERLAMBAT":"TEPAT WAKTU",vendor:vendor||null,notes:notes||null,inputBy:currentAdmin.email||currentAdmin.uid||"admin",createdAt:serverTimestamp(),updatedAt:serverTimestamp()});const updateData={lastRefillDate:actualDate,updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin",nextRefillDate:interval>0?nextDate:null};await updateDoc(doc(db,"apar",x.id),updateData);await loadApar();await loadRefills();closeRefillModal();const lateText=diff!==null&&diff>0?` Terlambat ${diff} hari.`:"";setStatus(`Refill ${x.assetNumber||x.id} berhasil dicatat.${lateText}`,"success");debug(`REFILL TERSIMPAN: ${x.assetNumber||x.id} | aktual=${actualDate} | jadwal=${scheduledDate||"-"} | delay=${diff??"-"} | next=${nextDate||"-"}`);}catch(e){console.error(e);setRefillFormStatus("Gagal menyimpan refill: "+(e.message||"Unknown error"),"error");debug("SAVE REFILL ERROR: "+(e.code||"-")+" | "+(e.message||""));}finally{btn.disabled=false;}}
+
+// =========================================================
 // V14.10.7 LIFECYCLE REMINDER
 // =========================================================
 function lifecycleDateValue(v){
@@ -1951,6 +2030,28 @@ if(originalLoadApar && !window.__v147LifecycleWrapped){
   loadApar=async function(){const result=await originalLoadApar.apply(this,arguments);renderLifecycleReminder();return result;};
 }
 </script>
+
+<div id="refillModal" class="modal hidden">
+  <div class="modal-box" style="max-width:680px">
+    <div class="modal-head"><h2>🧯 Catat Refill APAR</h2><button id="closeRefillModal" class="close" type="button">✕ Tutup</button></div>
+    <div id="refillFormStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Asset Number</div><div id="refillAssetDisplay" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Refill Berikutnya Saat Ini</div><div id="refillScheduledDisplay" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:16px"><label for="refillAssetSelect">APAR</label><select id="refillAssetSelect" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff"></select></div>
+    <div class="detail-grid">
+      <div class="field"><label for="refillScheduledDate">Tanggal Jadwal Refill</label><input id="refillScheduledDate" type="date"><div class="form-help">Diambil dari jadwal Refill Berikutnya pada Master APAR. Admin dapat mengoreksi jika diperlukan.</div></div>
+      <div class="field"><label for="refillActualDate">Tanggal Refill Aktual</label><input id="refillActualDate" type="date"><div class="form-help">Tanggal ini dianggap sebagai tanggal refill benar-benar dilakukan.</div></div>
+    </div>
+    <div class="detail-grid">
+      <div class="field"><label for="refillVendor">Vendor</label><input id="refillVendor" type="text" placeholder="Nama vendor / pengisi ulang"></div>
+      <div class="field"><label for="refillNotes">Keterangan</label><input id="refillNotes" type="text" placeholder="Contoh: Pengisian terlambat karena vendor"></div>
+    </div>
+    <div class="login-note" style="margin-bottom:15px">Setelah disimpan, sistem membuat histori pada collection <b>refills</b>, memperbarui <b>Refill Terakhir</b> pada Master APAR, dan menghitung <b>Refill Berikutnya</b> berdasarkan interval refill. Jika tanggal aktual melewati jadwal, keterlambatan dihitung otomatis.</div>
+    <button id="saveRefillBtn" class="action primary" type="button">💾 Simpan Refill</button>
+  </div>
+</div>
 
 <div id="userEditModal" class="modal hidden">
   <div class="modal-box">
