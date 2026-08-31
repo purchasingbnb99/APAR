@@ -5,11 +5,11 @@
 <!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.0.5-FINAL-MULTIROLE">
+<meta name="build-version" content="V14.14.0.6-FINAL-MULTIROLE">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0.5.3</title>
+<title>APAR - Admin Dashboard V14.14.0.6.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -458,7 +458,7 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.0.5 - LOGIN CLICK RECOVERY */
+/* V14.14.0.6 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 </style>
@@ -466,7 +466,7 @@ body.role-inspector .inspector-only{display:block!important}
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.0.5</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.0.6</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -861,7 +861,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.5...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.6...</div>
 </section>
 </div>
 </main>
@@ -1172,7 +1172,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.0.5 boot diagnostics: never blocks UI. */
+/* V14.14.0.6 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -2126,6 +2126,18 @@ function closeUserEdit(){
 }
 
 async function saveUserEdit(){
+  try{
+    await window.__verifyCurrentAdminForWrite();
+  }catch(adminCheckError){
+    const msg=adminCheckError.message||"Sesi Admin tidak valid.";
+    if("userEditStatus" in window){
+      const target=$("userEditStatus");
+      if(target){target.textContent=msg;target.className="status error";target.classList.remove("hidden");}
+    }
+    debug("ADMIN WRITE PREFLIGHT GAGAL: "+(adminCheckError.code||"-")+" | "+msg);
+    return;
+  }
+
   if(!editingUserId)return;
 
   const role=String($("editUserRole").value).toLowerCase();
@@ -2178,7 +2190,7 @@ async function saveUserEdit(){
     setTimeout(closeUserEdit,600);
   }catch(e){
     console.error(e);
-    $("userEditStatus").textContent="Gagal menyimpan: "+(e.message||"Unknown error");
+    $("userEditStatus").textContent="Gagal menyimpan: "+(String(e?.code||"")==="permission-denied" ? "Firestore Rules menolak perubahan user. Pastikan akun yang login ACTIVE + role admin dan Rules users mengizinkan Admin ACTIVE melakukan update." : (e.message||"Unknown error"));
     $("userEditStatus").className="status error";
     debug("UPDATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
   }finally{
@@ -2188,6 +2200,18 @@ async function saveUserEdit(){
 
 
 async function toggleUserStatus(id){
+  try{
+    await window.__verifyCurrentAdminForWrite();
+  }catch(adminCheckError){
+    const msg=adminCheckError.message||"Sesi Admin tidak valid.";
+    if("usersStatus" in window){
+      const target=$("usersStatus");
+      if(target){target.textContent=msg;target.className="status error";target.classList.remove("hidden");}
+    }
+    debug("ADMIN WRITE PREFLIGHT GAGAL: "+(adminCheckError.code||"-")+" | "+msg);
+    return;
+  }
+
   const target=userRows.find(u=>u.id===id);
   if(!target){
     setUsersStatus("User tidak ditemukan.","error");
@@ -2236,7 +2260,7 @@ async function toggleUserStatus(id){
     debug(`STATUS USER DIUBAH: ${id} -> ${nextStatus}`);
   }catch(e){
     console.error(e);
-    setUsersStatus("Gagal mengubah status user: "+(e.message||"Unknown error"),"error");
+    setUsersStatus("Gagal mengubah status user: "+(String(e?.code||"")==="permission-denied" ? "Firestore Rules menolak perubahan status user. Pastikan akun yang login ACTIVE + role admin dan Rules users mengizinkan Admin ACTIVE melakukan update." : (e.message||"Unknown error")),"error");
     debug("TOGGLE STATUS ERROR: "+(e.code||"-")+" | "+(e.message||""));
   }
 }
@@ -2513,37 +2537,38 @@ function placeholder(title,text,id){
 
 
 function closeMobileDrawer(){$("mobileOverlay")?.classList.add("hidden");$("sidebar")?.classList.remove("mobile-open");}function openMobileDrawer(){$("mobileOverlay")?.classList.remove("hidden");$("sidebar")?.classList.add("mobile-open");}$("mobileMenuBtn")?.addEventListener("click",openMobileDrawer);$("mobileOverlay")?.addEventListener("click",closeMobileDrawer);document.querySelectorAll(".nav button").forEach(btn=>{if(btn.id!=="logoutBtn")btn.addEventListener("click",()=>setTimeout(closeMobileDrawer,60));});$("dashboardLifecycleReloadBtn")?.addEventListener("click",async()=>{const b=$("dashboardLifecycleReloadBtn");b.disabled=true;try{await loadApar();renderDashboardLifecycle();setStatus("Ringkasan lifecycle Dashboard berhasil diperbarui.","success");}catch(e){console.error(e);setStatus("Gagal memperbarui lifecycle Dashboard.","error");}finally{b.disabled=false;}});$("dashboardLifecycleDetailBtn")?.addEventListener("click",()=>{setView("monitoring");setTimeout(()=>$("lifecycleReminderPanel")?.scrollIntoView({behavior:"smooth",block:"start"}),60);});
+
+function bindUiEvent(id,event,handler){
+  const el=$(id);
+  if(!el)return false;
+  const key="bound"+event.replace(/[^a-z0-9]/gi,"_");
+  if(el.dataset[key]==="1")return true;
+  el.dataset[key]="1";
+  el.addEventListener(event,handler);
+  return true;
+}
+
 function wireAllUi(){
 
 window.__aparLoginHandler = async ()=>{
   const email=$("loginEmail").value.trim();
   const password=$("loginPassword").value;
-
   if(!email || !password){
     setLoginStatus("Email dan password wajib diisi.","warning");
     return;
   }
-
   const btn=$("loginBtn");
-  if(!btn) return;
-  if(btn.disabled) return;
-
+  if(!btn || btn.disabled)return;
   btn.disabled=true;
-
   try{
     setLoginStatus("Menghubungkan ke Firebase...","info");
     await authReady;
-
-    if(!auth){
-      throw new Error("Firebase Authentication belum siap.");
-    }
-
+    if(!auth)throw new Error("Firebase Authentication belum siap.");
     setLoginStatus("Sedang login dan memeriksa Role akun...","info");
     await signInWithEmailAndPassword(auth,email,password);
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
-
     if(code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found"){
       setLoginStatus("Login gagal: Email atau password tidak benar.","error");
     }else if(code==="auth/too-many-requests"){
@@ -2558,69 +2583,112 @@ window.__aparLoginHandler = async ()=>{
   }
 };
 
-const loginButton=$("loginBtn");
-if(loginButton && !loginButton.dataset.loginBound){
-  loginButton.dataset.loginBound="true";
-  loginButton.addEventListener("click",window.__aparLoginHandler);
-}
-
-const loginPassword=$("loginPassword");
-if(loginPassword && !loginPassword.dataset.loginKeyBound){
-  loginPassword.dataset.loginKeyBound="true";
-  loginPassword.addEventListener("keydown",e=>{
-    if(e.key==="Enter") window.__aparLoginHandler();
-  });
-}
-
-$("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
-$("reloadBtn").addEventListener("click",loadAll);
-$("reloadAparBtn").addEventListener("click",loadAll);
-$("reloadMonitoringBtn").addEventListener("click",async()=>{await loadAll();loadMonitoring();});
-$("printMonitoringBtn").addEventListener("click",printMonitoring);
-$("reloadHistoryBtn").addEventListener("click",async()=>{await loadAll();renderHistory();});
-$("printHistoryBtn").addEventListener("click",printHistory);
-$("printLifecycleBtn").addEventListener("click",printLifecycle);
-$("historySearch").addEventListener("input",renderHistory);
-$("historyResult").addEventListener("change",renderHistory);
-$("historyFrom").addEventListener("change",renderHistory);
-$("historyTo").addEventListener("change",renderHistory);
-$("aparSearch").addEventListener("input",renderMasterApar);
-$("closeDetail").addEventListener("click",closeDetail);
-$("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeDetail()});
-$("navInspectorDashboard")?.addEventListener("click",()=>setView("inspectorDashboard"));
-$("navInspectorInspection")?.addEventListener("click",()=>setView("inspection"));
-$("navInspectorHistory")?.addEventListener("click",()=>setView("history"));
-$("inspectorStartInspectionBtn")?.addEventListener("click",()=>setView("inspection"));
-$("inspectorReloadBtn")?.addEventListener("click",loadInspectorDashboard);
-$("logoutInspectorBtn")?.addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout Inspector gagal: "+e.message)}});
-$("navDashboard").addEventListener("click",()=>setView("dashboard"));
-$("navDataApar").addEventListener("click",()=>setView("data"));
-$("navMonitoring").addEventListener("click",()=>setView("monitoring"));
-$("navInspection").addEventListener("click",()=>setView("inspection"));
-$("navHistory").addEventListener("click",()=>setView("history"));
-$("navRefills").addEventListener("click",()=>setView("refills"));
-$("navUsers").addEventListener("click",()=>{
-  $("navUsers").classList.add("active");
-  setView("users");
+bindUiEvent("loginBtn","click",window.__aparLoginHandler);
+bindUiEvent("loginPassword","keydown",e=>{
+  if(e.key==="Enter")window.__aparLoginHandler();
 });
-$("reloadUsersBtn").addEventListener("click",loadUsers);
-$("userSearch").addEventListener("input",renderUsers);
-$("userRoleFilter").addEventListener("change",renderUsers);
-$("userStatusFilter").addEventListener("change",renderUsers);
-$("closeUserEdit").addEventListener("click",closeUserEdit);
-$("userEditModal").addEventListener("click",e=>{if(e.target===$("userEditModal"))closeUserEdit()});
-$("saveUserBtn").addEventListener("click",saveUserEdit);
-$("closePasswordChange").addEventListener("click",closePasswordChange);
-$("passwordChangeModal").addEventListener("click",e=>{if(e.target===$("passwordChangeModal"))closePasswordChange()});
-$("savePasswordDirectBtn").addEventListener("click",changeUserPassword);
 
-$("addUserBtn").addEventListener("click",openUserAdd);
-$("closeUserAdd").addEventListener("click",closeUserAdd);
-$("userAddModal").addEventListener("click",e=>{if(e.target===$("userAddModal"))closeUserAdd()});
-$("saveNewUserBtn").addEventListener("click",createNewUser);
+/* ---------- GLOBAL / ADMIN NAV ---------- */
+bindUiEvent("logoutBtn","click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
+bindUiEvent("reloadBtn","click",loadAll);
+bindUiEvent("reloadAparBtn","click",loadAll);
+bindUiEvent("reloadMonitoringBtn","click",async()=>{await loadAll();loadMonitoring();});
+bindUiEvent("printMonitoringBtn","click",printMonitoring);
+bindUiEvent("reloadHistoryBtn","click",async()=>{await loadAll();renderHistory();});
+bindUiEvent("printHistoryBtn","click",printHistory);
+bindUiEvent("printLifecycleBtn","click",printLifecycle);
+bindUiEvent("historySearch","input",renderHistory);
+bindUiEvent("historyResult","change",renderHistory);
+bindUiEvent("historyFrom","change",renderHistory);
+bindUiEvent("historyTo","change",renderHistory);
+bindUiEvent("aparSearch","input",renderMasterApar);
+bindUiEvent("closeDetail","click",closeDetail);
+bindUiEvent("detailModal","click",e=>{if(e.target===$("detailModal"))closeDetail()});
+
+/* ---------- ADMIN DATA APAR ---------- */
+bindUiEvent("addAparBtn","click",()=>openAparForm("create"));
+bindUiEvent("importAparBtn","click",openImportApar);
+bindUiEvent("exportAparBtn","click",exportAparExcel);
+bindUiEvent("closeImportApar","click",closeImportApar);
+bindUiEvent("cancelImportApar","click",closeImportApar);
+bindUiEvent("downloadAparTemplateBtn","click",downloadAparTemplate);
+bindUiEvent("aparExcelFile","change",e=>readAparExcel(e.target.files?.[0]));
+bindUiEvent("confirmImportApar","click",confirmAparImport);
+bindUiEvent("printAparListBtn","click",printAparList);
+bindUiEvent("closeAparForm","click",closeAparForm);
+bindUiEvent("cancelAparForm","click",closeAparForm);
+bindUiEvent("aparForm","submit",saveAparForm);
+bindUiEvent("aparFormModal","click",e=>{if(e.target===$("aparFormModal"))closeAparForm()});
+
+/* ---------- REFILL ---------- */
+bindUiEvent("addRefillBtn","click",()=>openRefillModal(null));
+bindUiEvent("closeRefillModal","click",closeRefillModal);
+bindUiEvent("refillModal","click",e=>{if(e.target===$("refillModal"))closeRefillModal()});
+bindUiEvent("refillAssetSelect","change",updateRefillModalApar);
+bindUiEvent("saveRefillBtn","click",saveRefill);
+bindUiEvent("reloadRefillsBtn","click",loadRefills);
+bindUiEvent("refillSearch","input",renderRefills);
+bindUiEvent("refillFrom","change",renderRefills);
+bindUiEvent("refillTo","change",renderRefills);
+bindUiEvent("refillStatusFilter","change",renderRefills);
+
+/* ---------- ROLE-SPECIFIC NAV ---------- */
+bindUiEvent("navInspectorDashboard","click",()=>setView("inspectorDashboard"));
+bindUiEvent("navInspectorInspection","click",()=>setView("inspection"));
+bindUiEvent("navInspectorHistory","click",()=>setView("history"));
+bindUiEvent("inspectorStartInspectionBtn","click",()=>setView("inspection"));
+bindUiEvent("inspectorReloadBtn","click",loadInspectorDashboard);
+bindUiEvent("logoutInspectorBtn","click",async()=>{try{await signOut(auth)}catch(e){debug("Logout Inspector gagal: "+e.message)}});
+
+bindUiEvent("navDashboard","click",()=>setView("dashboard"));
+bindUiEvent("navDataApar","click",()=>setView("data"));
+bindUiEvent("navMonitoring","click",()=>setView("monitoring"));
+bindUiEvent("navInspection","click",()=>setView("inspection"));
+bindUiEvent("navHistory","click",()=>setView("history"));
+bindUiEvent("navRefills","click",()=>setView("refills"));
+bindUiEvent("navUsers","click",()=>setView("users"));
+
+/* ---------- USER MANAGEMENT ---------- */
+bindUiEvent("reloadUsersBtn","click",loadUsers);
+bindUiEvent("userSearch","input",renderUsers);
+bindUiEvent("userRoleFilter","change",renderUsers);
+bindUiEvent("userStatusFilter","change",renderUsers);
+bindUiEvent("closeUserEdit","click",closeUserEdit);
+bindUiEvent("userEditModal","click",e=>{if(e.target===$("userEditModal"))closeUserEdit()});
+bindUiEvent("saveUserBtn","click",saveUserEdit);
+bindUiEvent("closePasswordChange","click",closePasswordChange);
+bindUiEvent("passwordChangeModal","click",e=>{if(e.target===$( "passwordChangeModal"))closePasswordChange()});
+bindUiEvent("savePasswordDirectBtn","click",changeUserPassword);
+bindUiEvent("addUserBtn","click",openUserAdd);
+bindUiEvent("closeUserAdd","click",closeUserAdd);
+bindUiEvent("userAddModal","click",e=>{if(e.target===$("userAddModal"))closeUserAdd()});
+bindUiEvent("saveNewUserBtn","click",createNewUser);
+
+/* ---------- EARLY ROLE WRITE PREFLIGHT ---------- */
+window.__verifyCurrentAdminForWrite = async function(){
+  if(!currentAdmin?.uid) throw new Error("Sesi Admin tidak tersedia. Silakan login kembali.");
+  const snap=await getDoc(doc(db,"users",currentAdmin.uid));
+  if(!snap.exists()) throw new Error("Profil Admin aktif tidak ditemukan di Firestore.");
+  const profile=snap.data()||{};
+  const role=String(profile.role||"").trim().toLowerCase();
+  const status=String(profile.status||"").trim().toLowerCase();
+
+  if(status!=="active"){
+    const err=new Error("Akun Admin sedang INACTIVE. Operasi ditolak.");
+    err.code="USER_INACTIVE";
+    throw err;
+  }
+  if(role!=="admin"){
+    const err=new Error("Profil akun yang sedang login bukan Admin. Role Firestore: "+(role||"-"));
+    err.code="NOT_ADMIN";
+    throw err;
+  }
+  currentAdmin={...currentAdmin,...profile,uid:currentAdmin.uid,email:profile.email||currentAdmin.email||""};
+  return true;
+};
 }
 /*
-  V14.14.0.5 LOGIN CORE
+  V14.14.0.6 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
