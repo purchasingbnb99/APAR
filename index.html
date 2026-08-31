@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="id">
-<!-- V14.13.2.1 FINAL: Refill transaction hardening + production security checks. Baseline V14.13.1 preserved. -->
+<!-- V14.13.2.2 FINAL: Refill transaction hardening + production security checks. Baseline V14.13.1 preserved. -->
 <head>
 <!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.13.2.1</title>
+<title>APAR - Admin Dashboard V14.13.2.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -449,7 +449,7 @@ body:not(.authenticated) .sidebar{
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.13.2.1</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.13.2.2</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -816,7 +816,7 @@ body:not(.authenticated) .sidebar{
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.2.1...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.2.2...</div>
 </section>
 </div>
 </main>
@@ -2394,18 +2394,45 @@ function isValidDateInputValue(value){
 function readDateInput(id,label,required=true){
   const el=$(id);
   if(!el) return {ok:false,value:"",message:`Field ${label} tidak ditemukan.`};
+
+  /*
+    V14.13.2.2 DATE VALIDATION FIX
+    Jangan membaca el.validity.valid sebelum customValidity dibersihkan.
+    Jika field sebelumnya pernah invalid, custom validity lama dapat membuat
+    tanggal yang sekarang sudah valid tetap terbaca sebagai invalid.
+  */
+  try{el.setCustomValidity("");}catch(_){}
+
   const value=String(el.value||"").trim();
-  // Native <input type=date> can visually show an incomplete/invalid segmented
-  // date while its .value remains empty. Treat that state explicitly.
+
+  // Untuk input type="date", browser hanya mengirim value YYYY-MM-DD
+  // jika tanggal benar-benar valid.
   if(!value){
-    return {ok:!required,value:"",message:`${label} wajib diisi. Pilih tanggal melalui ikon kalender.`};
+    return {
+      ok:!required,
+      value:"",
+      message:`${label} wajib diisi. Pilih tanggal melalui ikon kalender.`
+    };
   }
-  if(el.validity && !el.validity.valid){
-    return {ok:false,value:"",message:`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`};
-  }
+
+  // Validasi kalender secara eksplisit, tanpa terjebak customValidity lama.
   if(!isValidDateInputValue(value)){
-    return {ok:false,value:"",message:`${label} tidak valid. Pastikan tanggal benar, misalnya 31/08/2026.`};
+    return {
+      ok:false,
+      value:"",
+      message:`${label} tidak valid. Pastikan tanggal benar, misalnya 31/08/2026.`
+    };
   }
+
+  // Periksa validity native setelah customValidity dibersihkan.
+  if(el.validity && !el.validity.valid){
+    return {
+      ok:false,
+      value:"",
+      message:`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`
+    };
+  }
+
   return {ok:true,value};
 }
 function refillDiffDays(scheduled,actual){if(!scheduled||!actual)return null;if(!isValidDateInputValue(scheduled)||!isValidDateInputValue(actual))return null;const [ay,am,ad]=actual.split("-").map(Number),[by,bm,bd]=scheduled.split("-").map(Number);const a=new Date(ay,am-1,ad),b=new Date(by,bm-1,bd);return Math.round((a-b)/86400000);}
@@ -2420,14 +2447,34 @@ function closeRefillModal(){selectedRefillAparId=null;$("refillModal").classList
 function validateRefillDateField(id,label){
   const el=$(id);
   if(!el) return true;
+
+  /*
+    V14.13.2.2 FIX:
+    Bersihkan custom validity SEBELUM membaca el.validity.
+    Ini mencegah status invalid dari input sebelumnya "menempel".
+  */
+  try{el.setCustomValidity("");}catch(_){}
+
   const value=String(el.value||"").trim();
+
   if(!value){
-    el.setCustomValidity("");
     return true;
   }
-  const ok=isValidDateInputValue(value) && (!el.validity || el.validity.valid);
-  el.setCustomValidity(ok?"":`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`);
-  return ok;
+
+  // Validasi isi tanggal terlebih dahulu.
+  if(!isValidDateInputValue(value)){
+    try{el.setCustomValidity(`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`);}catch(_){}
+    return false;
+  }
+
+  // Sekarang validity native diperiksa dalam keadaan customValidity sudah kosong.
+  const nativeValid=!el.validity || el.validity.valid;
+  if(!nativeValid){
+    try{el.setCustomValidity(`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`);}catch(_){}
+    return false;
+  }
+
+  return true;
 }
 [
   ["refillScheduledDate","Tanggal Jadwal Refill"],
@@ -2489,7 +2536,7 @@ async function saveRefill(){
     const actor=currentAdmin.email||currentAdmin.uid||"admin";
 
     /*
-      V14.13.2.1 HARDENING REFILL
+      V14.13.2.2 HARDENING REFILL
       - Satu transaksi Firestore untuk histori refill + Master APAR.
       - APAR dibaca ulang di dalam transaction agar data tidak stale.
       - APAR harus tetap ACTIVE.
