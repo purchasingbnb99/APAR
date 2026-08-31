@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.13.2.2</title>
+<title>APAR - Admin Dashboard V14.14.0</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -444,42 +444,83 @@ body:not(.authenticated) .sidebar{
   }
 }
 
+
+/* V14.14.0 MULTI-ROLE ACCESS */
+.admin-only,.inspector-only{display:none!important}
+body.role-admin .admin-only{display:block!important}
+body.role-inspector .inspector-only{display:block!important}
+.inspector-dashboard-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:16px 0 20px}
+.inspector-kpi{background:#fff;border:1px solid #dbe2ea;border-radius:12px;padding:18px;min-height:120px}
+.inspector-kpi .kpi-label{font-size:12px;font-weight:800;color:#526987;text-transform:uppercase}
+.inspector-kpi .kpi-value{font-size:30px;font-weight:800;color:#10233f;margin-top:10px}
+.inspector-kpi .kpi-note{font-size:12px;color:#64748b;margin-top:5px}
+.inspector-welcome{background:#fff;border:1px solid #dbe2ea;border-radius:12px;padding:20px}
+@media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 </style>
 </head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.13.2.2</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.0</small></div>
   <div class="nav">
-    <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
-    <button id="navDataApar" type="button">🧯 Data APAR</button>
-    <button id="navMonitoring" type="button">🔍 Monitoring</button>
-    <button id="navInspection" type="button">📋 Pemeriksaan</button>
-    <button id="navHistory" type="button">📜 Riwayat</button>
-    <button id="navRefills" type="button">🧯 Riwayat Refill</button>
-    <button id="navUsers" type="button">👥 User Management</button>
-    <button id="logoutBtn" type="button">🚪 Logout</button>
+    <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
+    <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
+    <button id="navMonitoring" class="admin-only" type="button">🔍 Monitoring</button>
+    <button id="navInspection" class="admin-only" type="button">📋 Pemeriksaan</button>
+    <button id="navHistory" class="admin-only" type="button">📜 Riwayat</button>
+    <button id="navRefills" class="admin-only" type="button">🧯 Riwayat Refill</button>
+    <button id="navUsers" class="admin-only" type="button">👥 User Management</button>
+    <button id="navInspectorDashboard" class="inspector-only" type="button">📊 Dashboard Inspector</button>
+    <button id="navInspectorInspection" class="inspector-only" type="button">📋 Pemeriksaan</button>
+    <button id="navInspectorHistory" class="inspector-only" type="button">📜 Riwayat Saya</button>
+    <button id="logoutBtn" class="admin-only" type="button">🚪 Logout</button>
+    <button id="logoutInspectorBtn" class="inspector-only" type="button">🚪 Logout</button>
   </div>
 </aside>
 
 <main class="main">
 <section id="loginCard" class="login-card">
-  <h2>Login Admin</h2>
-  <div class="subtitle">Masuk menggunakan akun Admin yang terdaftar di Firebase Authentication.</div>
+  <h2>Login Aplikasi APAR</h2>
+  <div class="subtitle">Masuk menggunakan akun yang terdaftar di Firebase. Sistem akan otomatis membuka Dashboard sesuai Role: Admin atau Inspector.</div>
   <div id="loginStatus" class="status info hidden"></div>
-  <div class="field"><label for="loginEmail">Email Admin</label><input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test"></div>
-  <div class="field"><label for="loginPassword">Password Admin</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></div>
-  <div class="login-actions"><button id="loginBtn" class="action primary" type="button">Login Admin</button></div>
-  <div class="login-note">Setelah logout, form login akan muncul kembali.</div>
+  <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test / inspector@apar.test"></div>
+  <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></div>
+  <div class="login-actions"><button id="loginBtn" class="action primary" type="button">Login</button></div>
+  <div class="login-note">Admin masuk ke Admin Dashboard. Inspector masuk ke Inspector Dashboard. Setelah logout, form login akan muncul kembali.</div>
 </section>
 
 <div id="dashboardContent" class="hidden">
 <div class="topbar">
   <div><h1 id="pageTitle">Admin Dashboard</h1><div id="pageSubtitle" class="subtitle">Monitoring data APAR dan pemeriksaan terbaru</div></div>
-  <div class="admin-info">Admin: <strong id="adminEmail">-</strong> &nbsp;<span class="badge">ADMIN</span></div>
+  <div class="admin-info"><span id="topUserLabel">Admin</span>: <strong id="adminEmail">-</strong> &nbsp;<span id="topRoleBadge" class="badge">ADMIN</span></div>
 </div>
 
 <div id="pageStatus" class="status info">Menyiapkan dashboard...</div>
+
+<section id="inspectorDashboardView" class="hidden">
+  <section class="card">
+    <div class="inspector-welcome">
+      <h2 style="margin:0 0 6px">📋 Inspector Dashboard</h2>
+      <div class="subtitle">Gunakan dashboard ini untuk melakukan pemeriksaan APAR. Akses master dan administrasi tetap berada di Admin Dashboard.</div>
+    </div>
+    <div class="inspector-dashboard-grid">
+      <div class="inspector-kpi"><div class="kpi-label">APAR ACTIVE</div><div id="inspectorActiveApar" class="kpi-value">-</div><div class="kpi-note">APAR yang dapat diperiksa</div></div>
+      <div class="inspector-kpi"><div class="kpi-label">PEMERIKSAAN SAYA</div><div id="inspectorMyInspection" class="kpi-value">-</div><div class="kpi-note">Total pemeriksaan oleh akun ini</div></div>
+      <div class="inspector-kpi"><div class="kpi-label">FAIL SAYA</div><div id="inspectorMyFail" class="kpi-value">-</div><div class="kpi-note">Total hasil FAIL saya</div></div>
+    </div>
+  </section>
+  <section class="card">
+    <div class="toolbar">
+      <div><h2>🚀 Aksi Cepat</h2><div class="subtitle">Mulai pemeriksaan manual atau menggunakan QR Code.</div></div>
+      <div class="toolbar-left"><button id="inspectorStartInspectionBtn" class="action primary" type="button">📋 Mulai Pemeriksaan</button><button id="inspectorReloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div>
+    </div>
+  </section>
+  <section class="card">
+    <div class="toolbar"><div><h2>Riwayat Pemeriksaan Terakhir</h2><div class="subtitle">Menampilkan pemeriksaan yang dibuat oleh akun Inspector ini.</div></div></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectorRecentBody"><tr><td colspan="4" class="empty">Memuat data...</td></tr></tbody></table></div>
+  </section>
+</section>
 
 <section id="dashboardView">
 <div class="dashboard-kpi-section"><div class="dashboard-section-title"><div><h2>Ringkasan Kondisi APAR</h2><div class="subtitle">Gambaran cepat kondisi master APAR dan pemeriksaan terakhir.</div></div></div><div class="dashboard-kpi-grid"><div class="dashboard-kpi neutral"><div class="kpi-label">TOTAL APAR</div><div id="totalApar" class="kpi-value">-</div><div class="kpi-note">Seluruh master APAR</div></div><div class="dashboard-kpi safe"><div class="kpi-label">ACTIVE</div><div id="activeApar" class="kpi-value">-</div><div class="kpi-note">APAR aktif</div></div><div class="dashboard-kpi neutral"><div class="kpi-label">INACTIVE</div><div id="inactiveApar" class="kpi-value">-</div><div class="kpi-note">APAR tidak aktif</div></div><div class="dashboard-kpi neutral"><div class="kpi-label">BELUM DIPERIKSA</div><div id="dashboardNever" class="kpi-value">-</div><div class="kpi-note">Belum memiliki pemeriksaan terakhir</div></div></div></div>
@@ -816,7 +857,7 @@ body:not(.authenticated) .sidebar{
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.2.2...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0...</div>
 </section>
 </div>
 </main>
@@ -962,7 +1003,7 @@ body:not(.authenticated) .sidebar{
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,browserSessionPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,getDocs,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,getDocs,query,where,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
@@ -1043,6 +1084,98 @@ function showDashboard(){
   $("dashboardContent").classList.remove("hidden");
   const main=document.querySelector(".main");
   if(main) main.classList.remove("login-mode");
+}
+
+async function validateUserProfile(user){
+  debug("Memeriksa users/"+user.uid);
+  const snap=await getDoc(doc(db,"users",user.uid));
+  if(!snap.exists()){const err=new Error("Profil users/"+user.uid+" tidak ditemukan.");err.code="PROFILE_NOT_FOUND";throw err;}
+  const data=snap.data()||{};
+  const role=String(data.role||"").trim().toLowerCase();
+  const status=String(data.status||"").trim().toLowerCase();
+  debug("Role: "+role);debug("Status: "+status);
+  if(status!=="active"){const err=new Error("Akun tidak aktif. Status: "+status);err.code="USER_INACTIVE";throw err;}
+  if(!["admin","inspector"].includes(role)){const err=new Error("Role akun tidak valid: "+role);err.code="INVALID_ROLE";throw err;}
+  currentAdmin={...data,uid:user.uid,email:data.email||user.email||""};
+  $("adminEmail").textContent=currentAdmin.email||user.email||"-";
+  $("topUserLabel").textContent=role==="inspector"?"Inspector":"Admin";
+  $("topRoleBadge").textContent=role.toUpperCase();
+  document.body.classList.remove("role-admin","role-inspector");
+  document.body.classList.add("role-"+role);
+  return currentAdmin;
+}
+
+async function validateAdmin(user){
+  const profile=await validateUserProfile(user);
+  if(profile.role!=="admin"){const err=new Error("Akun bukan Admin. Role: "+profile.role);err.code="NOT_ADMIN";throw err;}
+  return profile;
+}
+
+function setRoleUi(role){
+  document.body.classList.remove("role-admin","role-inspector");
+  document.body.classList.add("role-"+role);
+}
+
+function showInspectorDashboard(){
+  document.body.classList.add("authenticated");
+  $("loginCard").classList.add("hidden");
+  $("dashboardContent").classList.remove("hidden");
+  const main=document.querySelector(".main");
+  if(main) main.classList.remove("login-mode");
+}
+
+async function loadInspectorDashboard(){
+  try{
+    setStatus("Memuat Dashboard Inspector...","info");
+    await Promise.all([loadApar(),loadInspections()]);
+    renderInspectorDashboard();
+    setStatus("Dashboard Inspector berhasil dimuat dari Firestore.","success");
+  }catch(e){
+    console.error(e);
+    setStatus("Gagal memuat Dashboard Inspector: "+(e.message||"Unknown error"),"error");
+    debug("INSPECTOR DASHBOARD ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }
+}
+
+function renderInspectorDashboard(){
+  const uid=currentAdmin?.uid;
+  const active=(aparRows||[]).filter(x=>String(x.status||"").toLowerCase()==="active").length;
+  const mine=(inspectionRows||[]).filter(x=>String(x.inspectorId||"")===String(uid||""));
+  const fails=mine.filter(x=>String(x.result||"").toLowerCase()==="fail").length;
+  $("inspectorActiveApar").textContent=active;
+  $("inspectorMyInspection").textContent=mine.length;
+  $("inspectorMyFail").textContent=fails;
+  const body=$("inspectorRecentBody");
+  const recent=mine.slice(0,10);
+  if(!recent.length){body.innerHTML='<tr><td colspan="4" class="empty">Belum ada pemeriksaan oleh akun ini.</td></tr>';return;}
+  body.innerHTML=recent.map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId||"-")}</strong></td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes||"-")}</td></tr>`).join("");
+}
+
+function getInspectorHistoryRows(){
+  const uid=String(currentAdmin?.uid||"");
+  const q=String($("historySearch").value||"").trim().toLowerCase();
+  const result=String($("historyResult").value||"").trim().toLowerCase();
+  const from=$("historyFrom").value,to=$("historyTo").value;
+  const fromTime=from?new Date(from+"T00:00:00").getTime():null;
+  const toTime=to?new Date(to+"T23:59:59.999").getTime():null;
+  return inspectionRows.filter(x=>{
+    if(String(x.inspectorId||"")!==uid)return false;
+    const hay=[inspectionAssetKey(x),inspectorLabel(x),x.result,x.notes,x.id].join(" ").toLowerCase();
+    if(q&&!hay.includes(q))return false;
+    if(result&&String(x.result||"").toLowerCase()!==result)return false;
+    const t=dateValue(x.inspectionDate||x.createdAt);
+    if(fromTime!==null&&t<fromTime)return false;if(toTime!==null&&t>toTime)return false;
+    return true;
+  });
+}
+
+function renderInspectorHistory(){
+  const rows=getInspectorHistoryRows();
+  $("historyCount").textContent=`${rows.length} data`;
+  const body=$("historyBody");
+  if(!rows.length){body.innerHTML='<tr><td colspan="6" class="empty">Tidak ada riwayat pemeriksaan Anda yang sesuai filter.</td></tr>';return;}
+  body.innerHTML=rows.map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId||"-")}</strong></td><td>${esc(inspectorLabel(x))}</td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes||"-")}</td><td><button class="small-btn" data-history-id="${esc(x.id)}" type="button">Detail</button></td></tr>`).join("");
+  body.querySelectorAll("[data-history-id]").forEach(btn=>btn.addEventListener("click",()=>showInspectionDetail(btn.dataset.historyId)));
 }
 
 async function validateAdmin(user){
@@ -1129,7 +1262,12 @@ function renderMasterApar(){
 
 async function loadInspections(){
   debug("Membaca collection inspections...");
-  const snap=await getDocs(collection(db,"inspections"));
+  // Inspector hanya memuat histori miliknya. Admin tetap memuat seluruh histori.
+  const isInspectorSession=String(currentAdmin?.role||"").toLowerCase()==="inspector";
+  const ref=isInspectorSession
+    ? query(collection(db,"inspections"),where("inspectorId","==",currentAdmin.uid))
+    : collection(db,"inspections");
+  const snap=await getDocs(ref);
   inspectionRows=[];
   snap.forEach(s=>inspectionRows.push({id:s.id,...(s.data()||{})}));
   inspectionRows.sort((a,b)=>dateValue(b.inspectionDate||b.createdAt)-dateValue(a.inspectionDate||a.createdAt));
@@ -2182,60 +2320,21 @@ async function createNewUser(){
 }
 
 function setView(view){
-  const views={
-    dashboard:$("dashboardView"),
-    data:$("dataAparView"),
-    monitoring:$("monitoringView"),
-    history:$("historyView"),
-    inspection:$("inspectionView"),
-    refills:$("refillsView"),
-    users:$("usersView"),
-    placeholder:$("placeholderView")
-  };
+  const views={dashboard:$("dashboardView"),inspectorDashboard:$("inspectorDashboardView"),data:$("dataAparView"),monitoring:$("monitoringView"),history:$("historyView"),inspection:$("inspectionView"),refills:$("refillsView"),users:$("usersView"),placeholder:$("placeholderView")};
+  const role=String(currentAdmin?.role||"").toLowerCase();
+  if(role==="inspector" && !["inspectorDashboard","inspection","history"].includes(view)) view="inspectorDashboard";
+  if(role==="admin" && view==="inspectorDashboard") view="dashboard";
   Object.values(views).forEach(v=>v.classList.add("hidden"));
-  views[view].classList.remove("hidden");
-  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navRefills","navUsers"].forEach(id=>$(id).classList.remove("active"));
-
-  if(view==="dashboard"){
-    $("navDashboard").classList.add("active");
-    renderDashboardInspectionKpis();renderDashboardApar();renderDashboardLifecycle();
-    $("pageTitle").textContent="Admin Dashboard";
-    $("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru";
-  }
-  if(view==="data"){
-    $("navDataApar").classList.add("active");
-    $("pageTitle").textContent="Data APAR";
-    $("pageSubtitle").textContent="Master data APAR + Tambah/Edit dari Firestore";
-  }
-  if(view==="monitoring"){
-    $("navMonitoring").classList.add("active");
-    $("pageTitle").textContent="Monitoring APAR";
-    $("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";
-    loadMonitoring();
-  }
-  if(view==="inspection"){
-    $("navInspection").classList.add("active");
-    $("pageTitle").textContent="Pemeriksaan APAR";
-    $("pageSubtitle").textContent="Generate/Scan QR dan input pemeriksaan APAR";
-    initializeInspectionUi();
-  }
-  if(view==="history"){
-    $("navHistory").classList.add("active");
-    $("pageTitle").textContent="Riwayat Pemeriksaan";
-    $("pageSubtitle").textContent="Riwayat pemeriksaan APAR dari Firestore";
-    renderHistory();
-  }
-  if(view==="refills"){
-    $("navRefills").classList.add("active");
-    $("pageTitle").textContent="Riwayat Refill APAR";
-    $("pageSubtitle").textContent="Histori pengisian ulang APAR dari Firestore";
-    loadRefills();
-  }
-  if(view==="users"){
-    $("pageTitle").textContent="User Management";
-    $("pageSubtitle").textContent="Kelola profil dan hak akses pengguna";
-    loadUsers();
-  }
+  if(views[view])views[view].classList.remove("hidden");
+  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navRefills","navUsers","navInspectorDashboard","navInspectorInspection","navInspectorHistory"].forEach(id=>$(id)?.classList.remove("active"));
+  if(view==="dashboard"){ $("navDashboard")?.classList.add("active");renderDashboardInspectionKpis();renderDashboardApar();renderDashboardLifecycle();$("pageTitle").textContent="Admin Dashboard";$("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru"; }
+  if(view==="inspectorDashboard"){ $("navInspectorDashboard")?.classList.add("active");renderInspectorDashboard();$("pageTitle").textContent="Inspector Dashboard";$("pageSubtitle").textContent="Pemeriksaan APAR untuk akun Inspector"; }
+  if(view==="data"){ $("navDataApar")?.classList.add("active");$("pageTitle").textContent="Data APAR";$("pageSubtitle").textContent="Master data APAR + Tambah/Edit dari Firestore"; }
+  if(view==="monitoring"){ $("navMonitoring")?.classList.add("active");$("pageTitle").textContent="Monitoring APAR";$("pageSubtitle").textContent="Status APAR dan pemeriksaan terbaru";loadMonitoring(); }
+  if(view==="inspection"){ $(role==="inspector"?"navInspectorInspection":"navInspection")?.classList.add("active");$("pageTitle").textContent="Pemeriksaan APAR";$("pageSubtitle").textContent=role==="inspector"?"Pemeriksaan APAR oleh Inspector":"Generate/Scan QR dan input pemeriksaan APAR";initializeInspectionUi(); }
+  if(view==="history"){ $(role==="inspector"?"navInspectorHistory":"navHistory")?.classList.add("active");$("pageTitle").textContent=role==="inspector"?"Riwayat Pemeriksaan Saya":"Riwayat Pemeriksaan";$("pageSubtitle").textContent=role==="inspector"?"Riwayat pemeriksaan yang dibuat oleh akun Inspector ini":"Riwayat pemeriksaan APAR dari Firestore";role==="inspector"?renderInspectorHistory():renderHistory(); }
+  if(view==="refills"){ $("navRefills")?.classList.add("active");$("pageTitle").textContent="Riwayat Refill APAR";$("pageSubtitle").textContent="Histori pengisian ulang APAR dari Firestore";loadRefills(); }
+  if(view==="users"){ $("navUsers")?.classList.add("active");$("pageTitle").textContent="User Management";$("pageSubtitle").textContent="Kelola profil dan hak akses pengguna";loadUsers(); }
 }
 function placeholder(title,text,id){
   setView("placeholder");$(id).classList.add("active");$("placeholderTitle").textContent=title;$("placeholderText").textContent=text;$("pageTitle").textContent=title;$("pageSubtitle").textContent="Modul berikutnya";
@@ -2270,7 +2369,7 @@ $("aparFormModal").addEventListener("click",e=>{if(e.target===$("aparFormModal")
 $("loginBtn").addEventListener("click",async()=>{
   const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
   if(!email||!password){setLoginStatus("Email dan password wajib diisi.","warning");return}
-  $("loginBtn").disabled=true;setLoginStatus("Sedang login dan memeriksa akun Admin...","info");
+  $("loginBtn").disabled=true;setLoginStatus("Sedang login dan memeriksa Role akun...","info");
   try{
     await signInWithEmailAndPassword(auth,email,password);
     // onAuthStateChanged akan memeriksa role + status sebelum menampilkan dashboard.
@@ -2299,6 +2398,12 @@ $("historyTo").addEventListener("change",renderHistory);
 $("aparSearch").addEventListener("input",renderMasterApar);
 $("closeDetail").addEventListener("click",closeDetail);
 $("detailModal").addEventListener("click",e=>{if(e.target===$("detailModal"))closeDetail()});
+$("navInspectorDashboard")?.addEventListener("click",()=>setView("inspectorDashboard"));
+$("navInspectorInspection")?.addEventListener("click",()=>setView("inspection"));
+$("navInspectorHistory")?.addEventListener("click",()=>setView("history"));
+$("inspectorStartInspectionBtn")?.addEventListener("click",()=>setView("inspection"));
+$("inspectorReloadBtn")?.addEventListener("click",loadInspectorDashboard);
+$("logoutInspectorBtn")?.addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout Inspector gagal: "+e.message)}});
 $("navDashboard").addEventListener("click",()=>setView("dashboard"));
 $("navDataApar").addEventListener("click",()=>setView("data"));
 $("navMonitoring").addEventListener("click",()=>setView("monitoring"));
@@ -2345,32 +2450,28 @@ try{
   }
 
   onAuthStateChanged(auth,async user=>{
-    if(!user){showLogin();setStatus("Belum login. Silakan login menggunakan akun Admin.","warning");debug("Tidak ada user Firebase yang login.");return}
+    if(!user){
+      currentAdmin=null;document.body.classList.remove("role-admin","role-inspector");showLogin();
+      setStatus("Belum login. Silakan masuk menggunakan akun Admin atau Inspector.","warning");
+      debug("Tidak ada user Firebase yang login.");return;
+    }
     try{
       debug("User login ditemukan: "+user.email);
-      await validateAdmin(user);
-
-      // Final guard: only the validated Admin session may reveal dashboard.
-      if(!auth.currentUser || auth.currentUser.uid!==user.uid){
-        throw new Error("Sesi autentikasi berubah. Silakan login kembali.");
-      }
-
+      const profile=await validateUserProfile(user);
+      if(!auth.currentUser || auth.currentUser.uid!==user.uid) throw new Error("Sesi autentikasi berubah. Silakan login kembali.");
       showDashboard();
-      await loadAll();
+      if(profile.role==="admin") await loadAll();
+      else await loadInspectorDashboard();
+      setRoleUi(profile.role);
+      setView(profile.role==="admin"?"dashboard":"inspectorDashboard");
     }catch(e){
-      debug("VALIDASI ADMIN GAGAL: "+e.message);
-      if(e.code==="USER_INACTIVE" || e.code==="ADMIN_INACTIVE"){
-        setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");
-        setStatus("Akun INACTIVE. Akses Admin ditolak.","error");
-      }else if(e.code==="NOT_ADMIN"){
-        setLoginStatus("Akun ini bukan Admin. Akses Admin ditolak.","error");
-        setStatus("Akses ditolak. Akun ini bukan Admin.","error");
-      }else{
-        setLoginStatus("Akses ditolak. "+(e.message||"Akun tidak dapat digunakan."),"error");
-        setStatus("Akses ditolak. Akun ini bukan Admin aktif.","error");
-      }
+      debug("VALIDASI LOGIN GAGAL: "+(e.message||""));
+      if(e.code==="USER_INACTIVE"){setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");setStatus("Akun INACTIVE. Akses ditolak.","error");}
+      else if(e.code==="PROFILE_NOT_FOUND"){setLoginStatus("Profil user belum terdaftar di Firestore. Hubungi Admin.","error");setStatus("Profil user tidak ditemukan.","error");}
+      else if(e.code==="INVALID_ROLE"){setLoginStatus("Role akun tidak valid. Hubungi Admin.","error");setStatus("Role user tidak valid.","error");}
+      else{setLoginStatus("Login/validasi gagal: "+(e.message||"akun tidak dapat digunakan."),"error");setStatus("Akses ditolak.","error");}
       try{await signOut(auth)}catch(_){}
-      showLogin();
+      currentAdmin=null;document.body.classList.remove("role-admin","role-inspector");showLogin();
     }
   });
 }catch(e){
@@ -3142,7 +3243,7 @@ async function saveAdminInspection(){
       inspectorId:currentAdmin.uid,
       inspectorName:currentAdmin.name||currentAdmin.displayName||currentAdmin.email||"Admin",
       inspectorPhone:currentAdmin.phone||currentAdmin.phoneNumber||null,
-      inputByRole:"admin",
+      inputByRole:String(currentAdmin?.role||"admin"),
       inspectionDate:serverTimestamp(),
       physicalCondition:$("physicalCondition").value,
       seal:$("seal").value,
