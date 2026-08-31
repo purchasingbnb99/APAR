@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0.2</title>
+<title>APAR - Admin Dashboard V14.14.0.3.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -458,15 +458,15 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.0.2 - LOGIN CLICK RECOVERY */
+/* V14.14.0.3 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 </style>
-</head>
+<meta name="v141403-build" content="multi-role-login-final-fix"><\!-- v14.14.0.3 --></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.0</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.0.3</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -861,7 +861,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.3...</div>
 </section>
 </div>
 </main>
@@ -1184,8 +1184,19 @@ const firebaseConfig={
   appId:"1:692076938129:web:8583c9d30f47588c135030"
 };
 
-const userCreationApp=initializeApp(firebaseConfig,"userCreationApp");
-const userCreationAuth=getAuth(userCreationApp);
+let userCreationAuth=null;
+function getUserCreationAuth(){
+  if(!userCreationAuth){
+    const appName="userCreationApp";
+    try{
+      userCreationAuth=getAuth(initializeApp(firebaseConfig,appName));
+    }catch(e){
+      // If the named secondary app already exists, retrieve it through getApps.
+      throw e;
+    }
+  }
+  return userCreationAuth;
+}
 
 let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
 let changingPasswordUserId=null;
@@ -2435,7 +2446,7 @@ async function createNewUser(){
   let createdUser=null;
   try{
     // Secondary Auth: sesi Admin utama tetap aman dan tidak ikut logout.
-    const credential=await createUserWithEmailAndPassword(userCreationAuth,email,password);
+    const credential=await createUserWithEmailAndPassword(getUserCreationAuth(),email,password);
     createdUser=credential.user;
 
     setUserAddStatus("Akun Authentication berhasil. Membuat profil Firestore...","info");
@@ -2461,7 +2472,7 @@ async function createNewUser(){
     ));
     renderUsers();
 
-    await signOut(userCreationAuth);
+    await signOut(getUserCreationAuth());
     createdUser=null;
 
     setUserAddStatus("User berhasil dibuat dan siap digunakan untuk login.","success");
@@ -2577,6 +2588,7 @@ $("loginBtn").addEventListener("click",async()=>{
 });
 
 $("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
+function wireAllUi(){
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
 $("reloadBtn").addEventListener("click",loadAll);
 $("reloadAparBtn").addEventListener("click",loadAll);
@@ -2623,11 +2635,10 @@ $("addUserBtn").addEventListener("click",openUserAdd);
 $("closeUserAdd").addEventListener("click",closeUserAdd);
 $("userAddModal").addEventListener("click",e=>{if(e.target===$("userAddModal"))closeUserAdd()});
 $("saveNewUserBtn").addEventListener("click",createNewUser);
-
-
+}
 
 /*
-  V14.14.0.2 LOGIN CORE
+  V14.14.0.3 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2702,10 +2713,16 @@ try{
       showLogin();
     }
   });
+
+  // All UI listeners are attached only after Firebase core is initialized.
+  // This prevents one early UI binding failure from disabling the Login button.
+  wireAllUi();
 }catch(e){
   console.error(e);
   authReady=Promise.reject(e);
-  setLoginStatus("Firebase gagal diinisialisasi.","error");
+  const loginButton=$("loginBtn");
+  if(loginButton) loginButton.disabled=false;
+  setLoginStatus("Firebase gagal diinisialisasi. Silakan muat ulang halaman.","error");
   debug("Firebase INIT ERROR: "+(e.message||e));
   showLogin();
 }
