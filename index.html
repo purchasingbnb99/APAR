@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html lang="id">
-<!-- V14.13.2 FINAL: Refill transaction hardening + production security checks. Baseline V14.13.1 preserved. -->
+<!-- V14.13.2.1 FINAL: Refill transaction hardening + production security checks. Baseline V14.13.1 preserved. -->
 <head>
 <!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.13.2-FINAL-PRODUCTION">
+<meta name="build-version" content="V14.13.2.1-FINAL-PRODUCTION">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.13.2</title>
+<title>APAR - Admin Dashboard V14.13.2.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -449,7 +449,7 @@ body:not(.authenticated) .sidebar{
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.13.2</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.13.2.1</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -816,7 +816,7 @@ body:not(.authenticated) .sidebar{
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.2...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.2.1...</div>
 </section>
 </div>
 </main>
@@ -2384,7 +2384,31 @@ try{
 let refillRows=[];
 let selectedRefillAparId=null;
 function todayDateInput(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,"0"),String(d.getDate()).padStart(2,"0")].join("-");}
-function refillDiffDays(scheduled,actual){if(!scheduled||!actual)return null;const a=new Date(actual+"T00:00:00"),b=new Date(scheduled+"T00:00:00");if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime()))return null;return Math.round((a-b)/86400000);}
+function isValidDateInputValue(value){
+  const s=String(value||"").trim();
+  if(!/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const [y,m,d]=s.split("-").map(Number);
+  const dt=new Date(y,m-1,d);
+  return dt.getFullYear()===y && dt.getMonth()===m-1 && dt.getDate()===d;
+}
+function readDateInput(id,label,required=true){
+  const el=$(id);
+  if(!el) return {ok:false,value:"",message:`Field ${label} tidak ditemukan.`};
+  const value=String(el.value||"").trim();
+  // Native <input type=date> can visually show an incomplete/invalid segmented
+  // date while its .value remains empty. Treat that state explicitly.
+  if(!value){
+    return {ok:!required,value:"",message:`${label} wajib diisi. Pilih tanggal melalui ikon kalender.`};
+  }
+  if(el.validity && !el.validity.valid){
+    return {ok:false,value:"",message:`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`};
+  }
+  if(!isValidDateInputValue(value)){
+    return {ok:false,value:"",message:`${label} tidak valid. Pastikan tanggal benar, misalnya 31/08/2026.`};
+  }
+  return {ok:true,value};
+}
+function refillDiffDays(scheduled,actual){if(!scheduled||!actual)return null;if(!isValidDateInputValue(scheduled)||!isValidDateInputValue(actual))return null;const [ay,am,ad]=actual.split("-").map(Number),[by,bm,bd]=scheduled.split("-").map(Number);const a=new Date(ay,am-1,ad),b=new Date(by,bm-1,bd);return Math.round((a-b)/86400000);}
 function refillStatusHtml(diff){return diff!==null&&diff>0?`<span class="refill-status-badge late">🔴 TERLAMBAT</span>`:`<span class="refill-status-badge on-time">🟢 TEPAT WAKTU</span>`;}
 function refillDelayText(diff){return diff===null?"-":diff>0?`<span class="refill-late">${diff} hari</span>`:"0 hari";}
 function setRefillFormStatus(message,type="info"){const e=$("refillFormStatus");e.textContent=message;e.className=`status ${type}`;e.classList.remove("hidden");}
@@ -2393,6 +2417,27 @@ function populateRefillAparSelect(selectedId){const select=$("refillAssetSelect"
 function updateRefillModalApar(){const id=$("refillAssetSelect")?.value;const x=(aparRows||[]).find(r=>r.id===id);selectedRefillAparId=id||null;$("refillAssetDisplay").textContent=x?.assetNumber||"-";$("refillScheduledDisplay").textContent=x?.nextRefillDate||"Belum ada jadwal";$("refillScheduledDate").value=x?.nextRefillDate||"";$("refillActualDate").value=todayDateInput();$("refillFormStatus").classList.add("hidden");}
 function openRefillModal(id){if(!currentAdmin){setStatus("Sesi Admin tidak tersedia. Silakan login kembali.","error");return;}populateRefillAparSelect(id);$("refillVendor").value="";$("refillNotes").value="";$("refillActualDate").value=todayDateInput();$("refillModal").classList.remove("hidden");}
 function closeRefillModal(){selectedRefillAparId=null;$("refillModal").classList.add("hidden");}
+function validateRefillDateField(id,label){
+  const el=$(id);
+  if(!el) return true;
+  const value=String(el.value||"").trim();
+  if(!value){
+    el.setCustomValidity("");
+    return true;
+  }
+  const ok=isValidDateInputValue(value) && (!el.validity || el.validity.valid);
+  el.setCustomValidity(ok?"":`${label} belum valid. Pilih tanggal yang benar melalui ikon kalender.`);
+  return ok;
+}
+[
+  ["refillScheduledDate","Tanggal Jadwal Refill"],
+  ["refillActualDate","Tanggal Refill Aktual"]
+].forEach(([id,label])=>{
+  const el=$(id);
+  if(el){
+    ["input","change","blur"].forEach(evt=>el.addEventListener(evt,()=>validateRefillDateField(id,label)));
+  }
+});
 function getRefillFilteredRows(){const q=String($("refillSearch").value||"").trim().toLowerCase(),from=$("refillFrom").value,to=$("refillTo").value,status=String($("refillStatusFilter").value||"").toLowerCase();const fromTime=from?new Date(from+"T00:00:00").getTime():null,toTime=to?new Date(to+"T23:59:59.999").getTime():null;return refillRows.filter(x=>{const hay=[x.assetNumber,x.aparAssetNumber,x.aparId,x.vendor,x.notes,x.keterangan].map(v=>String(v||"").toLowerCase()).join(" ");if(q&&!hay.includes(q))return false;const t=new Date(String(x.actualDate||"")+"T00:00:00").getTime();if(fromTime!==null&&(Number.isNaN(t)||t<fromTime))return false;if(toTime!==null&&(Number.isNaN(t)||t>toTime))return false;const rowStatus=Number(x.delayDays||0)>0?"terlambat":"tepat waktu";return !status||status===rowStatus;});}
 function renderRefills(){const rows=getRefillFilteredRows();$("refillCount").textContent=`${rows.length} data`;const body=$("refillsBody");if(!rows.length){body.innerHTML='<tr><td colspan="8" class="empty">Belum ada riwayat refill yang sesuai.</td></tr>';return;}body.innerHTML=rows.map(x=>{const diff=Number(x.delayDays||0);return `<tr><td><strong>${esc(x.assetNumber||x.aparAssetNumber||x.aparId||"-")}</strong></td><td>${esc(x.scheduledDate||"-")}</td><td>${esc(x.actualDate||"-")}</td><td>${refillStatusHtml(diff)}</td><td>${refillDelayText(diff)}</td><td>${esc(x.vendor||"-")}</td><td>${esc(x.notes||x.keterangan||"-")}</td><td>${esc(x.inputBy||x.createdBy||"-")}</td></tr>`;}).join("");}
 async function loadRefills(){if(!db)return;setRefillsStatus("Memuat riwayat refill dari Firestore...","info");try{const snap=await getDocs(collection(db,"refills"));refillRows=[];snap.forEach(s=>refillRows.push({id:s.id,...(s.data()||{})}));refillRows.sort((a,b)=>String(b.actualDate||"").localeCompare(String(a.actualDate||""))||dateValue(b.createdAt)-dateValue(a.createdAt));renderRefills();setRefillsStatus(`Riwayat refill berhasil dimuat. ${refillRows.length} data.`,"success");debug(`Riwayat refill ditemukan: ${refillRows.length}`);}catch(e){console.error(e);setRefillsStatus("Gagal memuat riwayat refill: "+(e.message||"Unknown error"),"error");debug("LOAD REFILLS ERROR: "+(e.code||"-")+" | "+(e.message||""));}}
@@ -2409,15 +2454,23 @@ async function saveRefill(){
     return;
   }
 
-  const scheduledDate=$("refillScheduledDate").value||"";
-  const actualDate=$("refillActualDate").value||"";
-  const vendor=$("refillVendor").value.trim();
-  const notes=$("refillNotes").value.trim();
-
-  if(!actualDate){
-    setRefillFormStatus("Tanggal Refill Aktual wajib diisi.","warning");
+  const scheduledCheck=readDateInput("refillScheduledDate","Tanggal Jadwal Refill",false);
+  const actualCheck=readDateInput("refillActualDate","Tanggal Refill Aktual",true);
+  if(!actualCheck.ok){
+    setRefillFormStatus(actualCheck.message,"warning");
+    $("refillActualDate")?.focus();
     return;
   }
+  if(!scheduledCheck.ok){
+    setRefillFormStatus(scheduledCheck.message,"warning");
+    $("refillScheduledDate")?.focus();
+    return;
+  }
+
+  const scheduledDate=scheduledCheck.value;
+  const actualDate=actualCheck.value;
+  const vendor=$("refillVendor").value.trim();
+  const notes=$("refillNotes").value.trim();
 
   if(scheduledDate&&actualDate<scheduledDate&&!confirm("Tanggal aktual lebih awal dari jadwal. Tetap simpan?")){
     return;
@@ -2436,7 +2489,7 @@ async function saveRefill(){
     const actor=currentAdmin.email||currentAdmin.uid||"admin";
 
     /*
-      V14.13.2 HARDENING REFILL
+      V14.13.2.1 HARDENING REFILL
       - Satu transaksi Firestore untuk histori refill + Master APAR.
       - APAR dibaca ulang di dalam transaction agar data tidak stale.
       - APAR harus tetap ACTIVE.
