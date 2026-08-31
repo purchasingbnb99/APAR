@@ -1,15 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
-<!-- V14.13.2.2 FINAL: Refill transaction hardening + production security checks. Baseline V14.13.1 preserved. -->
 <head>
-<!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.0.7-FINAL-MULTIROLE">
+<meta name="build-version" content="V14.14.0.9-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0.7.3</title>
+<title>APAR - Admin Dashboard V14.14.0.9.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -458,15 +456,24 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.0.7 - LOGIN CLICK RECOVERY */
+/* V14.14.0.9 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
+
+/* V14.14.0.9 - Refill print readability */
+@media print{
+  .refill-late{font-weight:800;color:#b91c1c}
+}
+
+
+/* V14.14.0.9 UI cleanup: version markers are internal only, never visible. */
+
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"><\!-- v14.14.0.3 --></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.0.7</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.0.9</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -862,7 +869,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.7...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.9...</div>
 </section>
 </div>
 </main>
@@ -1173,7 +1180,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.0.7 boot diagnostics: never blocks UI. */
+/* V14.14.0.9 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1410,7 +1417,7 @@ function renderDashboardInspectionKpis(){const latest=buildLatestInspectionMap()
 function renderDashboardLifecycle(){const seen=new Set(),all=(aparRows||[]).flatMap(x=>{const asset=String(x.assetNumber||x.id||'').trim();return [["Refill",x.nextRefillDate],["Hydrotest",effectiveHydrotestNextDate(x)],["Masa Berlaku",x.expiryDate]].map(([kind,value])=>({assetNumber:asset,kind,value,diff:lifecycleDayDiff(lifecycleDateValue(value))}));}).filter(x=>{const key=`${x.assetNumber}|${x.kind}|${x.value}`;if(seen.has(key))return false;seen.add(key);return true});const overdue=all.filter(x=>x.diff!==null&&x.diff<=0).length,d14=all.filter(x=>x.diff!==null&&x.diff>0&&x.diff<=14).length,d30=all.filter(x=>x.diff!==null&&x.diff>14&&x.diff<=30).length,noSchedule=all.filter(x=>x.diff===null).length;$("dashboardLifecycleOverdue").textContent=overdue;$("dashboardLifecycle14").textContent=d14;$("dashboardLifecycle30").textContent=d30;$("dashboardLifecycleNoSchedule").textContent=noSchedule;}
 function renderDashboardApar(){const b=$("aparTableBody"),latest=buildLatestInspectionMap();if(!aparRows.length){b.innerHTML='<tr><td colspan="8" class="empty">Belum ada data APAR.</td></tr>';return}b.innerHTML=aparRows.map(x=>{const k=String(x.assetNumber||x.id||"").trim(),ins=latest.get(k),r=String(ins?.result||"").toLowerCase();let condition='<span class="dashboard-condition-never">BELUM DIPERIKSA</span>';if(r==="pass")condition='<span class="dashboard-condition-good">BAIK</span>';if(r==="fail")condition='<span class="dashboard-condition-bad">PERLU PERHATIAN</span>';return `<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td><td>${ins?badge(ins.result)+`<br><span style="font-size:11px;color:#64748b">${formatDate(ins.inspectionDate||ins.createdAt)}</span>`:"-"}</td><td>${condition}</td></tr>`;}).join("");}
 function printAparList(){const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR yang dapat dicetak.","warning");return}const win=window.open("","_blank","width=1200,height=800");if(!win){alert("Popup diblokir browser. Izinkan popup untuk mencetak Daftar APAR.");return}const body=rows.map(x=>`<tr><td>${esc(x.assetNumber||x.id||"-")}</td><td>${esc(x.brand||"-")}</td><td>${esc(x.capacity||"-")}</td><td>${esc(x.locationId||"-")}</td><td>${esc(x.serialNumber||"-")}</td><td>${esc(x.typeId||"-")}</td><td>${esc(String(x.status||"-").toUpperCase())}</td><td>${esc(x.nextRefillDate?formatLifecycleDate(x.nextRefillDate):"-")}</td></tr>`).join("");win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Daftar Master APAR</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 6px}.meta{font-size:12px;color:#555;margin-bottom:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;font-size:10px;text-align:left}th{background:#f3f4f6}</style></head><body>
-<!-- V14.13.1 READABILITY UI: font size improvement only; no functional module removed. --><h1>Daftar Master APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah data: ${rows.length}</div><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Refill Berikutnya</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`);win.document.close();}
+<h1>Daftar Master APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah data: ${rows.length}</div><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Refill Berikutnya</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`);win.document.close();}
 let pendingAparImport=[];
 const APAR_EXCEL_HEADERS=["Asset Number","Brand","Capacity","Location","Serial Number","Type","Status","Tanggal Produksi","Tanggal Mulai Digunakan","Masa Berlaku","Tanggal Refill Terakhir","Interval Refill (bulan)","Tanggal Refill Berikutnya","Tanggal Hydrotest Terakhir","Interval Hydrotest (bulan)","Tanggal Hydrotest Berikutnya"];
 function excelDate(v){if(v===null||v===undefined||v==="")return "";if(typeof v==="number"&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,"0")}-${String(d.d).padStart(2,"0")}`;}const t=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(t))return t;const m=t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;return null;}
@@ -2578,6 +2585,7 @@ window.__aparLoginHandler = async ()=>{
     if(!auth)throw new Error("Firebase Authentication belum siap.");
     setLoginStatus("Sedang login dan memeriksa Role akun...","info");
     await signInWithEmailAndPassword(auth,email,password);
+    debug("Firebase Authentication berhasil untuk: "+email);
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
@@ -2701,7 +2709,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.0.7 LOGIN CORE
+  V14.14.0.9 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2740,6 +2748,8 @@ try{
 
     try{
       debug("User login ditemukan: "+user.email);
+
+      // Phase 1: authentication + profile authorization.
       const profile=await validateUserProfile(user);
 
       if(!auth.currentUser || auth.currentUser.uid!==user.uid){
@@ -2750,33 +2760,53 @@ try{
       setRoleUi(profile.role);
       showDashboard();
 
-      if(profile.role==="admin"){
-        await loadAll();
-        setView("dashboard");
-      }else{
-        await loadInspectorDashboard();
-        setView("inspectorDashboard");
+      // Phase 2: load role dashboard. A read/data error must NOT be mistaken
+      // for a bad password or invalid account.
+      try{
+        if(profile.role==="admin"){
+          await loadAll();
+          setView("dashboard");
+        }else if(profile.role==="inspector"){
+          await loadInspectorDashboard();
+          setView("inspectorDashboard");
+        }
+        setLoginStatus("Login berhasil. Role: "+profile.role.toUpperCase()+".","success");
+      }catch(loadError){
+        console.error(loadError);
+        debug("POST-LOGIN LOAD ERROR: "+(loadError.code||"-")+" | "+(loadError.message||""));
+        setStatus(
+          profile.role==="inspector"
+            ? "Login Inspector berhasil, tetapi data dashboard gagal dimuat: "+(loadError.message||"Unknown error")
+            : "Login Admin berhasil, tetapi data dashboard gagal dimuat: "+(loadError.message||"Unknown error"),
+          "error"
+        );
+        // Do not sign out a valid user merely because dashboard data failed.
+        // Keep the authenticated session so the exact Firestore/network error
+        // remains visible for diagnosis.
+        setView(profile.role==="inspector"?"inspectorDashboard":"dashboard");
       }
     }catch(e){
       debug("VALIDASI LOGIN GAGAL: "+(e.message||""));
 
       showProfileAccessError(e.code);
       if(e.code==="USER_INACTIVE"){
-        setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");
+        setLoginStatus("Login ditolak: akun Anda berstatus INACTIVE. Hubungi Admin untuk mengaktifkannya.","error");
       }else if(e.code==="PROFILE_NOT_FOUND"){
-        setLoginStatus("Profil user belum terdaftar di Firestore. Hubungi Admin.","error");
+        setLoginStatus("Login ditolak: profil user belum terdaftar di Firestore.","error");
       }else if(e.code==="INVALID_ROLE"){
-        setLoginStatus("Role akun tidak valid. Hubungi Admin.","error");
+        setLoginStatus("Login ditolak: role akun tidak valid.","error");
       }else{
         setLoginStatus("Login/validasi gagal: "+(e.message||"akun tidak dapat digunakan."),"error");
       }
 
+      // Only authorization/profile failures reach this branch.
       try{await signOut(auth)}catch(_){}
       currentAdmin=null;
       document.body.classList.remove("authenticated","role-admin","role-inspector");
       showLogin();
     }
   });
+
 
   // All UI listeners are attached only after Firebase core is initialized.
   // This prevents one early UI binding failure from disabling the Login button.
@@ -2923,7 +2953,7 @@ function printRefills(){
       <td>${esc(x.scheduledDate||"-")}</td>
       <td>${esc(x.actualDate||"-")}</td>
       <td>${esc(status)}</td>
-      <td>${esc(refillDelayText(diff))}</td>
+      <td>${diff>0 ? `<span class="refill-late">${esc(diff+" hari")}</span>` : "0 hari"}</td>
       <td>${esc(x.vendor||"-")}</td>
       <td>${esc(x.notes||x.keterangan||"-")}</td>
       <td>${esc(x.inputBy||x.createdBy||"-")}</td>
