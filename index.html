@@ -5,11 +5,11 @@
 <!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.13.2.1-FINAL-PRODUCTION">
+<meta name="build-version" content="V14.14.0.5-FINAL-MULTIROLE">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0.3.3</title>
+<title>APAR - Admin Dashboard V14.14.0.5.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -458,7 +458,7 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.0.3 - LOGIN CLICK RECOVERY */
+/* V14.14.0.5 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 </style>
@@ -466,7 +466,7 @@ body.role-inspector .inspector-only{display:block!important}
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.0.3</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.0.5</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -861,7 +861,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.3...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.5...</div>
 </section>
 </div>
 </main>
@@ -1170,6 +1170,22 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
   </div>
 </div>
 
+
+<script>
+/* V14.14.0.5 boot diagnostics: never blocks UI. */
+window.__aparBootErrors=[];
+window.addEventListener("error",function(e){
+  try{
+    window.__aparBootErrors.push(String(e?.error?.message||e?.message||"Unknown runtime error"));
+  }catch(_){}
+});
+window.addEventListener("unhandledrejection",function(e){
+  try{
+    window.__aparBootErrors.push(String(e?.reason?.message||e?.reason||"Unhandled rejection"));
+  }catch(_){}
+});
+</script>
+
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,browserSessionPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -1359,32 +1375,6 @@ function renderInspectorHistory(){
   body.querySelectorAll("[data-history-id]").forEach(btn=>btn.addEventListener("click",()=>showInspectionDetail(btn.dataset.historyId)));
 }
 
-async function validateAdmin(user){
-  debug("Memeriksa users/"+user.uid);
-  const snap=await getDoc(doc(db,"users",user.uid));
-  if(!snap.exists())throw new Error("Profil users/"+user.uid+" tidak ditemukan.");
-  const data=snap.data()||{};
-  const role=String(data.role||"").trim().toLowerCase();
-  const status=String(data.status||"").trim().toLowerCase();
-  debug("Role: "+role);debug("Status: "+status);
-  // V14.9.2: status diperiksa TERLEBIH DAHULU.
-  // Jika akun inactive, alasan penolakan harus selalu INACTIVE,
-  // tanpa membedakan role admin atau inspector.
-  if(status!=="active"){
-    const err=new Error("Akun tidak aktif. Status: "+status);
-    err.code="USER_INACTIVE";
-    throw err;
-  }
-
-  // Hanya akun ACTIVE dengan role admin yang boleh masuk Dashboard.
-  if(role!=="admin"){
-    const err=new Error("Akun bukan Admin. Role: "+role);
-    err.code="NOT_ADMIN";
-    throw err;
-  }
-  currentAdmin={...data,uid:user.uid};
-  $("adminEmail").textContent=data.email||user.email||"-";
-}
 
 async function loadApar(){
   debug("Membaca collection apar...");
@@ -2523,40 +2513,21 @@ function placeholder(title,text,id){
 
 
 function closeMobileDrawer(){$("mobileOverlay")?.classList.add("hidden");$("sidebar")?.classList.remove("mobile-open");}function openMobileDrawer(){$("mobileOverlay")?.classList.remove("hidden");$("sidebar")?.classList.add("mobile-open");}$("mobileMenuBtn")?.addEventListener("click",openMobileDrawer);$("mobileOverlay")?.addEventListener("click",closeMobileDrawer);document.querySelectorAll(".nav button").forEach(btn=>{if(btn.id!=="logoutBtn")btn.addEventListener("click",()=>setTimeout(closeMobileDrawer,60));});$("dashboardLifecycleReloadBtn")?.addEventListener("click",async()=>{const b=$("dashboardLifecycleReloadBtn");b.disabled=true;try{await loadApar();renderDashboardLifecycle();setStatus("Ringkasan lifecycle Dashboard berhasil diperbarui.","success");}catch(e){console.error(e);setStatus("Gagal memperbarui lifecycle Dashboard.","error");}finally{b.disabled=false;}});$("dashboardLifecycleDetailBtn")?.addEventListener("click",()=>{setView("monitoring");setTimeout(()=>$("lifecycleReminderPanel")?.scrollIntoView({behavior:"smooth",block:"start"}),60);});
-$("addRefillBtn").addEventListener("click",()=>openRefillModal(null));
-$("closeRefillModal").addEventListener("click",closeRefillModal);
-$("refillModal").addEventListener("click",e=>{if(e.target===$("refillModal"))closeRefillModal()});
-$("refillAssetSelect").addEventListener("change",updateRefillModalApar);
-$("saveRefillBtn").addEventListener("click",saveRefill);
-$("reloadRefillsBtn").addEventListener("click",loadRefills);
-$("refillSearch").addEventListener("input",renderRefills);
-$("refillFrom").addEventListener("change",renderRefills);
-$("refillTo").addEventListener("change",renderRefills);
-$("refillStatusFilter").addEventListener("change",renderRefills);
-$("addAparBtn").addEventListener("click",()=>openAparForm("create"));
-$("importAparBtn")?.addEventListener("click",openImportApar);
-$("exportAparBtn")?.addEventListener("click",exportAparExcel);
-$("closeImportApar")?.addEventListener("click",closeImportApar);
-$("cancelImportApar")?.addEventListener("click",closeImportApar);
-$("downloadAparTemplateBtn")?.addEventListener("click",downloadAparTemplate);
-$("aparExcelFile")?.addEventListener("change",e=>readAparExcel(e.target.files?.[0]));
-$("confirmImportApar")?.addEventListener("click",confirmAparImport);
-$("printAparListBtn")?.addEventListener("click",printAparList);
-$("closeAparForm").addEventListener("click",closeAparForm);
-$("cancelAparForm").addEventListener("click",closeAparForm);
-$("aparForm").addEventListener("submit",saveAparForm);
-$("aparFormModal").addEventListener("click",e=>{if(e.target===$("aparFormModal"))closeAparForm()});
+function wireAllUi(){
 
-$("loginBtn").addEventListener("click",async()=>{
+window.__aparLoginHandler = async ()=>{
   const email=$("loginEmail").value.trim();
   const password=$("loginPassword").value;
 
-  if(!email||!password){
+  if(!email || !password){
     setLoginStatus("Email dan password wajib diisi.","warning");
     return;
   }
 
   const btn=$("loginBtn");
+  if(!btn) return;
+  if(btn.disabled) return;
+
   btn.disabled=true;
 
   try{
@@ -2585,10 +2556,22 @@ $("loginBtn").addEventListener("click",async()=>{
   }finally{
     btn.disabled=false;
   }
-});
+};
 
-$("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
-function wireAllUi(){
+const loginButton=$("loginBtn");
+if(loginButton && !loginButton.dataset.loginBound){
+  loginButton.dataset.loginBound="true";
+  loginButton.addEventListener("click",window.__aparLoginHandler);
+}
+
+const loginPassword=$("loginPassword");
+if(loginPassword && !loginPassword.dataset.loginKeyBound){
+  loginPassword.dataset.loginKeyBound="true";
+  loginPassword.addEventListener("keydown",e=>{
+    if(e.key==="Enter") window.__aparLoginHandler();
+  });
+}
+
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
 $("reloadBtn").addEventListener("click",loadAll);
 $("reloadAparBtn").addEventListener("click",loadAll);
@@ -2636,9 +2619,8 @@ $("closeUserAdd").addEventListener("click",closeUserAdd);
 $("userAddModal").addEventListener("click",e=>{if(e.target===$("userAddModal"))closeUserAdd()});
 $("saveNewUserBtn").addEventListener("click",createNewUser);
 }
-
 /*
-  V14.14.0.3 LOGIN CORE
+  V14.14.0.5 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
