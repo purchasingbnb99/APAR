@@ -4,11 +4,11 @@
 <!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.13.0-FINAL-RECOVERY">
+<meta name="build-version" content="V14.13.1-FINAL-RECOVERY">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.13.0</title>
+<title>APAR - Admin Dashboard V14.13.1</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -232,7 +232,7 @@ body:not(.authenticated) .sidebar{
 }
 /* V14.12.2 Dashboard + Mobile Drawer */
 .dashboard-kpi-section{margin-bottom:20px}.dashboard-section-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:0 0 12px}.dashboard-section-title h2{margin:0;font-size:18px}.dashboard-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.dashboard-kpi{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:17px 18px;min-height:108px}.dashboard-kpi .kpi-label{font-size:12px;color:#64748b;font-weight:800;letter-spacing:.25px}.dashboard-kpi .kpi-value{font-size:30px;font-weight:800;margin-top:9px}.dashboard-kpi .kpi-note{font-size:11px;color:#64748b;margin-top:5px}.dashboard-kpi.alert{border-left:5px solid #dc2626}.dashboard-kpi.warn{border-left:5px solid #f59e0b}.dashboard-kpi.safe{border-left:5px solid #16a34a}.dashboard-kpi.neutral{border-left:5px solid #94a3b8}.dashboard-kpi.danger-value .kpi-value{color:#b91c1c}.dashboard-kpi.warning-value .kpi-value{color:#b45309}.dashboard-alert-card{padding:20px}.dashboard-alert-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.dashboard-alert-item{border:1px solid #e2e8f0;border-radius:12px;padding:14px;background:#f8fafc}.dashboard-alert-item .alert-label{font-size:12px;color:#475569;font-weight:800}.dashboard-alert-item .alert-value{font-size:26px;font-weight:800;margin-top:6px}.dashboard-alert-item.danger{background:#fff1f2;border-color:#fecaca}.dashboard-alert-item.warning{background:#fffbeb;border-color:#fde68a}.dashboard-alert-item.neutral{background:#f8fafc}.dashboard-alert-actions{display:flex;justify-content:flex-end;margin-top:14px}.dashboard-condition-good{color:#15803d;font-weight:800}.dashboard-condition-bad{color:#b91c1c;font-weight:800}.dashboard-condition-never{color:#64748b;font-weight:800}.mobile-topbar,.mobile-overlay{display:none}@media(max-width:900px){.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){body{padding-top:58px}.mobile-topbar{position:fixed;left:0;right:0;top:0;height:58px;background:#10233f;color:#fff;display:flex;align-items:center;gap:12px;padding:8px 12px;z-index:60;box-shadow:0 2px 8px rgba(15,23,42,.18)}.mobile-menu-btn{width:40px;height:40px;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;font-size:22px;cursor:pointer}.mobile-brand{font-size:17px;font-weight:800}.mobile-brand span{display:block;font-size:10px;font-weight:400;opacity:.7}.sidebar{position:fixed!important;left:0;top:0;bottom:0;width:260px!important;height:100vh;transform:translateX(-105%);transition:transform .22s ease;z-index:70;box-shadow:6px 0 20px rgba(15,23,42,.22);overflow-y:auto}.sidebar.mobile-open{transform:translateX(0)}.mobile-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:65}.mobile-overlay:not(.hidden){display:block}.main{margin:0!important;width:100%!important;padding:14px!important}.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:1fr 1fr;gap:9px}.dashboard-kpi{padding:13px;min-height:96px}.dashboard-kpi .kpi-value{font-size:25px}.dashboard-alert-card{padding:14px}.dashboard-alert-item{padding:11px}.dashboard-alert-item .alert-value{font-size:23px}.toolbar-left{width:100%}.toolbar-left .action{flex:1;min-width:120px}}@media(max-width:380px){.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:1fr}}
-/* V14.13.0 - Data APAR print visibility hardening */
+/* V14.13.1 - Data APAR print visibility hardening */
 #dataAparView #printAparListBtn{
   display:inline-flex!important;
   visibility:visible!important;
@@ -241,7 +241,7 @@ body:not(.authenticated) .sidebar{
   justify-content:center;
 }
 
-/* V14.13.0 lifecycle visibility hardening */
+/* V14.13.1 lifecycle visibility hardening */
 .lifecycle-reminder-card .stat-card .stat-value{color:#1e293b!important}
 .lifecycle-reminder-card .stat-card.danger .stat-value{color:#b91c1c!important}
 .lifecycle-reminder-card .stat-card.warning .stat-value{color:#b45309!important}
@@ -250,7 +250,7 @@ body:not(.authenticated) .sidebar{
 @media(max-width:650px){#dataAparView .toolbar-left{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#dataAparView .toolbar-left .action{width:100%}}
 
 /* =========================================================
-   V14.13.0 - SMART INSPECTION
+   V14.13.1 - SMART INSPECTION
    Baseline: V14.12.8
    ========================================================= */
 .inspection-auto-note{
@@ -351,12 +351,104 @@ body:not(.authenticated) .sidebar{
   .inspection-eval-grid{grid-template-columns:1fr}
 }
 
+
+/* =========================================================
+   V14.13.1 - READABILITY UI
+   Baseline: V14.13.0
+   Functionality unchanged.
+   ========================================================= */
+.table-wrap table th{
+  font-size:14px!important;
+  font-weight:800!important;
+  line-height:1.35;
+}
+.table-wrap table td{
+  font-size:14px!important;
+  line-height:1.5!important;
+  vertical-align:middle;
+}
+#historyView .table-wrap table th{
+  font-size:15px!important;
+}
+#historyView .table-wrap table td{
+  font-size:15px!important;
+}
+#historyView #historyBody td:first-child{
+  font-weight:800;
+  letter-spacing:.1px;
+}
+#historyView #historyBody td:nth-child(3){
+  font-weight:800;
+  text-transform:uppercase;
+}
+#historyView #historyBody td:nth-child(5){
+  font-size:15px!important;
+}
+#historyView .small-btn{
+  font-size:14px!important;
+  font-weight:700!important;
+  padding:8px 12px!important;
+}
+#historyView input,
+#historyView select{
+  font-size:15px!important;
+}
+#historyView .subtitle{
+  font-size:14px;
+}
+#monitoringView .table-wrap table th,
+#monitoringView .table-wrap table td{
+  font-size:14px!important;
+}
+#dataAparView .table-wrap table th,
+#dataAparView .table-wrap table td{
+  font-size:14px!important;
+}
+#dataAparView input,
+#dataAparView select{
+  font-size:14px!important;
+}
+#refillsView .table-wrap table th,
+#refillsView .table-wrap table td{
+  font-size:14px!important;
+}
+.badge,
+.refill-status-badge,
+.dashboard-mini-badge{
+  font-size:12px!important;
+  font-weight:800!important;
+}
+.action,
+.small-btn{
+  font-size:14px;
+}
+@media(max-width:650px){
+  .table-wrap table th{
+    font-size:13px!important;
+  }
+  .table-wrap table td{
+    font-size:13px!important;
+  }
+  #historyView .table-wrap table th,
+  #historyView .table-wrap table td{
+    font-size:13px!important;
+  }
+  #historyView input,
+  #historyView select{
+    font-size:14px!important;
+  }
+  .action,
+  .small-btn{
+    font-size:13px!important;
+  }
+}
+
 </style>
 </head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.13.0</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.13.1</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -723,7 +815,7 @@ body:not(.authenticated) .sidebar{
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.0...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.1...</div>
 </section>
 </div>
 </main>
@@ -1000,7 +1092,8 @@ function buildLatestInspectionMap(){const map=new Map();(inspectionRows||[]).for
 function renderDashboardInspectionKpis(){const latest=buildLatestInspectionMap();let pass=0,fail=0,never=0;(aparRows||[]).forEach(x=>{const k=String(x.assetNumber||x.id||"").trim();const r=String(latest.get(k)?.result||"").toLowerCase();if(r==="pass")pass++;else if(r==="fail")fail++;else never++;});$("passApar").textContent=pass;$("dashboardFail").textContent=fail;$("dashboardNever").textContent=never;$("dashboardNeverInspection").textContent=never;$("dashboardAttention").textContent=fail;}
 function renderDashboardLifecycle(){const seen=new Set(),all=(aparRows||[]).flatMap(x=>{const asset=String(x.assetNumber||x.id||'').trim();return [["Refill",x.nextRefillDate],["Hydrotest",effectiveHydrotestNextDate(x)],["Masa Berlaku",x.expiryDate]].map(([kind,value])=>({assetNumber:asset,kind,value,diff:lifecycleDayDiff(lifecycleDateValue(value))}));}).filter(x=>{const key=`${x.assetNumber}|${x.kind}|${x.value}`;if(seen.has(key))return false;seen.add(key);return true});const overdue=all.filter(x=>x.diff!==null&&x.diff<=0).length,d14=all.filter(x=>x.diff!==null&&x.diff>0&&x.diff<=14).length,d30=all.filter(x=>x.diff!==null&&x.diff>14&&x.diff<=30).length,noSchedule=all.filter(x=>x.diff===null).length;$("dashboardLifecycleOverdue").textContent=overdue;$("dashboardLifecycle14").textContent=d14;$("dashboardLifecycle30").textContent=d30;$("dashboardLifecycleNoSchedule").textContent=noSchedule;}
 function renderDashboardApar(){const b=$("aparTableBody"),latest=buildLatestInspectionMap();if(!aparRows.length){b.innerHTML='<tr><td colspan="8" class="empty">Belum ada data APAR.</td></tr>';return}b.innerHTML=aparRows.map(x=>{const k=String(x.assetNumber||x.id||"").trim(),ins=latest.get(k),r=String(ins?.result||"").toLowerCase();let condition='<span class="dashboard-condition-never">BELUM DIPERIKSA</span>';if(r==="pass")condition='<span class="dashboard-condition-good">BAIK</span>';if(r==="fail")condition='<span class="dashboard-condition-bad">PERLU PERHATIAN</span>';return `<tr><td><strong>${esc(x.assetNumber||x.id)}</strong></td><td>${esc(x.brand)}</td><td>${esc(x.capacity)}</td><td>${esc(x.locationId)}</td><td>${esc(x.serialNumber)}</td><td>${badge(x.status)}</td><td>${ins?badge(ins.result)+`<br><span style="font-size:11px;color:#64748b">${formatDate(ins.inspectionDate||ins.createdAt)}</span>`:"-"}</td><td>${condition}</td></tr>`;}).join("");}
-function printAparList(){const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR yang dapat dicetak.","warning");return}const win=window.open("","_blank","width=1200,height=800");if(!win){alert("Popup diblokir browser. Izinkan popup untuk mencetak Daftar APAR.");return}const body=rows.map(x=>`<tr><td>${esc(x.assetNumber||x.id||"-")}</td><td>${esc(x.brand||"-")}</td><td>${esc(x.capacity||"-")}</td><td>${esc(x.locationId||"-")}</td><td>${esc(x.serialNumber||"-")}</td><td>${esc(x.typeId||"-")}</td><td>${esc(String(x.status||"-").toUpperCase())}</td><td>${esc(x.nextRefillDate?formatLifecycleDate(x.nextRefillDate):"-")}</td></tr>`).join("");win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Daftar Master APAR</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 6px}.meta{font-size:12px;color:#555;margin-bottom:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;font-size:10px;text-align:left}th{background:#f3f4f6}</style></head><body><h1>Daftar Master APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah data: ${rows.length}</div><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Refill Berikutnya</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`);win.document.close();}
+function printAparList(){const q=String($("aparSearch")?.value||"").trim().toLowerCase();const rows=(aparRows||[]).filter(x=>!q||[x.assetNumber,x.brand,x.capacity,x.locationId,x.serialNumber,x.typeId,x.status,x.id].some(v=>String(v??"").toLowerCase().includes(q)));if(!rows.length){setStatus("Tidak ada data APAR yang dapat dicetak.","warning");return}const win=window.open("","_blank","width=1200,height=800");if(!win){alert("Popup diblokir browser. Izinkan popup untuk mencetak Daftar APAR.");return}const body=rows.map(x=>`<tr><td>${esc(x.assetNumber||x.id||"-")}</td><td>${esc(x.brand||"-")}</td><td>${esc(x.capacity||"-")}</td><td>${esc(x.locationId||"-")}</td><td>${esc(x.serialNumber||"-")}</td><td>${esc(x.typeId||"-")}</td><td>${esc(String(x.status||"-").toUpperCase())}</td><td>${esc(x.nextRefillDate?formatLifecycleDate(x.nextRefillDate):"-")}</td></tr>`).join("");win.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Daftar Master APAR</title><style>body{font-family:Arial,sans-serif;padding:24px;color:#111}h1{font-size:22px;margin:0 0 6px}.meta{font-size:12px;color:#555;margin-bottom:16px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #ccc;padding:7px;font-size:10px;text-align:left}th{background:#f3f4f6}</style></head><body>
+<!-- V14.13.1 READABILITY UI: font size improvement only; no functional module removed. --><h1>Daftar Master APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah data: ${rows.length}</div><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Type</th><th>Status</th><th>Refill Berikutnya</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`);win.document.close();}
 let pendingAparImport=[];
 const APAR_EXCEL_HEADERS=["Asset Number","Brand","Capacity","Location","Serial Number","Type","Status","Tanggal Produksi","Tanggal Mulai Digunakan","Masa Berlaku","Tanggal Refill Terakhir","Interval Refill (bulan)","Tanggal Refill Berikutnya","Tanggal Hydrotest Terakhir","Interval Hydrotest (bulan)","Tanggal Hydrotest Berikutnya"];
 function excelDate(v){if(v===null||v===undefined||v==="")return "";if(typeof v==="number"&&window.XLSX){const d=XLSX.SSF.parse_date_code(v);if(d)return `${d.y}-${String(d.m).padStart(2,"0")}-${String(d.d).padStart(2,"0")}`;}const t=String(v).trim();if(/^\d{4}-\d{2}-\d{2}$/.test(t))return t;const m=t.match(/^(\d{1,2})[\/-](\d{1,2})[\/-](\d{4})$/);if(m)return `${m[3]}-${m[2].padStart(2,"0")}-${m[1].padStart(2,"0")}`;return null;}
@@ -2239,7 +2332,7 @@ try{
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
   await setPersistence(auth,browserSessionPersistence);
 
-  // V14.13.0 SECURITY BOOT:
+  // V14.13.1 SECURITY BOOT:
   // Every page load starts unauthenticated. A Firebase session restored
   // from a previous tab/browser state must never open the Admin Dashboard
   // automatically.
