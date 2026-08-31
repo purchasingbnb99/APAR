@@ -9,7 +9,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0</title>
+<title>APAR - Admin Dashboard V14.14.0.2</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -457,6 +457,10 @@ body.role-inspector .inspector-only{display:block!important}
 .inspector-welcome{background:#fff;border:1px solid #dbe2ea;border-radius:12px;padding:20px}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
+
+/* V14.14.0.2 - LOGIN CLICK RECOVERY */
+.login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
+#loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 </style>
 </head>
 <body class="unauthenticated">
@@ -998,7 +1002,9 @@ body.role-inspector .inspector-only{display:block!important}
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.message||e.message||"Unknown JavaScript error"));}catch(_){}});
+</script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
 
 
@@ -2531,21 +2537,45 @@ $("aparForm").addEventListener("submit",saveAparForm);
 $("aparFormModal").addEventListener("click",e=>{if(e.target===$("aparFormModal"))closeAparForm()});
 
 $("loginBtn").addEventListener("click",async()=>{
-  const email=$("loginEmail").value.trim(),password=$("loginPassword").value;
-  if(!email||!password){setLoginStatus("Email dan password wajib diisi.","warning");return}
-  $("loginBtn").disabled=true;setLoginStatus("Sedang login dan memeriksa Role akun...","info");
+  const email=$("loginEmail").value.trim();
+  const password=$("loginPassword").value;
+
+  if(!email||!password){
+    setLoginStatus("Email dan password wajib diisi.","warning");
+    return;
+  }
+
+  const btn=$("loginBtn");
+  btn.disabled=true;
+
   try{
+    setLoginStatus("Menghubungkan ke Firebase...","info");
+    await authReady;
+
+    if(!auth){
+      throw new Error("Firebase Authentication belum siap.");
+    }
+
+    setLoginStatus("Sedang login dan memeriksa Role akun...","info");
     await signInWithEmailAndPassword(auth,email,password);
-    // onAuthStateChanged akan memeriksa role + status sebelum menampilkan dashboard.
-    // Jangan menampilkan "Authentication berhasil" di sini karena akun INACTIVE/Non-Admin
-    // juga dapat lolos tahap Firebase Authentication tetapi harus ditolak oleh aplikasi.
-  }
-  catch(e){
+  }catch(e){
     console.error(e);
-    setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error");
+    const code=String(e?.code||"");
+
+    if(code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found"){
+      setLoginStatus("Login gagal: Email atau password tidak benar.","error");
+    }else if(code==="auth/too-many-requests"){
+      setLoginStatus("Terlalu banyak percobaan login. Coba lagi beberapa saat.","error");
+    }else if(code==="auth/network-request-failed"){
+      setLoginStatus("Jaringan bermasalah. Periksa koneksi internet.","error");
+    }else{
+      setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error");
+    }
+  }finally{
+    btn.disabled=false;
   }
-  finally{$("loginBtn").disabled=false}
 });
+
 $("loginPassword").addEventListener("keydown",e=>{if(e.key==="Enter")$("loginBtn").click()});
 $("logoutBtn").addEventListener("click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
 $("reloadBtn").addEventListener("click",loadAll);
@@ -2596,50 +2626,88 @@ $("saveNewUserBtn").addEventListener("click",createNewUser);
 
 
 
+/*
+  V14.14.0.2 LOGIN CORE
+  Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
+*/
+let authReady=Promise.resolve();
+
 try{
   debug("Menginisialisasi Firebase...");
-  const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
+  const app=initializeApp(firebaseConfig);
+  auth=getAuth(app);
+  db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
-  await setPersistence(auth,browserSessionPersistence);
 
-  // V14.13.1 SECURITY BOOT:
-  // Every page load starts unauthenticated. A Firebase session restored
-  // from a previous tab/browser state must never open the Admin Dashboard
-  // automatically.
-  showLogin();
-  try{
-    if(auth.currentUser) await signOut(auth);
-  }catch(signoutBootError){
-    console.warn("Boot signOut warning:",signoutBootError);
-  }
+  // Persistence + cleanup sesi lama. Login menunggu promise ini agar tidak
+  // terjadi race antara signOut boot dan signIn pengguna.
+  authReady=setPersistence(auth,browserSessionPersistence)
+    .then(async()=>{
+      showLogin();
+      if(auth.currentUser){
+        try{ await signOut(auth); }
+        catch(signoutBootError){ console.warn("Boot signOut warning:",signoutBootError); }
+      }
+    })
+    .catch(e=>{
+      console.warn("Auth persistence/boot warning:",e);
+      showLogin();
+    });
 
   onAuthStateChanged(auth,async user=>{
     if(!user){
-      currentAdmin=null;document.body.classList.remove("role-admin","role-inspector");showLogin();
-      setStatus("Belum login. Silakan masuk menggunakan akun Admin atau Inspector.","warning");
-      debug("Tidak ada user Firebase yang login.");return;
+      currentAdmin=null;
+      document.body.classList.remove("authenticated","role-admin","role-inspector");
+      showLogin();
+      setLoginStatus("Silakan login menggunakan akun Admin atau Inspector.","info");
+      debug("Tidak ada user Firebase yang login.");
+      return;
     }
+
     try{
       debug("User login ditemukan: "+user.email);
       const profile=await validateUserProfile(user);
-      if(!auth.currentUser || auth.currentUser.uid!==user.uid) throw new Error("Sesi autentikasi berubah. Silakan login kembali.");
-      showDashboard();
-      if(profile.role==="admin") await loadAll();
-      else await loadInspectorDashboard();
+
+      if(!auth.currentUser || auth.currentUser.uid!==user.uid){
+        throw new Error("Sesi autentikasi berubah. Silakan login kembali.");
+      }
+
+      currentAdmin={...profile,uid:user.uid,email:profile.email||user.email||""};
       setRoleUi(profile.role);
-      setView(profile.role==="admin"?"dashboard":"inspectorDashboard");
+      showDashboard();
+
+      if(profile.role==="admin"){
+        await loadAll();
+        setView("dashboard");
+      }else{
+        await loadInspectorDashboard();
+        setView("inspectorDashboard");
+      }
     }catch(e){
       debug("VALIDASI LOGIN GAGAL: "+(e.message||""));
-      if(e.code==="USER_INACTIVE"){setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");setStatus("Akun INACTIVE. Akses ditolak.","error");}
-      else if(e.code==="PROFILE_NOT_FOUND"){setLoginStatus("Profil user belum terdaftar di Firestore. Hubungi Admin.","error");setStatus("Profil user tidak ditemukan.","error");}
-      else if(e.code==="INVALID_ROLE"){setLoginStatus("Role akun tidak valid. Hubungi Admin.","error");setStatus("Role user tidak valid.","error");}
-      else{setLoginStatus("Login/validasi gagal: "+(e.message||"akun tidak dapat digunakan."),"error");setStatus("Akses ditolak.","error");}
+
+      if(e.code==="USER_INACTIVE"){
+        setLoginStatus("Akun Anda INACTIVE. Silakan hubungi Admin.","error");
+      }else if(e.code==="PROFILE_NOT_FOUND"){
+        setLoginStatus("Profil user belum terdaftar di Firestore. Hubungi Admin.","error");
+      }else if(e.code==="INVALID_ROLE"){
+        setLoginStatus("Role akun tidak valid. Hubungi Admin.","error");
+      }else{
+        setLoginStatus("Login/validasi gagal: "+(e.message||"akun tidak dapat digunakan."),"error");
+      }
+
       try{await signOut(auth)}catch(_){}
-      currentAdmin=null;document.body.classList.remove("role-admin","role-inspector");showLogin();
+      currentAdmin=null;
+      document.body.classList.remove("authenticated","role-admin","role-inspector");
+      showLogin();
     }
   });
 }catch(e){
-  console.error(e);setStatus("Gagal menginisialisasi Firebase.","error");debug("Firebase INIT ERROR: "+e.message);showLogin();
+  console.error(e);
+  authReady=Promise.reject(e);
+  setLoginStatus("Firebase gagal diinisialisasi.","error");
+  debug("Firebase INIT ERROR: "+(e.message||e));
+  showLogin();
 }
 
 
