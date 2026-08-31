@@ -1000,6 +1000,170 @@ body.role-inspector .inspector-only{display:block!important}
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+
+
+<div id="refillModal" class="modal hidden">
+  <div class="modal-box" style="max-width:680px">
+    <div class="modal-head"><h2>🧯 Catat Refill APAR</h2><button id="closeRefillModal" class="close" type="button">✕ Tutup</button></div>
+    <div id="refillFormStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">Asset Number</div><div id="refillAssetDisplay" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Refill Berikutnya Saat Ini</div><div id="refillScheduledDisplay" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:16px"><label for="refillAssetSelect">APAR</label><select id="refillAssetSelect" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff"></select></div>
+    <div class="detail-grid">
+      <div class="field"><label for="refillScheduledDate">Tanggal Jadwal Refill</label><input id="refillScheduledDate" type="date"><div class="form-help">Diambil dari jadwal Refill Berikutnya pada Master APAR. Admin dapat mengoreksi jika diperlukan.</div></div>
+      <div class="field"><label for="refillActualDate">Tanggal Refill Aktual</label><input id="refillActualDate" type="date"><div class="form-help">Tanggal ini dianggap sebagai tanggal refill benar-benar dilakukan.</div></div>
+    </div>
+    <div class="detail-grid">
+      <div class="field"><label for="refillVendor">Vendor</label><input id="refillVendor" type="text" placeholder="Nama vendor / pengisi ulang"></div>
+      <div class="field"><label for="refillNotes">Keterangan</label><input id="refillNotes" type="text" placeholder="Contoh: Pengisian terlambat karena vendor"></div>
+    </div>
+    <div class="login-note" style="margin-bottom:15px">Setelah disimpan, sistem membuat histori pada collection <b>refills</b>, memperbarui <b>Refill Terakhir</b> pada Master APAR, dan menghitung <b>Refill Berikutnya</b> berdasarkan interval refill. Jika tanggal aktual melewati jadwal, keterlambatan dihitung otomatis.</div>
+    <button id="saveRefillBtn" class="action primary" type="button">💾 Simpan Refill</button>
+  </div>
+</div>
+
+<div id="userEditModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Edit User</h2>
+      <button id="closeUserEdit" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="userEditStatus" class="status info hidden"></div>
+    <div class="detail-grid">
+      <div class="detail-item"><div class="detail-label">UID</div><div id="editUserUid" class="detail-value">-</div></div>
+      <div class="detail-item"><div class="detail-label">Email</div><div id="editUserEmail" class="detail-value">-</div></div>
+    </div>
+    <div class="field" style="margin-top:16px">
+      <label for="editUserName">Nama</label>
+      <input id="editUserName" type="text" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px">
+    </div>
+    <div class="field">
+      <label for="editUserRole">Role</label>
+      <select id="editUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="editUserStatus">Status</label>
+      <select id="editUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+      <div class="login-note" style="margin-top:8px">User <b>Inactive</b> tidak dapat digunakan untuk login ke aplikasi jika pemeriksaan status user diterapkan pada proses login.</div>
+    </div>
+    <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
+  </div>
+</div>
+
+
+<div id="userAddModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head">
+      <h2>Tambah User Baru</h2>
+      <button id="closeUserAdd" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="userAddStatus" class="status info hidden"></div>
+
+    <div class="field">
+      <label for="newUserName">Nama</label>
+      <input id="newUserName" type="text" autocomplete="name" placeholder="Contoh: Inspector B">
+    </div>
+
+    <div class="field">
+      <label for="newUserEmail">Email Login</label>
+      <input id="newUserEmail" type="email" autocomplete="email" placeholder="contoh@apar.test">
+    </div>
+
+    <div class="field">
+      <label for="newUserPhone">Nomor HP</label>
+      <input id="newUserPhone" type="tel" autocomplete="tel" placeholder="+6281234567890">
+    </div>
+
+    <div class="field">
+      <label for="newUserRole">Role</label>
+      <select id="newUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="inspector">Inspector</option>
+        <option value="admin">Admin</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="newUserStatus">Status</label>
+      <select id="newUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
+        <option value="active">Active</option>
+        <option value="inactive">Inactive</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="newUserPassword">Password Awal</label>
+      <input id="newUserPassword" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+    </div>
+
+    <div class="field">
+      <label for="newUserPassword2">Konfirmasi Password</label>
+      <input id="newUserPassword2" type="password" autocomplete="new-password" placeholder="Ulangi password">
+    </div>
+
+    <div class="login-note" style="margin-bottom:15px">
+      Akun dibuat di Firebase Authentication dan profilnya otomatis dibuat di Firestore <b>users/{UID}</b>.
+      Password tidak disimpan di Firestore.
+    </div>
+
+    <button id="saveNewUserBtn" class="action primary" type="button">💾 Buat User</button>
+  </div>
+</div>
+
+
+<div id="passwordChangeModal" class="modal hidden">
+  <div class="modal-box" style="max-width:560px">
+    <div class="modal-head">
+      <h2>Ubah Password User</h2>
+      <button id="closePasswordChange" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="passwordChangeStatus" class="status info hidden"></div>
+
+    <div class="detail-grid">
+      <div class="detail-item">
+        <div class="detail-label">Nama</div>
+        <div id="passwordUserName" class="detail-value">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Email</div>
+        <div id="passwordUserEmail" class="detail-value">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">UID</div>
+        <div id="passwordUserUid" class="detail-value">-</div>
+      </div>
+      <div class="detail-item">
+        <div class="detail-label">Role</div>
+        <div id="passwordUserRole" class="detail-value">-</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:16px">
+      <label for="newPasswordDirect">Password Baru</label>
+      <input id="newPasswordDirect" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
+    </div>
+    <div class="field">
+      <label for="newPasswordDirect2">Konfirmasi Password Baru</label>
+      <input id="newPasswordDirect2" type="password" autocomplete="new-password" placeholder="Ulangi password baru">
+    </div>
+
+    <div class="login-note" style="margin-bottom:15px">
+      Password akan diubah langsung pada <b>Firebase Authentication</b> melalui backend aman.
+      Password tidak disimpan di Firestore.
+    </div>
+
+    <button id="savePasswordDirectBtn" class="action primary" type="button">🔐 Simpan Password Baru</button>
+  </div>
+</div>
+
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,browserSessionPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -3484,168 +3648,5 @@ if(originalLoadApar && !window.__v147LifecycleWrapped){
 // Initialize recovered QR + Inspection module once DOM and Firebase logic are ready.
 try{wireInspectionAndQr();}catch(e){console.error(e);debug("INIT PEMERIKSAAN/QR ERROR: "+(e.message||e));}
 </script>
-
-<div id="refillModal" class="modal hidden">
-  <div class="modal-box" style="max-width:680px">
-    <div class="modal-head"><h2>🧯 Catat Refill APAR</h2><button id="closeRefillModal" class="close" type="button">✕ Tutup</button></div>
-    <div id="refillFormStatus" class="status info hidden"></div>
-    <div class="detail-grid">
-      <div class="detail-item"><div class="detail-label">Asset Number</div><div id="refillAssetDisplay" class="detail-value">-</div></div>
-      <div class="detail-item"><div class="detail-label">Refill Berikutnya Saat Ini</div><div id="refillScheduledDisplay" class="detail-value">-</div></div>
-    </div>
-    <div class="field" style="margin-top:16px"><label for="refillAssetSelect">APAR</label><select id="refillAssetSelect" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff"></select></div>
-    <div class="detail-grid">
-      <div class="field"><label for="refillScheduledDate">Tanggal Jadwal Refill</label><input id="refillScheduledDate" type="date"><div class="form-help">Diambil dari jadwal Refill Berikutnya pada Master APAR. Admin dapat mengoreksi jika diperlukan.</div></div>
-      <div class="field"><label for="refillActualDate">Tanggal Refill Aktual</label><input id="refillActualDate" type="date"><div class="form-help">Tanggal ini dianggap sebagai tanggal refill benar-benar dilakukan.</div></div>
-    </div>
-    <div class="detail-grid">
-      <div class="field"><label for="refillVendor">Vendor</label><input id="refillVendor" type="text" placeholder="Nama vendor / pengisi ulang"></div>
-      <div class="field"><label for="refillNotes">Keterangan</label><input id="refillNotes" type="text" placeholder="Contoh: Pengisian terlambat karena vendor"></div>
-    </div>
-    <div class="login-note" style="margin-bottom:15px">Setelah disimpan, sistem membuat histori pada collection <b>refills</b>, memperbarui <b>Refill Terakhir</b> pada Master APAR, dan menghitung <b>Refill Berikutnya</b> berdasarkan interval refill. Jika tanggal aktual melewati jadwal, keterlambatan dihitung otomatis.</div>
-    <button id="saveRefillBtn" class="action primary" type="button">💾 Simpan Refill</button>
-  </div>
-</div>
-
-<div id="userEditModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Edit User</h2>
-      <button id="closeUserEdit" class="close" type="button">✕ Tutup</button>
-    </div>
-    <div id="userEditStatus" class="status info hidden"></div>
-    <div class="detail-grid">
-      <div class="detail-item"><div class="detail-label">UID</div><div id="editUserUid" class="detail-value">-</div></div>
-      <div class="detail-item"><div class="detail-label">Email</div><div id="editUserEmail" class="detail-value">-</div></div>
-    </div>
-    <div class="field" style="margin-top:16px">
-      <label for="editUserName">Nama</label>
-      <input id="editUserName" type="text" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px">
-    </div>
-    <div class="field">
-      <label for="editUserRole">Role</label>
-      <select id="editUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
-        <option value="inspector">Inspector</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-    <div class="field">
-      <label for="editUserStatus">Status</label>
-      <select id="editUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-      <div class="login-note" style="margin-top:8px">User <b>Inactive</b> tidak dapat digunakan untuk login ke aplikasi jika pemeriksaan status user diterapkan pada proses login.</div>
-    </div>
-    <button id="saveUserBtn" class="action primary" type="button">💾 Simpan Perubahan</button>
-  </div>
-</div>
-
-
-<div id="userAddModal" class="modal hidden">
-  <div class="modal-box">
-    <div class="modal-head">
-      <h2>Tambah User Baru</h2>
-      <button id="closeUserAdd" class="close" type="button">✕ Tutup</button>
-    </div>
-
-    <div id="userAddStatus" class="status info hidden"></div>
-
-    <div class="field">
-      <label for="newUserName">Nama</label>
-      <input id="newUserName" type="text" autocomplete="name" placeholder="Contoh: Inspector B">
-    </div>
-
-    <div class="field">
-      <label for="newUserEmail">Email Login</label>
-      <input id="newUserEmail" type="email" autocomplete="email" placeholder="contoh@apar.test">
-    </div>
-
-    <div class="field">
-      <label for="newUserPhone">Nomor HP</label>
-      <input id="newUserPhone" type="tel" autocomplete="tel" placeholder="+6281234567890">
-    </div>
-
-    <div class="field">
-      <label for="newUserRole">Role</label>
-      <select id="newUserRole" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
-        <option value="inspector">Inspector</option>
-        <option value="admin">Admin</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="newUserStatus">Status</label>
-      <select id="newUserStatus" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff">
-        <option value="active">Active</option>
-        <option value="inactive">Inactive</option>
-      </select>
-    </div>
-
-    <div class="field">
-      <label for="newUserPassword">Password Awal</label>
-      <input id="newUserPassword" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
-    </div>
-
-    <div class="field">
-      <label for="newUserPassword2">Konfirmasi Password</label>
-      <input id="newUserPassword2" type="password" autocomplete="new-password" placeholder="Ulangi password">
-    </div>
-
-    <div class="login-note" style="margin-bottom:15px">
-      Akun dibuat di Firebase Authentication dan profilnya otomatis dibuat di Firestore <b>users/{UID}</b>.
-      Password tidak disimpan di Firestore.
-    </div>
-
-    <button id="saveNewUserBtn" class="action primary" type="button">💾 Buat User</button>
-  </div>
-</div>
-
-
-<div id="passwordChangeModal" class="modal hidden">
-  <div class="modal-box" style="max-width:560px">
-    <div class="modal-head">
-      <h2>Ubah Password User</h2>
-      <button id="closePasswordChange" class="close" type="button">✕ Tutup</button>
-    </div>
-    <div id="passwordChangeStatus" class="status info hidden"></div>
-
-    <div class="detail-grid">
-      <div class="detail-item">
-        <div class="detail-label">Nama</div>
-        <div id="passwordUserName" class="detail-value">-</div>
-      </div>
-      <div class="detail-item">
-        <div class="detail-label">Email</div>
-        <div id="passwordUserEmail" class="detail-value">-</div>
-      </div>
-      <div class="detail-item">
-        <div class="detail-label">UID</div>
-        <div id="passwordUserUid" class="detail-value">-</div>
-      </div>
-      <div class="detail-item">
-        <div class="detail-label">Role</div>
-        <div id="passwordUserRole" class="detail-value">-</div>
-      </div>
-    </div>
-
-    <div class="field" style="margin-top:16px">
-      <label for="newPasswordDirect">Password Baru</label>
-      <input id="newPasswordDirect" type="password" autocomplete="new-password" placeholder="Minimal 6 karakter">
-    </div>
-    <div class="field">
-      <label for="newPasswordDirect2">Konfirmasi Password Baru</label>
-      <input id="newPasswordDirect2" type="password" autocomplete="new-password" placeholder="Ulangi password baru">
-    </div>
-
-    <div class="login-note" style="margin-bottom:15px">
-      Password akan diubah langsung pada <b>Firebase Authentication</b> melalui backend aman.
-      Password tidak disimpan di Firestore.
-    </div>
-
-    <button id="savePasswordDirectBtn" class="action primary" type="button">🔐 Simpan Password Baru</button>
-  </div>
-</div>
-
 </body>
 </html>
