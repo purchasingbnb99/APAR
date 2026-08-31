@@ -4,7 +4,11 @@
 <!-- V14.12.3: Excel Import/Export + Dashboard fix + Data APAR print + Inspection recovery + secure login + Mobile Drawer. -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<title>APAR - Admin Dashboard V14.12.7</title>
+<meta name="build-version" content="V14.13.0-FINAL-RECOVERY">
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+<title>APAR - Admin Dashboard V14.13.0</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -228,19 +232,131 @@ body:not(.authenticated) .sidebar{
 }
 /* V14.12.2 Dashboard + Mobile Drawer */
 .dashboard-kpi-section{margin-bottom:20px}.dashboard-section-title{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin:0 0 12px}.dashboard-section-title h2{margin:0;font-size:18px}.dashboard-kpi-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}.dashboard-kpi{background:#fff;border:1px solid #dbe2ea;border-radius:14px;padding:17px 18px;min-height:108px}.dashboard-kpi .kpi-label{font-size:12px;color:#64748b;font-weight:800;letter-spacing:.25px}.dashboard-kpi .kpi-value{font-size:30px;font-weight:800;margin-top:9px}.dashboard-kpi .kpi-note{font-size:11px;color:#64748b;margin-top:5px}.dashboard-kpi.alert{border-left:5px solid #dc2626}.dashboard-kpi.warn{border-left:5px solid #f59e0b}.dashboard-kpi.safe{border-left:5px solid #16a34a}.dashboard-kpi.neutral{border-left:5px solid #94a3b8}.dashboard-kpi.danger-value .kpi-value{color:#b91c1c}.dashboard-kpi.warning-value .kpi-value{color:#b45309}.dashboard-alert-card{padding:20px}.dashboard-alert-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}.dashboard-alert-item{border:1px solid #e2e8f0;border-radius:12px;padding:14px;background:#f8fafc}.dashboard-alert-item .alert-label{font-size:12px;color:#475569;font-weight:800}.dashboard-alert-item .alert-value{font-size:26px;font-weight:800;margin-top:6px}.dashboard-alert-item.danger{background:#fff1f2;border-color:#fecaca}.dashboard-alert-item.warning{background:#fffbeb;border-color:#fde68a}.dashboard-alert-item.neutral{background:#f8fafc}.dashboard-alert-actions{display:flex;justify-content:flex-end;margin-top:14px}.dashboard-condition-good{color:#15803d;font-weight:800}.dashboard-condition-bad{color:#b91c1c;font-weight:800}.dashboard-condition-never{color:#64748b;font-weight:800}.mobile-topbar,.mobile-overlay{display:none}@media(max-width:900px){.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){body{padding-top:58px}.mobile-topbar{position:fixed;left:0;right:0;top:0;height:58px;background:#10233f;color:#fff;display:flex;align-items:center;gap:12px;padding:8px 12px;z-index:60;box-shadow:0 2px 8px rgba(15,23,42,.18)}.mobile-menu-btn{width:40px;height:40px;border:0;border-radius:9px;background:rgba(255,255,255,.12);color:#fff;font-size:22px;cursor:pointer}.mobile-brand{font-size:17px;font-weight:800}.mobile-brand span{display:block;font-size:10px;font-weight:400;opacity:.7}.sidebar{position:fixed!important;left:0;top:0;bottom:0;width:260px!important;height:100vh;transform:translateX(-105%);transition:transform .22s ease;z-index:70;box-shadow:6px 0 20px rgba(15,23,42,.22);overflow-y:auto}.sidebar.mobile-open{transform:translateX(0)}.mobile-overlay{position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:65}.mobile-overlay:not(.hidden){display:block}.main{margin:0!important;width:100%!important;padding:14px!important}.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:1fr 1fr;gap:9px}.dashboard-kpi{padding:13px;min-height:96px}.dashboard-kpi .kpi-value{font-size:25px}.dashboard-alert-card{padding:14px}.dashboard-alert-item{padding:11px}.dashboard-alert-item .alert-value{font-size:23px}.toolbar-left{width:100%}.toolbar-left .action{flex:1;min-width:120px}}@media(max-width:380px){.dashboard-kpi-grid,.dashboard-alert-grid{grid-template-columns:1fr}}
-/* V14.12.7 lifecycle visibility hardening */
+/* V14.13.0 - Data APAR print visibility hardening */
+#dataAparView #printAparListBtn{
+  display:inline-flex!important;
+  visibility:visible!important;
+  opacity:1!important;
+  align-items:center;
+  justify-content:center;
+}
+
+/* V14.13.0 lifecycle visibility hardening */
 .lifecycle-reminder-card .stat-card .stat-value{color:#1e293b!important}
 .lifecycle-reminder-card .stat-card.danger .stat-value{color:#b91c1c!important}
 .lifecycle-reminder-card .stat-card.warning .stat-value{color:#b45309!important}
 .lifecycle-reminder-card .stat-card:nth-child(3) .stat-value{color:#a16207!important}
 .lifecycle-reminder-card .stat-card:nth-child(4) .stat-value{color:#475569!important}
 @media(max-width:650px){#dataAparView .toolbar-left{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}#dataAparView .toolbar-left .action{width:100%}}
+
+/* =========================================================
+   V14.13.0 - SMART INSPECTION
+   Baseline: V14.12.8
+   ========================================================= */
+.inspection-auto-note{
+  margin-top:6px;
+  font-size:11px;
+  color:#64748b;
+}
+.inspection-eval{
+  margin-top:16px;
+  padding:16px;
+  border:1px solid #dbe2ea;
+  border-radius:12px;
+  background:#f8fafc;
+}
+.inspection-eval.pass{
+  border-color:#86efac;
+  background:#f0fdf4;
+}
+.inspection-eval.fail{
+  border-color:#fecaca;
+  background:#fff1f2;
+}
+.inspection-eval-head{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.inspection-eval-title{
+  font-size:15px;
+  font-weight:800;
+}
+.inspection-eval-result{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border-radius:999px;
+  padding:7px 11px;
+  font-size:12px;
+  font-weight:800;
+}
+.inspection-eval-result.pass{
+  background:#dcfce7;
+  color:#166534;
+}
+.inspection-eval-result.fail{
+  background:#fee2e2;
+  color:#b91c1c;
+}
+.inspection-eval-grid{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:10px;
+}
+.inspection-eval-box{
+  background:#fff;
+  border:1px solid #e2e8f0;
+  border-radius:10px;
+  padding:11px 12px;
+}
+.inspection-eval-label{
+  font-size:11px;
+  color:#64748b;
+  font-weight:700;
+  text-transform:uppercase;
+}
+.inspection-eval-value{
+  margin-top:4px;
+  font-size:20px;
+  font-weight:800;
+}
+.inspection-issues{
+  margin-top:12px;
+  padding:11px 12px;
+  border-radius:10px;
+  background:#fff;
+  border:1px solid #e2e8f0;
+  font-size:13px;
+  line-height:1.55;
+}
+.inspection-issues ul{
+  margin:7px 0 0 18px;
+  padding:0;
+}
+#inspectionResult:disabled{
+  opacity:1;
+  color:#10233f;
+  background:#e2e8f0;
+  cursor:not-allowed;
+}
+.inspection-notes-required{
+  color:#b91c1c;
+  font-weight:800;
+}
+@media(max-width:700px){
+  .inspection-eval-grid{grid-template-columns:1fr}
+}
+
 </style>
 </head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.12.7</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.13.0</small></div>
   <div class="nav">
     <button id="navDashboard" class="active" type="button">📊 Dashboard</button>
     <button id="navDataApar" type="button">🧯 Data APAR</button>
@@ -284,7 +400,7 @@ body:not(.authenticated) .sidebar{
   <section class="card">
     <div class="toolbar">
       <div><h2>Master Data APAR</h2><div class="subtitle">Daftar APAR dari collection <b>apar</b>. V14.3 menambahkan Tambah dan Edit data APAR.</div></div>
-      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="importAparBtn" class="action primary" type="button">📥 Import Excel</button><button id="exportAparBtn" class="action primary" type="button">📤 Export Excel</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button><button id="printAparListBtn" class="action primary" type="button">🖨️ Cetak</button></div>
+      <div class="toolbar-left"><button id="addAparBtn" class="action primary" type="button">➕ Tambah APAR</button><button id="importAparBtn" class="action primary" type="button">📥 Import Excel</button><button id="exportAparBtn" class="action primary" type="button">📤 Export Excel</button><button id="reloadAparBtn" class="action secondary" type="button">🔄 Muat Ulang</button><button id="printAparListBtn" class="action primary" type="button">🖨️ Cetak Data APAR</button></div>
     </div>
     <div class="toolbar-left" style="margin-bottom:15px">
       <input id="aparSearch" class="search" type="search" placeholder="Cari Asset Number, Brand, Location, Serial Number, Type...">
@@ -477,9 +593,23 @@ body:not(.authenticated) .sidebar{
       <div class="inspection-item"><label for="nozzle">Nozzle</label><select id="nozzle"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="blocked">Tersumbat</option></select></div>
       <div class="inspection-item"><label for="hose">Selang</label><select id="hose"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="missing">Tidak Ada</option></select></div>
       <div class="inspection-item"><label for="signage">Signage</label><select id="signage"><option value="good">Baik</option><option value="damaged">Rusak</option><option value="missing">Tidak Ada</option></select></div>
-      <div class="inspection-item"><label for="inspectionResult">Hasil Pemeriksaan</label><select id="inspectionResult"><option value="pass">PASS</option><option value="fail">FAIL</option></select></div>
-      <div class="inspection-item inspection-full"><label for="inspectionNotes">Catatan</label><textarea id="inspectionNotes" placeholder="Masukkan catatan pemeriksaan jika ada..."></textarea></div>
+      <div class="inspection-item"><label for="inspectionResult">Hasil Pemeriksaan</label><select id="inspectionResult" disabled><option value="pass">PASS</option><option value="fail">FAIL</option></select><div class="inspection-auto-note">Hasil dihitung otomatis dari seluruh checklist pemeriksaan.</div></div>
+      <div class="inspection-item inspection-full"><label for="inspectionNotes">Catatan <span id="inspectionNotesRequiredMark" class="inspection-notes-required hidden">* WAJIB jika FAIL</span></label><textarea id="inspectionNotes" placeholder="Masukkan catatan pemeriksaan jika ada..."></textarea><div id="inspectionNotesHelp" class="inspection-auto-note">Catatan opsional untuk hasil PASS. Catatan wajib jika hasil otomatis FAIL.</div></div>
     </div>
+
+    <div id="inspectionEvaluation" class="inspection-eval pass">
+      <div class="inspection-eval-head">
+        <div class="inspection-eval-title">Ringkasan Evaluasi Pemeriksaan</div>
+        <div id="inspectionAutoResultBadge" class="inspection-eval-result pass">✅ PASS</div>
+      </div>
+      <div class="inspection-eval-grid">
+        <div class="inspection-eval-box"><div class="inspection-eval-label">Item Diperiksa</div><div id="inspectionEvalTotal" class="inspection-eval-value">7</div></div>
+        <div class="inspection-eval-box"><div class="inspection-eval-label">Baik / Normal</div><div id="inspectionEvalGood" class="inspection-eval-value">7</div></div>
+        <div class="inspection-eval-box"><div class="inspection-eval-label">Bermasalah</div><div id="inspectionEvalProblem" class="inspection-eval-value">0</div></div>
+      </div>
+      <div id="inspectionIssueList" class="inspection-issues">✅ Semua item checklist dalam kondisi baik / normal.</div>
+    </div>
+
     <div class="modal-actions">
       <button id="cancelInspectionBtn" class="action secondary" type="button">Reset Form</button>
       <button id="saveInspectionBtn" class="action primary" type="button">💾 Simpan Pemeriksaan</button>
@@ -593,7 +723,7 @@ body:not(.authenticated) .sidebar{
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.9...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.13.0...</div>
 </section>
 </div>
 </main>
@@ -1125,7 +1255,7 @@ function inspectionAssetKey(x){
 }
 
 function inspectorLabel(x){
-  return x.inspectorPhone || x.inspectorId || x.inspectorEmail || "-";
+  return x.inspectorName || x.inspectorPhone || x.inspectorEmail || x.inspectorId || "-";
 }
 
 function buildMonitoringRows(){
@@ -1308,10 +1438,12 @@ function showInspectionDetail(id){
   const fields=[
     ["Document ID",x.id],
     ["Asset Number",x.aparAssetNumber||x.aparId],
-    ["Inspector",inspectorLabel(x)],
-    ["Hasil",x.result],
+    ["Inspector",x.inspectorName||inspectorLabel(x)],
+    ["Role Input",String(x.inputByRole||"-").toUpperCase()],
+    ["Hasil",String(x.result||"-").toUpperCase()],
     ["Tanggal Pemeriksaan",formatDate(x.inspectionDate||x.createdAt)],
-    ["Catatan",x.notes],
+    ...inspectionChecklistDetailFields(x),
+    ["Catatan",x.notes||"-"],
     ["Created At",formatDate(x.createdAt)],
     ["Updated At",formatDate(x.updatedAt)]
   ];
@@ -2106,13 +2238,29 @@ try{
   const app=initializeApp(firebaseConfig);auth=getAuth(app);db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
   await setPersistence(auth,browserSessionPersistence);
-  await signOut(auth);
+
+  // V14.13.0 SECURITY BOOT:
+  // Every page load starts unauthenticated. A Firebase session restored
+  // from a previous tab/browser state must never open the Admin Dashboard
+  // automatically.
   showLogin();
+  try{
+    if(auth.currentUser) await signOut(auth);
+  }catch(signoutBootError){
+    console.warn("Boot signOut warning:",signoutBootError);
+  }
+
   onAuthStateChanged(auth,async user=>{
     if(!user){showLogin();setStatus("Belum login. Silakan login menggunakan akun Admin.","warning");debug("Tidak ada user Firebase yang login.");return}
     try{
       debug("User login ditemukan: "+user.email);
       await validateAdmin(user);
+
+      // Final guard: only the validated Admin session may reveal dashboard.
+      if(!auth.currentUser || auth.currentUser.uid!==user.uid){
+        throw new Error("Sesi autentikasi berubah. Silakan login kembali.");
+      }
+
       showDashboard();
       await loadAll();
     }catch(e){
@@ -2435,6 +2583,102 @@ function buildInspectionAparItem(id,data){
   };
 }
 
+
+const INSPECTION_CHECKLIST = [
+  {id:"physicalCondition", label:"Kondisi Fisik", good:["good"]},
+  {id:"seal", label:"Seal", good:["good"]},
+  {id:"safetyPin", label:"Safety Pin", good:["good"]},
+  {id:"pressure", label:"Pressure", good:["normal"]},
+  {id:"nozzle", label:"Nozzle", good:["good"]},
+  {id:"hose", label:"Selang", good:["good"]},
+  {id:"signage", label:"Signage", good:["good"]}
+];
+
+const INSPECTION_VALUE_LABELS = {
+  good:"Baik",
+  minor_damage:"Rusak Ringan",
+  damaged:"Rusak",
+  missing:"Tidak Ada",
+  normal:"Normal",
+  low:"Rendah",
+  high:"Tinggi",
+  blocked:"Tersumbat"
+};
+
+function inspectionValueLabel(v){
+  return INSPECTION_VALUE_LABELS[String(v||"")] || String(v||"-");
+}
+
+function evaluateInspectionChecklist(){
+  const items=INSPECTION_CHECKLIST.map(item=>{
+    const el=$(item.id);
+    const value=String(el?.value||"");
+    const good=item.good.includes(value);
+    return {...item,value,good};
+  });
+  const problems=items.filter(x=>!x.good);
+  return {
+    items,
+    total:items.length,
+    good:items.length-problems.length,
+    problem:problems.length,
+    result:problems.length ? "fail" : "pass",
+    problems
+  };
+}
+
+function renderInspectionEvaluation(){
+  const ev=evaluateInspectionChecklist();
+  const resultEl=$("inspectionResult");
+  if(resultEl) resultEl.value=ev.result;
+
+  const panel=$("inspectionEvaluation");
+  const badgeEl=$("inspectionAutoResultBadge");
+  if(panel){
+    panel.classList.remove("pass","fail");
+    panel.classList.add(ev.result);
+  }
+  if(badgeEl){
+    badgeEl.className="inspection-eval-result "+ev.result;
+    badgeEl.textContent=ev.result==="pass" ? "✅ PASS" : "⚠️ FAIL";
+  }
+
+  if($("inspectionEvalTotal")) $("inspectionEvalTotal").textContent=ev.total;
+  if($("inspectionEvalGood")) $("inspectionEvalGood").textContent=ev.good;
+  if($("inspectionEvalProblem")) $("inspectionEvalProblem").textContent=ev.problem;
+
+  const issue=$("inspectionIssueList");
+  if(issue){
+    if(!ev.problems.length){
+      issue.innerHTML="✅ Semua item checklist dalam kondisi baik / normal.";
+    }else{
+      issue.innerHTML=`<strong>Item bermasalah:</strong><ul>${ev.problems.map(x=>`<li>${esc(x.label)}: <strong>${esc(inspectionValueLabel(x.value))}</strong></li>`).join("")}</ul>`;
+    }
+  }
+
+  const mark=$("inspectionNotesRequiredMark");
+  const help=$("inspectionNotesHelp");
+  if(mark) mark.classList.toggle("hidden",ev.result!=="fail");
+  if(help) help.textContent=ev.result==="fail"
+    ? "Catatan wajib diisi karena terdapat item pemeriksaan yang bermasalah."
+    : "Catatan opsional untuk hasil PASS. Catatan wajib jika hasil otomatis FAIL.";
+
+  return ev;
+}
+
+function inspectionChecklistDetailFields(x){
+  return [
+    ["Kondisi Fisik", inspectionValueLabel(x.physicalCondition)],
+    ["Seal", inspectionValueLabel(x.seal)],
+    ["Safety Pin", inspectionValueLabel(x.safetyPin)],
+    ["Pressure", inspectionValueLabel(x.pressure)],
+    ["Nozzle", inspectionValueLabel(x.nozzle)],
+    ["Selang", inspectionValueLabel(x.hose)],
+    ["Signage", inspectionValueLabel(x.signage)]
+  ];
+}
+
+
 function setInspectionStatus(message,type="info"){
   const e=$("inspectionStatus");
   if(!e)return;
@@ -2544,6 +2788,7 @@ function selectInspectionApar(item,source="manual"){
   $("inspectionStatus").textContent=source==="scan"?"APAR berhasil dipilih dari QR. Silakan lakukan pemeriksaan.":"APAR siap diperiksa.";
   $("inspectionStatus").className="status info";
   $("inspectionForm").classList.remove("hidden");
+  renderInspectionEvaluation();
   if(source==="scan"){
     $("scanResult").textContent=`✓ QR valid: ${item.assetNumber} — APAR otomatis dipilih.`;
     $("scanResult").classList.remove("hidden");
@@ -2570,7 +2815,16 @@ async function saveAdminInspection(){
   setInspectionStatus("Memverifikasi status APAR dan menyimpan hasil...","info");
   try{
     const verified=await verifyInspectionAparStillActive(inspectionSelectedApar);
-    const result=$("inspectionResult").value;
+    const evaluation=renderInspectionEvaluation();
+    const result=evaluation.result;
+    const notes=$("inspectionNotes").value.trim();
+
+    if(result==="fail" && !notes){
+      setInspectionStatus("Catatan wajib diisi karena hasil pemeriksaan FAIL.","warning");
+      $("inspectionNotes").focus();
+      return;
+    }
+
     const data={
       aparId:verified.id,
       aparAssetNumber:verified.assetNumber,
@@ -2610,6 +2864,7 @@ function resetAdminInspectionForm(keepApar=true){
   $("physicalCondition").value="good";$("seal").value="good";$("safetyPin").value="good";
   $("pressure").value="normal";$("nozzle").value="good";$("hose").value="good";$("signage").value="good";
   $("inspectionResult").value="pass";$("inspectionNotes").value="";
+  renderInspectionEvaluation();
   if(!keepApar){
     inspectionSelectedApar=null;$("inspectionAparSelect").value="";$("inspectionForm").classList.add("hidden");
   }
@@ -2664,6 +2919,10 @@ async function handleAdminQrSuccess(decodedText){
 
 function wireInspectionAndQr(){
   initializeQrGenerator();initializeInspectionUi();
+  INSPECTION_CHECKLIST.forEach(item=>{
+    $(item.id)?.addEventListener("change",renderInspectionEvaluation);
+  });
+  renderInspectionEvaluation();
 
   $("qrAparSelect")?.addEventListener("change",()=>{
     const item=findAparItemById($("qrAparSelect").value);
