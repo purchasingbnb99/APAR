@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.0.9-FINAL">
+<meta name="build-version" content="V14.14.0.10-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0.9.3</title>
+<title>APAR - Admin Dashboard V14.14.0.10.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -456,24 +456,24 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.0.9 - LOGIN CLICK RECOVERY */
+/* V14.14.0.10 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.0.9 - Refill print readability */
+/* V14.14.0.10 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.0.9 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.0.10 UI cleanup: version markers are internal only, never visible. */
 
 </style>
-<meta name="v141403-build" content="multi-role-login-final-fix"><\!-- v14.14.0.3 --></head>
+<meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.0.9</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.0.10</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -869,7 +869,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.9...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.10...</div>
 </section>
 </div>
 </main>
@@ -1180,7 +1180,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.0.9 boot diagnostics: never blocks UI. */
+/* V14.14.0.10 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1196,7 +1196,7 @@ window.addEventListener("unhandledrejection",function(e){
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,browserSessionPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,inMemoryPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,getDocs,query,where,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
@@ -1312,6 +1312,12 @@ async function validateUserProfile(user){
   debug("Role: "+role);debug("Status: "+status);
   if(status!=="active"){const err=new Error("Akun tidak aktif. Status: "+status);err.code="USER_INACTIVE";throw err;}
   if(!["admin","inspector"].includes(role)){const err=new Error("Role akun tidak valid: "+role);err.code="INVALID_ROLE";throw err;}
+  const authEmail=String(user.email||"").trim().toLowerCase();
+  const profileEmail=String(data.email||"").trim().toLowerCase();
+  if(profileEmail && authEmail && profileEmail!==authEmail){
+    debug("PERINGATAN: email Auth dan profile berbeda: "+authEmail+" vs "+profileEmail);
+  }
+
   currentAdmin={...data,uid:user.uid,email:data.email||user.email||""};
   $("adminEmail").textContent=currentAdmin.email||user.email||"-";
   $("topUserLabel").textContent=role==="inspector"?"Inspector":"Admin";
@@ -2580,12 +2586,12 @@ window.__aparLoginHandler = async ()=>{
   if(!btn || btn.disabled)return;
   btn.disabled=true;
   try{
-    setLoginStatus("Menghubungkan ke Firebase...","info");
+    setLoginStatus("Login...","info");
     await authReady;
     if(!auth)throw new Error("Firebase Authentication belum siap.");
-    setLoginStatus("Sedang login dan memeriksa Role akun...","info");
     await signInWithEmailAndPassword(auth,email,password);
     debug("Firebase Authentication berhasil untuk: "+email);
+    setLoginStatus("Login berhasil. Memeriksa Role akun...","info");
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
@@ -2709,7 +2715,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.0.9 LOGIN CORE
+  V14.14.0.10 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2721,18 +2727,17 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // Persistence + cleanup sesi lama. Login menunggu promise ini agar tidak
-  // terjadi race antara signOut boot dan signIn pengguna.
-  authReady=setPersistence(auth,browserSessionPersistence)
-    .then(async()=>{
+  // V14.14.0.10:
+  // In-memory persistence intentionally prevents a prior browser session
+  // from being restored after a fresh page load. This keeps the Login screen
+  // immediate and removes the previous boot signOut race/delay.
+  authReady=setPersistence(auth,inMemoryPersistence)
+    .then(()=>{
       showLogin();
-      if(auth.currentUser){
-        try{ await signOut(auth); }
-        catch(signoutBootError){ console.warn("Boot signOut warning:",signoutBootError); }
-      }
+      debug("Auth persistence siap (in-memory).");
     })
     .catch(e=>{
-      console.warn("Auth persistence/boot warning:",e);
+      console.warn("Auth persistence warning:",e);
       showLogin();
     });
 
@@ -2776,7 +2781,7 @@ try{
         debug("POST-LOGIN LOAD ERROR: "+(loadError.code||"-")+" | "+(loadError.message||""));
         setStatus(
           profile.role==="inspector"
-            ? "Login Inspector berhasil, tetapi data dashboard gagal dimuat: "+(loadError.message||"Unknown error")
+            ? "Login Inspector berhasil, tetapi data dashboard gagal dimuat. Periksa Firestore Rules/permissions: "+(loadError.message||"Unknown error")
             : "Login Admin berhasil, tetapi data dashboard gagal dimuat: "+(loadError.message||"Unknown error"),
           "error"
         );
