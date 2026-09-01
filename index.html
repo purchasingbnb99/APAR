@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.2.1-FINAL">
+<meta name="build-version" content="V14.14.2.3-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.2.1.3</title>
+<title>APAR - Admin Dashboard V14.14.2.3.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -456,20 +456,20 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.2.1 - LOGIN CLICK RECOVERY */
+/* V14.14.2.3 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.2.1 - Refill print readability */
+/* V14.14.2.3 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.2.1 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.2.3 UI cleanup: version markers are internal only, never visible. */
 
 
-/* V14.14.2.1 - Global Inspection Awareness */
+/* V14.14.2.3 - Global Inspection Awareness */
 .inspection-global-status{
   margin-top:12px;padding:14px 16px;border:1px solid #cbd5e1;border-radius:10px;
   background:#f8fafc
@@ -481,7 +481,7 @@ body.role-inspector .inspector-only{display:block!important}
 .inspection-global-meta{margin-top:4px;color:#64748b;font-size:12px;line-height:1.5}
 
 
-/* V14.14.2.1 — Global Inspection Worklist */
+/* V14.14.2.3 — Global Inspection Worklist */
 .inspection-worklist-summary{
   display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px
 }
@@ -522,12 +522,40 @@ body.role-inspector .inspector-only{display:block!important}
   .admin-activity-toolbar input,.admin-activity-toolbar select{width:100%}
 }
 
+
+/* V14.14.2.3 — Dashboard KPI palette aligned with Lifecycle */
+.dashboard-kpi-section .dashboard-kpi{
+  border:2px solid #94a3b8;
+  border-left:6px solid #94a3b8;
+  background:#f8fafc;
+}
+.dashboard-kpi-section .dashboard-kpi.safe{
+  border-color:#16a34a;
+  border-left-color:#16a34a;
+  background:#f0fdf4;
+}
+.dashboard-kpi-section .dashboard-kpi.alert{
+  border-color:#ef4444;
+  border-left-color:#ef4444;
+  background:#fff1f2;
+}
+.dashboard-kpi-section .dashboard-kpi.warn{
+  border-color:#f59e0b;
+  border-left-color:#f59e0b;
+  background:#fffbeb;
+}
+.dashboard-kpi-section .dashboard-kpi .kpi-value{color:#10233f}
+.dashboard-kpi-section .dashboard-kpi.alert .kpi-value{color:#b91c1c}
+.dashboard-kpi-section .dashboard-kpi.warn .kpi-value{color:#b45309}
+.dashboard-alert-item.danger .alert-value{color:#b91c1c}
+
+.danger-btn{background:#dc2626!important;color:#fff!important}.danger-btn:hover{background:#b91c1c!important}
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.2.1</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.2.3</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -547,47 +575,22 @@ body.role-inspector .inspector-only{display:block!important}
 <main class="main">
 <section id="loginCard" class="login-card">
   <h2>Login Aplikasi APAR</h2>
-  <div class="subtitle">Admin menggunakan Email + Password. Inspector dapat menggunakan Email + Password atau Nomor HP/ID Inspector + Password. Tidak ada SMS/OTP.</div>
   <div id="loginStatus" class="status info hidden"></div>
 
   <div class="field">
-    <label for="loginMethod">Metode Login</label>
-    <select id="loginMethod">
-      <option value="email">Email + Password</option>
-      <option value="inspector">Nomor HP / ID Inspector + Password</option>
-    </select>
+    <label for="loginIdentity">Email / Nomor HP / ID Inspector</label>
+    <input id="loginIdentity" type="text" autocomplete="username"
+      placeholder="Admin: email | Inspector: email, nomor HP, atau ID">
   </div>
 
-  <div id="emailLoginFields">
-    <div class="field">
-      <label for="loginEmail">Email</label>
-      <input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test / inspector@apar.test">
-    </div>
-    <div class="field">
-      <label for="loginPassword">Password</label>
-      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
-    </div>
-    <div class="login-actions">
-      <button id="loginBtn" class="action primary" type="button">Login</button>
-    </div>
+  <div class="field">
+    <label for="loginPassword">Password</label>
+    <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
   </div>
 
-  <div id="inspectorLoginFields" class="hidden">
-    <div class="field">
-      <label for="loginInspectorId">Nomor HP / ID Inspector</label>
-      <input id="loginInspectorId" type="text" inputmode="tel" autocomplete="username" placeholder="Contoh: 081234567890 / +6281234567890 / INS-001">
-      <div class="login-note">Nomor HP akan dinormalisasi otomatis. Login menggunakan Firebase Email/Password internal, tetapi Inspector tidak perlu mempunyai alamat email. Tidak ada SMS yang dikirim.</div>
-    </div>
-    <div class="field">
-      <label for="loginInspectorPassword">Password</label>
-      <input id="loginInspectorPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
-    </div>
-    <div class="login-actions">
-      <button id="loginInspectorBtn" class="action primary" type="button">Login Inspector</button>
-    </div>
+  <div class="login-actions">
+    <button id="loginBtn" class="action primary" type="button">Login</button>
   </div>
-
-  <div class="login-note">Admin: Email + Password. Inspector: Email + Password atau Nomor HP/ID + Password. Semua login tidak menggunakan SMS OTP.</div>
 </section>
 
 <div id="dashboardContent" class="hidden">
@@ -998,7 +1001,7 @@ body.role-inspector .inspector-only{display:block!important}
     </div>
 
     <div class="history-filters">
-      <input id="userSearch" type="search" placeholder="Cari email, nama, UID...">
+      <input id="userSearch" type="search" placeholder="Cari email, nama, nomor HP, UID...">
       <select id="userRoleFilter">
         <option value="">Semua Role</option>
         <option value="admin">Admin</option>
@@ -1019,6 +1022,7 @@ body.role-inspector .inspector-only{display:block!important}
         <thead>
           <tr>
             <th>Email</th>
+            <th>Nomor HP / ID</th>
             <th>Nama</th>
             <th>Role</th>
             <th>Status</th>
@@ -1027,7 +1031,7 @@ body.role-inspector .inspector-only{display:block!important}
           </tr>
         </thead>
         <tbody id="usersBody">
-          <tr><td colspan="6" class="empty">Memuat user...</td></tr>
+          <tr><td colspan="7" class="empty">Memuat user...</td></tr>
         </tbody>
       </table>
     </div>
@@ -1041,7 +1045,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.1...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.3...</div>
 </section>
 </div>
 </main>
@@ -1353,7 +1357,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.2.1 boot diagnostics: never blocks UI. */
+/* V14.14.2.3 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1450,6 +1454,15 @@ function autoNextLifecycleDates(){
 }
 
 
+
+function getLoginIdentity(){
+  return String($("loginIdentity")?.value||"").trim();
+}
+
+function getLoginEmailCompat(){
+  return getLoginIdentity();
+}
+
 function normalizeInspectorLoginId(value){
   const raw=String(value||"").trim();
   if(!raw)return "";
@@ -1494,9 +1507,8 @@ function showLogin(){
   $("dashboardContent").classList.add("hidden");
   const main=document.querySelector(".main");
   if(main) main.classList.add("login-mode");
-  if($("loginMethod"))$("loginMethod").value="email";
-  $("emailLoginFields")?.classList.remove("hidden");
-  $("inspectorLoginFields")?.classList.add("hidden");
+  if($("loginIdentity"))$("loginIdentity").value="";
+  if($("loginPassword"))$("loginPassword").value="";
 }
 function showDashboard(){
   document.body.classList.add("authenticated");
@@ -1865,7 +1877,7 @@ function renderMasterApar(){
 
 async function loadInspections(){
   debug("Membaca collection inspections...");
-  // V14.14.2.1:
+  // V14.14.2.3:
   // Active Inspector dan Admin membaca histori pemeriksaan global.
   // UI "Riwayat Saya" tetap memfilter berdasarkan inspectorId.
   // Ini memungkinkan sistem mengetahui pemeriksaan terakhir APAR secara global
@@ -2520,7 +2532,12 @@ function renderUsers(){
     <td>
       <button class="small-btn" data-edit-user="${esc(x.id)}" type="button">Edit</button>
       <button class="small-btn" data-change-password="${esc(x.id)}" type="button">🔐 Ubah Password</button>
-      <button class="small-btn" data-reset-user="${esc(x.id)}" type="button">✉️ Reset Email</button>
+      ${x.email && String(x.email).trim()
+        ? `<button class="small-btn" data-reset-user="${esc(x.id)}" type="button">✉️ Kirim Reset Password</button>`
+        : ""}
+      ${String(x.role||"").toLowerCase()==="inspector" && x.email && String(x.email).trim()
+        ? `<button class="small-btn danger-btn" data-delete-email="${esc(x.id)}" type="button">🗑️ Hapus Email Profil</button>`
+        : ""}
       ${String(x.status||"").toLowerCase()==="active"
         ? `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔒 Nonaktifkan</button>`
         : `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔓 Aktifkan</button>`}
@@ -2535,6 +2552,9 @@ function renderUsers(){
   });
   body.querySelectorAll("[data-reset-user]").forEach(btn=>{
     btn.addEventListener("click",()=>resetUserPassword(btn.dataset.resetUser));
+  });
+  body.querySelectorAll("[data-delete-email]").forEach(btn=>{
+    btn.addEventListener("click",()=>deleteUserProfileEmail(btn.dataset.deleteEmail));
   });
   body.querySelectorAll("[data-toggle-status]").forEach(btn=>{
     btn.addEventListener("click",()=>toggleUserStatus(btn.dataset.toggleStatus));
@@ -2740,30 +2760,96 @@ function firebaseAuthErrorMessage(e){
 }
 
 
-async function resetUserPassword(id){
+async async function resetUserPassword(id){
   const x=userRows.find(u=>u.id===id);
-  if(!x || !x.email){
-    setUsersStatus("Inspector ini tidak memiliki email. Gunakan tombol Ubah Password untuk mengganti password login internal.","warning");
+  if(!x)return;
+
+  const email=String(x.email||"").trim().toLowerCase();
+  if(!email){
+    setUsersStatus("User ini tidak memiliki email. Gunakan Ubah Password untuk mengganti password login.","warning");
     return;
   }
 
-  if(!confirm(`Kirim email reset password ke ${x.email}?`)) return;
+  if(!confirm(`Kirim email reset password ke ${email}?`)) return;
 
   try{
-    await sendPasswordResetEmail(auth,x.email);
-    setUsersStatus(`Email reset password berhasil dikirim ke ${x.email}.`,"success");
-    debug("RESET PASSWORD EMAIL DIKIRIM: "+x.email);
+    setUsersStatus("Mengirim email reset password...","info");
+    if(!auth)throw new Error("Firebase Authentication belum siap.");
+
+    await sendPasswordResetEmail(auth,email);
+
+    setUsersStatus(`Email reset password berhasil dikirim ke ${email}.`,"success");
+    debug("RESET PASSWORD EMAIL DIKIRIM: "+email);
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
     const msg={
-      "auth/user-not-found":"User tidak ditemukan di Firebase Authentication.",
+      "auth/user-not-found":"Email tersebut tidak ditemukan sebagai akun Email/Password di Firebase Authentication.",
       "auth/invalid-email":"Email user tidak valid.",
       "auth/too-many-requests":"Terlalu banyak permintaan. Coba lagi nanti.",
-      "auth/network-request-failed":"Koneksi internet bermasalah."
+      "auth/network-request-failed":"Koneksi internet bermasalah.",
+      "auth/operation-not-allowed":"Email/Password Authentication belum aktif di Firebase."
     }[code] || e?.message || "Gagal mengirim email reset password.";
     setUsersStatus(msg,"error");
-    debug("RESET PASSWORD ERROR: "+code+" | "+(e.message||""));
+    debug("RESET PASSWORD EMAIL ERROR: "+code+" | "+(e.message||""));
+  }
+}
+
+async function deleteUserProfileEmail(id){
+  const x=userRows.find(u=>u.id===id);
+  if(!x)return;
+
+  const role=String(x.role||"").toLowerCase();
+  const email=String(x.email||"").trim();
+
+  if(role!=="inspector"){
+    setUsersStatus("Hapus Email Profil hanya tersedia untuk akun Inspector.","warning");
+    return;
+  }
+  if(!email){
+    setUsersStatus("Inspector ini sudah tidak memiliki Email Profil.","info");
+    return;
+  }
+
+  /*
+    IMPORTANT:
+    This action removes the email from the Firestore profile only.
+    It does NOT delete Firebase Authentication's email credential.
+    Deleting/changing another user's Firebase Auth email requires a
+    trusted backend/Admin SDK and is deliberately not faked in the browser.
+  */
+  const confirmText=
+    `Hapus Email Profil ${email} dari user ${x.name||x.id}?\\n\\n`+
+    `Email akan dikosongkan pada profile Firestore. Kredensial Email/Password Firebase Authentication TIDAK dihapus oleh tombol ini.`;
+
+  if(!confirm(confirmText))return;
+
+  try{
+    await window.__verifyCurrentAdminForWrite();
+
+    setUsersStatus("Menghapus Email Profil dari Firestore...","info");
+
+    await updateDoc(doc(db,"users",id),{
+      email:"",
+      updatedAt:serverTimestamp(),
+      updatedBy:currentAdmin?.email||currentAdmin?.uid||"admin"
+    });
+
+    const idx=userRows.findIndex(u=>u.id===id);
+    if(idx>=0){
+      userRows[idx]={...userRows[idx],email:"",updatedAt:new Date()};
+    }
+
+    renderUsers();
+    setUsersStatus(`Email Profil ${email} berhasil dihapus dari profile Firestore.`,"success");
+    debug("EMAIL PROFILE DIHAPUS: "+id);
+  }catch(e){
+    console.error(e);
+    const message=String(e?.code||"")==="permission-denied"
+      ? "Firestore Rules menolak penghapusan Email Profil."
+      : (e.message||"Gagal menghapus Email Profil.");
+    setUsersStatus(message,"error");
+    debug("DELETE EMAIL PROFILE ERROR: "+(e.code||"-")+" | "+(e.message||""));
   }
 }
 
@@ -2781,7 +2867,7 @@ function openPasswordChange(id){
 
   changingPasswordUserId=id;
   $("passwordUserName").textContent=x.name||"-";
-  $("passwordUserEmail").textContent=x.email||"-";
+  $("passwordUserEmail").textContent=x.email||x.authEmail||"-";
   $("passwordUserUid").textContent=id;
   $("passwordUserRole").textContent=String(x.role||"-").toUpperCase();
   $("newPasswordDirect").value="";
@@ -3029,17 +3115,11 @@ function bindUiEvent(id,event,handler){
 function wireAllUi(){
 
 window.__aparLoginHandler = async ()=>{
-  const method=$("loginMethod")?.value||"email";
-
-  if(method==="inspector"){
-    return window.__aparInspectorLoginHandler();
-  }
-
-  const email=String($("loginEmail")?.value||"").trim().toLowerCase();
+  const identity=getLoginIdentity();
   const password=String($("loginPassword")?.value||"");
 
-  if(!email || !password){
-    setLoginStatus("Email dan password wajib diisi.","warning");
+  if(!identity || !password){
+    setLoginStatus("Identitas login dan password wajib diisi.","warning");
     return;
   }
 
@@ -3051,14 +3131,26 @@ window.__aparLoginHandler = async ()=>{
 
   try{
     if(!auth)throw new Error("Firebase Authentication belum siap.");
+
+    const isEmail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(identity);
+    const authIdentity=isEmail
+      ? identity.toLowerCase()
+      : inspectorAuthAlias(identity);
+
+    if(!authIdentity){
+      throw new Error("Identitas login tidak valid.");
+    }
+
     setLoginStatus("Login...","info");
-    await signInWithEmailAndPassword(auth,email,password);
-    debug("Firebase Email/Password berhasil: "+email);
+    debug(`LOGIN ATTEMPT: ${isEmail?"EMAIL":"INSPECTOR ID/PHONE"} | ${isEmail?authIdentity:normalizeInspectorLoginId(identity)}`);
+
+    await signInWithEmailAndPassword(auth,authIdentity,password);
+    debug("Firebase Authentication berhasil.");
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
     if(code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found"){
-      setLoginStatus("Login gagal: Email atau password tidak benar.","error");
+      setLoginStatus("Login gagal: Email / Nomor HP / ID atau password tidak benar.","error");
     }else if(code==="auth/too-many-requests"){
       setLoginStatus("Terlalu banyak percobaan login. Coba lagi beberapa saat.","error");
     }else if(code==="auth/network-request-failed"){
@@ -3072,63 +3164,9 @@ window.__aparLoginHandler = async ()=>{
   }
 };
 
-window.__aparInspectorLoginHandler = async ()=>{
-  const loginId=String($("loginInspectorId")?.value||"").trim();
-  const password=String($("loginInspectorPassword")?.value||"");
-
-  if(!loginId || !password){
-    setLoginStatus("Nomor HP/ID Inspector dan password wajib diisi.","warning");
-    return;
-  }
-
-  const alias=inspectorAuthAlias(loginId);
-  if(!alias){
-    setLoginStatus("Nomor HP/ID Inspector tidak valid.","error");
-    return;
-  }
-
-  const btn=$("loginInspectorBtn");
-  if(!btn || btn.dataset.busy==="1")return;
-
-  btn.dataset.busy="1";
-  btn.disabled=true;
-
-  try{
-    if(!auth)throw new Error("Firebase Authentication belum siap.");
-    setLoginStatus("Login Inspector...","info");
-    debug("Mencoba Auth internal Inspector untuk login ID: "+normalizeInspectorLoginId(loginId));
-    await signInWithEmailAndPassword(auth,alias,password);
-    debug("Firebase Inspector Authentication berhasil.");
-  }catch(e){
-    console.error(e);
-    const code=String(e?.code||"");
-
-    if(code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found"){
-      setLoginStatus(
-        "Login Inspector gagal. Pastikan Nomor HP/ID dan password benar. Akun Inspector tanpa email harus sudah dibuat melalui fitur User Management versi ini.",
-        "error"
-      );
-    }else if(code==="auth/too-many-requests"){
-      setLoginStatus("Terlalu banyak percobaan login. Coba lagi beberapa saat.","error");
-    }else if(code==="auth/network-request-failed"){
-      setLoginStatus("Jaringan bermasalah. Periksa koneksi internet.","error");
-    }else{
-      setLoginStatus("Login Inspector gagal: "+(e.message||"akun tidak dapat digunakan."),"error");
-    }
-  }finally{
-    btn.dataset.busy="0";
-    btn.disabled=false;
-  }
-};
-
-bindUiEvent("loginMethod","change",switchLoginMethod);
 bindUiEvent("loginBtn","click",window.__aparLoginHandler);
 bindUiEvent("loginPassword","keydown",e=>{
   if(e.key==="Enter")window.__aparLoginHandler();
-});
-bindUiEvent("loginInspectorBtn","click",window.__aparInspectorLoginHandler);
-bindUiEvent("loginInspectorPassword","keydown",e=>{
-  if(e.key==="Enter")window.__aparInspectorLoginHandler();
 });
 
 /* ---------- GLOBAL / ADMIN NAV ---------- */
@@ -3262,7 +3300,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.2.1 LOGIN CORE
+  V14.14.2.3 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -3274,7 +3312,7 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // V14.14.2.1:
+  // V14.14.2.3:
   // In-memory persistence intentionally prevents a prior browser session
   // from being restored after a fresh page load. This keeps the Login screen
   // immediate and removes the previous boot signOut race/delay.
@@ -4257,7 +4295,7 @@ async function saveAdminInspection(){
       return;
     }
 
-    // V14.14.2.1: fresh global duplicate-awareness check.
+    // V14.14.2.3: fresh global duplicate-awareness check.
     // Data list di layar bisa stale; cek Firestore langsung sebelum membuat histori.
     const latestSnap=await getDocs(
       query(collection(db,"inspections"),where("aparAssetNumber","==",verified.assetNumber))
