@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.1.2-FINAL">
+<meta name="build-version" content="V14.14.1.3-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.1.2.3</title>
+<title>APAR - Admin Dashboard V14.14.1.3.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -443,10 +443,6 @@ body:not(.authenticated) .sidebar{
 }
 
 
-/* V14.14.1.2 - AUTH METHOD UI */
-#loginMethod,#loginPhone,#loginOtp{font-size:15px}
-#recaptchaContainer{min-height:78px}
-
 /* V14.14.0 MULTI-ROLE ACCESS */
 .admin-only,.inspector-only{display:none!important}
 body.role-admin .admin-only{display:block!important}
@@ -460,24 +456,24 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.1.2 - LOGIN CLICK RECOVERY */
+/* V14.14.1.3 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.1.2 - Refill print readability */
+/* V14.14.1.3 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.1.2 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.1.3 UI cleanup: version markers are internal only, never visible. */
 
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.1.2</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.1.3</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -497,14 +493,14 @@ body.role-inspector .inspector-only{display:block!important}
 <main class="main">
 <section id="loginCard" class="login-card">
   <h2>Login Aplikasi APAR</h2>
-  <div class="subtitle">Admin menggunakan Email + Password. Inspector dapat menggunakan Email + Password atau Nomor HP + OTP sesuai akun Firebase.</div>
+  <div class="subtitle">Admin menggunakan Email + Password. Inspector dapat menggunakan Email + Password atau Nomor HP/ID Inspector + Password. Tidak ada SMS/OTP.</div>
   <div id="loginStatus" class="status info hidden"></div>
 
   <div class="field">
     <label for="loginMethod">Metode Login</label>
     <select id="loginMethod">
       <option value="email">Email + Password</option>
-      <option value="phone">Nomor HP + OTP</option>
+      <option value="inspector">Nomor HP / ID Inspector + Password</option>
     </select>
   </div>
 
@@ -522,28 +518,22 @@ body.role-inspector .inspector-only{display:block!important}
     </div>
   </div>
 
-  <div id="phoneLoginFields" class="hidden">
+  <div id="inspectorLoginFields" class="hidden">
     <div class="field">
-      <label for="loginPhone">Nomor HP Inspector</label>
-      <input id="loginPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+6281234567890">
-      <div class="login-note">Gunakan format internasional, contoh: +6281234567890.</div>
+      <label for="loginInspectorId">Nomor HP / ID Inspector</label>
+      <input id="loginInspectorId" type="text" inputmode="tel" autocomplete="username" placeholder="Contoh: 081234567890 / +6281234567890 / INS-001">
+      <div class="login-note">Nomor HP akan dinormalisasi otomatis. Login menggunakan Firebase Email/Password internal, tetapi Inspector tidak perlu mempunyai alamat email. Tidak ada SMS yang dikirim.</div>
     </div>
-    <div id="recaptchaContainer" style="margin:10px 0;"></div>
+    <div class="field">
+      <label for="loginInspectorPassword">Password</label>
+      <input id="loginInspectorPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
+    </div>
     <div class="login-actions">
-      <button id="sendOtpBtn" class="action primary" type="button">📲 Kirim OTP</button>
-    </div>
-    <div id="otpFields" class="hidden">
-      <div class="field">
-        <label for="loginOtp">Kode OTP</label>
-        <input id="loginOtp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 digit kode SMS">
-      </div>
-      <div class="login-actions">
-        <button id="verifyOtpBtn" class="action primary" type="button">✅ Verifikasi OTP</button>
-      </div>
+      <button id="loginInspectorBtn" class="action primary" type="button">Login Inspector</button>
     </div>
   </div>
 
-  <div class="login-note">Inspector tanpa email menggunakan Nomor HP + OTP Firebase. Setelah login, sistem membuka Dashboard sesuai Role dan status akun.</div>
+  <div class="login-note">Admin: Email + Password. Inspector: Email + Password atau Nomor HP/ID + Password. Semua login tidak menggunakan SMS OTP.</div>
 </section>
 
 <div id="dashboardContent" class="hidden">
@@ -914,7 +904,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.1.2...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.1.3...</div>
 </section>
 </div>
 </main>
@@ -1133,8 +1123,8 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
     </div>
 
     <div class="field">
-      <label for="newUserEmail">Email Login</label>
-      <input id="newUserEmail" type="email" autocomplete="email" placeholder="contoh@apar.test">
+      <label for="newUserEmail">Email Login <span style="font-weight:400;color:#64748b">(wajib Admin, opsional Inspector)</span></label>
+      <input id="newUserEmail" type="email" autocomplete="email" placeholder="contoh@apar.test — boleh kosong untuk Inspector">
     </div>
 
     <div class="field">
@@ -1148,6 +1138,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
         <option value="inspector">Inspector</option>
         <option value="admin">Admin</option>
       </select>
+      <div id="newUserLoginHint" class="login-note">Inspector tanpa email akan login menggunakan Nomor HP/ID + Password tanpa SMS. Sistem membuat email Authentication internal secara otomatis.</div>
     </div>
 
     <div class="field">
@@ -1225,7 +1216,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.1.2 boot diagnostics: never blocks UI. */
+/* V14.14.1.3 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1239,51 +1230,9 @@ window.addEventListener("unhandledrejection",function(e){
 });
 </script>
 
-
-<script>
-/* V14.14.1.2 LOGIN BOOTSTRAP
-   This listener is installed synchronously by the browser before the Firebase
-   module finishes loading, so the Login button can never become a dead button
-   merely because a later UI binding fails. The real handler is supplied by
-   the module as window.__aparLoginHandler.
-*/
-(function(){
-  function bindLoginBootstrap(){
-    const btn=document.getElementById("loginBtn");
-    if(!btn || btn.dataset.bootstrapBound==="1")return;
-    btn.dataset.bootstrapBound="1";
-    btn.addEventListener("click",function(){
-      if(typeof window.__aparLoginHandler==="function"){
-        window.__aparLoginHandler();
-      }else{
-        const status=document.getElementById("loginStatus");
-        if(status){
-          status.textContent="Sistem sedang menyiapkan Login. Tunggu sebentar lalu coba lagi.";
-          status.className="status info";
-          status.classList.remove("hidden");
-        }
-      }
-    },false);
-    const password=document.getElementById("loginPassword");
-    if(password){
-      password.addEventListener("keydown",function(e){
-        if(e.key==="Enter"){
-          if(typeof window.__aparLoginHandler==="function")window.__aparLoginHandler();
-        }
-      },false);
-    }
-  }
-  if(document.readyState==="loading"){
-    document.addEventListener("DOMContentLoaded",bindLoginBootstrap,{once:true});
-  }else{
-    bindLoginBootstrap();
-  }
-})();
-</script>
-
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signInWithPhoneNumber,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,inMemoryPersistence,RecaptchaVerifier} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,inMemoryPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,getDocs,query,where,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
@@ -1311,8 +1260,6 @@ function getUserCreationAuth(){
 
 let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
 let changingPasswordUserId=null;
-let phoneRecaptchaVerifier=null;
-let phoneConfirmationResult=null;
 
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -1365,17 +1312,54 @@ function autoNextLifecycleDates(){
   }
 }
 
+
+function normalizeInspectorLoginId(value){
+  const raw=String(value||"").trim();
+  if(!raw)return "";
+
+  // Phone normalization:
+  // +6281234567890 -> 6281234567890
+  // 081234567890   -> 6281234567890
+  // Keep non-phone IDs such as INS-001.
+  const compact=raw.replace(/[()\s.-]/g,"");
+  const digits=compact.replace(/\D/g,"");
+
+  if(digits.length>=8){
+    if(digits.startsWith("0")) return "62"+digits.slice(1);
+    if(digits.startsWith("62")) return digits;
+    return digits;
+  }
+
+  return raw.toUpperCase().replace(/[^A-Z0-9_-]/g,"");
+}
+
+function inspectorAuthAlias(loginId){
+  const normalized=normalizeInspectorLoginId(loginId);
+  if(!normalized)return "";
+  return "inspector."+normalized.toLowerCase()+"@auth.apar.local";
+}
+
+function switchLoginMethod(){
+  const method=$("loginMethod")?.value||"email";
+  $("emailLoginFields")?.classList.toggle("hidden",method!=="email");
+  $("inspectorLoginFields")?.classList.toggle("hidden",method!=="inspector");
+  setLoginStatus(
+    method==="inspector"
+      ? "Mode Inspector: Nomor HP / ID + Password. Tidak ada SMS OTP."
+      : "Mode login: Email + Password.",
+    "info"
+  );
+}
+
 function showLogin(){
   document.body.classList.remove("authenticated");
   $("loginCard").classList.remove("hidden");
   $("dashboardContent").classList.add("hidden");
   const main=document.querySelector(".main");
   if(main) main.classList.add("login-mode");
-  cleanupPhoneRecaptcha();
-  if($("loginMethod")) $("loginMethod").value="email";
+  if($("loginMethod"))$("loginMethod").value="email";
   $("emailLoginFields")?.classList.remove("hidden");
-  $("phoneLoginFields")?.classList.add("hidden");
-  $("otpFields")?.classList.add("hidden");
+  $("inspectorLoginFields")?.classList.add("hidden");
 }
 function showDashboard(){
   document.body.classList.add("authenticated");
@@ -2427,7 +2411,7 @@ function firebaseAuthErrorMessage(e){
 async function resetUserPassword(id){
   const x=userRows.find(u=>u.id===id);
   if(!x || !x.email){
-    setUsersStatus("Email user tidak ditemukan.","error");
+    setUsersStatus("Inspector ini tidak memiliki email. Gunakan tombol Ubah Password untuk mengganti password login internal.","warning");
     return;
   }
 
@@ -2546,7 +2530,7 @@ async function changeUserPassword(){
 
 async function createNewUser(){
   const name=$("newUserName").value.trim();
-  const email=$("newUserEmail").value.trim().toLowerCase();
+  const email=String($("newUserEmail").value||"").trim().toLowerCase();
   const phone=$("newUserPhone").value.trim();
   const role=String($("newUserRole").value||"").toLowerCase();
   const status=String($("newUserStatus").value||"").toLowerCase();
@@ -2556,15 +2540,27 @@ async function createNewUser(){
   if(!name){
     setUserAddStatus("Nama wajib diisi.","error"); $("newUserName").focus(); return;
   }
-  if(!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
-    setUserAddStatus("Email tidak valid.","error"); $("newUserEmail").focus(); return;
-  }
   if(!["admin","inspector"].includes(role)){
     setUserAddStatus("Role tidak valid.","error"); return;
   }
   if(!["active","inactive"].includes(status)){
     setUserAddStatus("Status tidak valid.","error"); return;
   }
+
+  if(role==="admin" && (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))){
+    setUserAddStatus("Email wajib diisi dan valid untuk Admin.","error"); $("newUserEmail").focus(); return;
+  }
+
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){
+    setUserAddStatus("Format email tidak valid.","error"); $("newUserEmail").focus(); return;
+  }
+
+  if(role==="inspector" && !phone){
+    setUserAddStatus("Nomor HP/ID Inspector wajib diisi untuk Inspector.","error");
+    $("newUserPhone").focus();
+    return;
+  }
+
   if(password.length<6){
     setUserAddStatus("Password minimal 6 karakter.","error"); $("newUserPassword").focus(); return;
   }
@@ -2572,24 +2568,41 @@ async function createNewUser(){
     setUserAddStatus("Konfirmasi password tidak sama.","error"); $("newUserPassword2").focus(); return;
   }
 
+  const loginAlias = email || inspectorAuthAlias(phone);
+  if(!loginAlias){
+    setUserAddStatus("Identitas login Inspector tidak valid.","error"); return;
+  }
+
   const btn=$("saveNewUserBtn");
   btn.disabled=true;
   setUserAddStatus("Membuat akun Firebase Authentication...","info");
 
   let createdUser=null;
+  const creationAuth=getUserCreationAuth();
+
   try{
-    // Secondary Auth: sesi Admin utama tetap aman dan tidak ikut logout.
-    const credential=await createUserWithEmailAndPassword(getUserCreationAuth(),email,password);
+    const credential=await createUserWithEmailAndPassword(creationAuth,loginAlias,password);
     createdUser=credential.user;
 
     setUserAddStatus("Akun Authentication berhasil. Membuat profil Firestore...","info");
 
+    const loginType=(role==="inspector" && !email)
+      ? "inspector-phone-password"
+      : "email-password";
+
+    const normalizedLoginId=(role==="inspector" && !email)
+      ? normalizeInspectorLoginId(phone)
+      : email;
+
     const profile={
       email,
+      authEmail:loginAlias,
       name,
       phone,
       role,
       status,
+      loginType,
+      loginId:normalizedLoginId,
       createdAt:serverTimestamp(),
       updatedAt:serverTimestamp()
     };
@@ -2598,29 +2611,42 @@ async function createNewUser(){
 
     userRows.push({
       id:createdUser.uid,
-      email,name,phone,role,status
+      email,
+      authEmail:loginAlias,
+      name,
+      phone,
+      role,
+      status,
+      loginType,
+      loginId:normalizedLoginId
     });
-    userRows.sort((a,b)=>String(a.name||a.email||a.id).localeCompare(
-      String(b.name||b.email||b.id),undefined,{sensitivity:"base"}
+
+    userRows.sort((a,b)=>String(a.name||a.email||a.phone||a.id).localeCompare(
+      String(b.name||b.email||b.phone||b.id),undefined,{sensitivity:"base"}
     ));
     renderUsers();
 
-    await signOut(getUserCreationAuth());
+    await signOut(creationAuth);
     createdUser=null;
 
-    setUserAddStatus("User berhasil dibuat dan siap digunakan untuk login.","success");
-    debug("USER BARU DIBUAT: "+email+" | UID: "+credential.user.uid+" | ROLE: "+role);
-    setTimeout(closeUserAdd,900);
+    setUserAddStatus(
+      role==="inspector" && !email
+        ? "Inspector berhasil dibuat. Login menggunakan Nomor HP/ID + Password tanpa SMS."
+        : "User berhasil dibuat dan siap digunakan untuk login.",
+      "success"
+    );
+
+    debug("USER BARU DIBUAT: "+(email||phone)+" | LOGIN TYPE: "+loginType+" | AUTH UID: "+credential.user.uid);
+    setTimeout(closeUserAdd,1200);
 
   }catch(e){
     console.error(e);
     debug("CREATE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
 
-    // Jika Auth berhasil tetapi Firestore gagal, coba rollback akun baru.
     if(createdUser){
       try{
         await deleteUser(createdUser);
-        debug("Rollback Authentication berhasil untuk user baru: "+email);
+        debug("Rollback Authentication berhasil: "+loginAlias);
       }catch(rollbackError){
         console.error("Rollback gagal:",rollbackError);
         debug("ROLLBACK AUTH GAGAL: "+(rollbackError.code||"-")+" | "+(rollbackError.message||""));
@@ -2632,6 +2658,7 @@ async function createNewUser(){
     btn.disabled=false;
   }
 }
+
 
 function setView(view){
   const views={dashboard:$("dashboardView"),inspectorDashboard:$("inspectorDashboardView"),data:$("dataAparView"),monitoring:$("monitoringView"),history:$("historyView"),inspection:$("inspectionView"),refills:$("refillsView"),users:$("usersView"),placeholder:$("placeholderView")};
@@ -2657,118 +2684,6 @@ function placeholder(title,text,id){
 
 function closeMobileDrawer(){$("mobileOverlay")?.classList.add("hidden");$("sidebar")?.classList.remove("mobile-open");}function openMobileDrawer(){$("mobileOverlay")?.classList.remove("hidden");$("sidebar")?.classList.add("mobile-open");}$("mobileMenuBtn")?.addEventListener("click",openMobileDrawer);$("mobileOverlay")?.addEventListener("click",closeMobileDrawer);document.querySelectorAll(".nav button").forEach(btn=>{if(btn.id!=="logoutBtn")btn.addEventListener("click",()=>setTimeout(closeMobileDrawer,60));});$("dashboardLifecycleReloadBtn")?.addEventListener("click",async()=>{const b=$("dashboardLifecycleReloadBtn");b.disabled=true;try{await loadApar();renderDashboardLifecycle();setStatus("Ringkasan lifecycle Dashboard berhasil diperbarui.","success");}catch(e){console.error(e);setStatus("Gagal memperbarui lifecycle Dashboard.","error");}finally{b.disabled=false;}});$("dashboardLifecycleDetailBtn")?.addEventListener("click",()=>{setView("monitoring");setTimeout(()=>$("lifecycleReminderPanel")?.scrollIntoView({behavior:"smooth",block:"start"}),60);});
 
-
-function switchLoginMethod(){
-  const method=$("loginMethod")?.value||"email";
-  $("emailLoginFields")?.classList.toggle("hidden",method!=="email");
-  $("phoneLoginFields")?.classList.toggle("hidden",method!=="phone");
-  if(method==="email"){
-    cleanupPhoneRecaptcha();
-  }
-  setLoginStatus(
-    method==="phone"
-      ? "Mode Inspector: Nomor HP + OTP Firebase."
-      : "Mode login: Email + Password.",
-    "info"
-  );
-}
-
-function cleanupPhoneRecaptcha(){
-  try{
-    if(phoneRecaptchaVerifier){
-      phoneRecaptchaVerifier.clear();
-    }
-  }catch(_){}
-  phoneRecaptchaVerifier=null;
-  phoneConfirmationResult=null;
-}
-
-async function sendInspectorOtp(){
-  const phone=String($("loginPhone")?.value||"").trim();
-  if(!phone){
-    setLoginStatus("Nomor HP Inspector wajib diisi.","warning");
-    return;
-  }
-  if(!/^\+\d{8,15}$/.test(phone)){
-    setLoginStatus("Format nomor HP tidak valid. Gunakan format internasional, contoh +6281234567890.","error");
-    return;
-  }
-  const btn=$("sendOtpBtn");
-  if(btn)btn.disabled=true;
-  try{
-    await authReady;
-    if(!auth)throw new Error("Firebase Authentication belum siap.");
-
-    cleanupPhoneRecaptcha();
-
-    phoneRecaptchaVerifier=new RecaptchaVerifier(auth,"recaptchaContainer",{
-      size:"normal",
-      callback:()=>{
-        debug("reCAPTCHA berhasil diverifikasi.");
-      },
-      "expired-callback":()=>{
-        setLoginStatus("reCAPTCHA kedaluwarsa. Silakan centang kembali.","warning");
-      }
-    });
-
-    setLoginStatus("Mengirim OTP ke "+phone+"...","info");
-    phoneConfirmationResult=await signInWithPhoneNumber(auth,phone,phoneRecaptchaVerifier);
-    $("otpFields")?.classList.remove("hidden");
-    setLoginStatus("OTP berhasil dikirim. Periksa SMS pada nomor Inspector.","success");
-    debug("OTP dikirim ke nomor Inspector: "+phone);
-  }catch(e){
-    console.error(e);
-    cleanupPhoneRecaptcha();
-    const code=String(e?.code||"");
-    if(code==="auth/invalid-phone-number"){
-      setLoginStatus("Nomor HP tidak valid. Gunakan format internasional, contoh +6281234567890.","error");
-    }else if(code==="auth/operation-not-allowed"){
-      setLoginStatus("Firebase Phone Authentication belum diaktifkan. Aktifkan provider Phone di Firebase Authentication.","error");
-    }else if(code==="auth/quota-exceeded"){
-      setLoginStatus("Kuota SMS Firebase tercapai. Coba lagi nanti.","error");
-    }else if(code==="auth/captcha-check-failed"){
-      setLoginStatus("Verifikasi reCAPTCHA gagal. Muat ulang halaman lalu coba lagi.","error");
-    }else{
-      setLoginStatus("Gagal mengirim OTP: "+(e.message||"Unknown error"),"error");
-    }
-  }finally{
-    if(btn)btn.disabled=false;
-  }
-}
-
-async function verifyInspectorOtp(){
-  const code=String($("loginOtp")?.value||"").trim();
-  if(!phoneConfirmationResult){
-    setLoginStatus("Silakan kirim OTP terlebih dahulu.","warning");
-    return;
-  }
-  if(!/^\d{6}$/.test(code)){
-    setLoginStatus("Kode OTP harus 6 digit.","warning");
-    return;
-  }
-
-  const btn=$("verifyOtpBtn");
-  if(btn)btn.disabled=true;
-  try{
-    setLoginStatus("Memverifikasi OTP Inspector...","info");
-    await phoneConfirmationResult.confirm(code);
-    debug("Phone Authentication berhasil. Role akan diverifikasi melalui Firestore.");
-    setLoginStatus("OTP benar. Memeriksa Role dan Status Inspector...","info");
-  }catch(e){
-    console.error(e);
-    const ec=String(e?.code||"");
-    if(ec==="auth/invalid-verification-code"){
-      setLoginStatus("Kode OTP salah.","error");
-    }else if(ec==="auth/code-expired"){
-      setLoginStatus("Kode OTP sudah kedaluwarsa. Kirim OTP baru.","error");
-    }else{
-      setLoginStatus("Verifikasi OTP gagal: "+(e.message||"Unknown error"),"error");
-    }
-  }finally{
-    if(btn)btn.disabled=false;
-  }
-}
-
 function bindUiEvent(id,event,handler){
   const el=$(id);
   if(!el)return false;
@@ -2784,17 +2699,13 @@ function wireAllUi(){
 window.__aparLoginHandler = async ()=>{
   const method=$("loginMethod")?.value||"email";
 
-  if(method==="phone"){
-    try{
-      await sendInspectorOtp();
-    }catch(e){
-      console.error("OTP handler error:",e);
-    }
-    return;
+  if(method==="inspector"){
+    return window.__aparInspectorLoginHandler();
   }
 
-  const email=String($("loginEmail")?.value||"").trim();
+  const email=String($("loginEmail")?.value||"").trim().toLowerCase();
   const password=String($("loginPassword")?.value||"");
+
   if(!email || !password){
     setLoginStatus("Email dan password wajib diisi.","warning");
     return;
@@ -2802,18 +2713,15 @@ window.__aparLoginHandler = async ()=>{
 
   const btn=$("loginBtn");
   if(!btn || btn.dataset.busy==="1")return;
+
   btn.dataset.busy="1";
   btn.disabled=true;
 
   try{
-    // Firebase core is initialized before wireAllUi(). Do not block login on
-    // a persistence promise that is unrelated to the credential request.
     if(!auth)throw new Error("Firebase Authentication belum siap.");
-
     setLoginStatus("Login...","info");
     await signInWithEmailAndPassword(auth,email,password);
-    debug("Firebase Email/Password Authentication berhasil untuk: "+email);
-    setLoginStatus("Login berhasil. Memeriksa Role akun...","success");
+    debug("Firebase Email/Password berhasil: "+email);
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
@@ -2832,16 +2740,64 @@ window.__aparLoginHandler = async ()=>{
   }
 };
 
-bindUiEvent("loginMethod","change",switchLoginMethod);
-bindUiEvent("loginPhone","keydown",e=>{
-  if(e.key==="Enter")sendInspectorOtp();
-});
-bindUiEvent("sendOtpBtn","click",sendInspectorOtp);
-bindUiEvent("verifyOtpBtn","click",verifyInspectorOtp);
-bindUiEvent("loginOtp","keydown",e=>{
-  if(e.key==="Enter")verifyInspectorOtp();
-});
+window.__aparInspectorLoginHandler = async ()=>{
+  const loginId=String($("loginInspectorId")?.value||"").trim();
+  const password=String($("loginInspectorPassword")?.value||"");
 
+  if(!loginId || !password){
+    setLoginStatus("Nomor HP/ID Inspector dan password wajib diisi.","warning");
+    return;
+  }
+
+  const alias=inspectorAuthAlias(loginId);
+  if(!alias){
+    setLoginStatus("Nomor HP/ID Inspector tidak valid.","error");
+    return;
+  }
+
+  const btn=$("loginInspectorBtn");
+  if(!btn || btn.dataset.busy==="1")return;
+
+  btn.dataset.busy="1";
+  btn.disabled=true;
+
+  try{
+    if(!auth)throw new Error("Firebase Authentication belum siap.");
+    setLoginStatus("Login Inspector...","info");
+    debug("Mencoba Auth internal Inspector untuk login ID: "+normalizeInspectorLoginId(loginId));
+    await signInWithEmailAndPassword(auth,alias,password);
+    debug("Firebase Inspector Authentication berhasil.");
+  }catch(e){
+    console.error(e);
+    const code=String(e?.code||"");
+
+    if(code==="auth/invalid-credential" || code==="auth/wrong-password" || code==="auth/user-not-found"){
+      setLoginStatus(
+        "Login Inspector gagal. Pastikan Nomor HP/ID dan password benar. Akun Inspector tanpa email harus sudah dibuat melalui fitur User Management versi ini.",
+        "error"
+      );
+    }else if(code==="auth/too-many-requests"){
+      setLoginStatus("Terlalu banyak percobaan login. Coba lagi beberapa saat.","error");
+    }else if(code==="auth/network-request-failed"){
+      setLoginStatus("Jaringan bermasalah. Periksa koneksi internet.","error");
+    }else{
+      setLoginStatus("Login Inspector gagal: "+(e.message||"akun tidak dapat digunakan."),"error");
+    }
+  }finally{
+    btn.dataset.busy="0";
+    btn.disabled=false;
+  }
+};
+
+bindUiEvent("loginMethod","change",switchLoginMethod);
+bindUiEvent("loginBtn","click",window.__aparLoginHandler);
+bindUiEvent("loginPassword","keydown",e=>{
+  if(e.key==="Enter")window.__aparLoginHandler();
+});
+bindUiEvent("loginInspectorBtn","click",window.__aparInspectorLoginHandler);
+bindUiEvent("loginInspectorPassword","keydown",e=>{
+  if(e.key==="Enter")window.__aparInspectorLoginHandler();
+});
 
 /* ---------- GLOBAL / ADMIN NAV ---------- */
 bindUiEvent("logoutBtn","click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
@@ -2944,7 +2900,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.1.2 LOGIN CORE
+  V14.14.1.3 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2956,7 +2912,7 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // V14.14.1.2:
+  // V14.14.1.3:
   // In-memory persistence intentionally prevents a prior browser session
   // from being restored after a fresh page load. This keeps the Login screen
   // immediate and removes the previous boot signOut race/delay.
