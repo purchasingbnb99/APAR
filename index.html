@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.1.3-FINAL">
+<meta name="build-version" content="V14.14.2.0-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.1.3.3</title>
+<title>APAR - Admin Dashboard V14.14.2.0.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -456,24 +456,36 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.1.3 - LOGIN CLICK RECOVERY */
+/* V14.14.2.0 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.1.3 - Refill print readability */
+/* V14.14.2.0 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.1.3 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.2.0 UI cleanup: version markers are internal only, never visible. */
+
+
+/* V14.14.2.0 - Global Inspection Awareness */
+.inspection-global-status{
+  margin-top:12px;padding:14px 16px;border:1px solid #cbd5e1;border-radius:10px;
+  background:#f8fafc
+}
+.inspection-global-status.warn{background:#fff7ed;border-color:#fdba74}
+.inspection-global-status.safe{background:#f0fdf4;border-color:#86efac}
+.inspection-global-title{font-weight:800;font-size:13px;margin-bottom:5px}
+.inspection-global-text{font-weight:700;font-size:14px}
+.inspection-global-meta{margin-top:4px;color:#64748b;font-size:12px;line-height:1.5}
 
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.1.3</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.2.0</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -564,7 +576,7 @@ body.role-inspector .inspector-only{display:block!important}
   </section>
   <section class="card">
     <div class="toolbar"><div><h2>Riwayat Pemeriksaan Terakhir</h2><div class="subtitle">Menampilkan pemeriksaan yang dibuat oleh akun Inspector ini.</div></div></div>
-    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectorRecentBody"><tr><td colspan="4" class="empty">Memuat data...</td></tr></tbody></table></div>
+    <div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Hasil Saya</th><th>Tanggal</th><th>Status Global APAR</th><th>Catatan</th></tr></thead><tbody id="inspectorRecentBody"><tr><td colspan="5" class="empty">Memuat data...</td></tr></tbody></table></div>
   </section>
 </section>
 
@@ -745,6 +757,11 @@ body.role-inspector .inspector-only{display:block!important}
       <button id="startScanBtn" class="action primary" type="button">📷 Scan QR</button>
     </div>
     <div id="scannerStatus" class="status info">Pilih APAR atau tekan Scan QR.</div>
+    <div id="inspectionGlobalStatus" class="inspection-global-status" aria-live="polite">
+      <div class="inspection-global-title">Status Pemeriksaan Global APAR</div>
+      <div id="inspectionGlobalStatusText" class="inspection-global-text">Pilih APAR untuk melihat pemeriksaan terakhir secara keseluruhan.</div>
+      <div id="inspectionGlobalMeta" class="inspection-global-meta"></div>
+    </div>
     <div class="qr-scanner-box">
       <div id="qr-reader" class="hidden"></div>
       <div id="scanResult" class="scan-result hidden"></div>
@@ -904,7 +921,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.1.3...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.0...</div>
 </section>
 </div>
 </main>
@@ -1216,7 +1233,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.1.3 boot diagnostics: never blocks UI. */
+/* V14.14.2.0 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1447,8 +1464,16 @@ function renderInspectorDashboard(){
   $("inspectorMyFail").textContent=fails;
   const body=$("inspectorRecentBody");
   const recent=mine.slice(0,10);
-  if(!recent.length){body.innerHTML='<tr><td colspan="4" class="empty">Belum ada pemeriksaan oleh akun ini.</td></tr>';return;}
-  body.innerHTML=recent.map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId||"-")}</strong></td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes||"-")}</td></tr>`).join("");
+  if(!recent.length){body.innerHTML='<tr><td colspan="5" class="empty">Belum ada pemeriksaan oleh akun ini.</td></tr>';return;}
+  const latestMap=buildLatestInspectionMap();
+  body.innerHTML=recent.map(x=>{
+    const key=String(x.aparAssetNumber||x.aparId||"-").trim();
+    const g=latestMap.get(key.toUpperCase());
+    const globalText=g
+      ? `${esc(formatInspectionActor(g))} · ${esc(String(g.result||"-").toUpperCase())}<br><span style="font-size:11px;color:#64748b">${formatDate(g.inspectionDate||g.createdAt)}</span>`
+      : "-";
+    return `<tr><td><strong>${esc(key)}</strong></td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${globalText}</td><td>${esc(x.notes||"-")}</td></tr>`;
+  }).join("");
 }
 
 function getInspectorHistoryRows(){
@@ -1536,12 +1561,12 @@ function renderMasterApar(){
 
 async function loadInspections(){
   debug("Membaca collection inspections...");
-  // Inspector hanya memuat histori miliknya. Admin tetap memuat seluruh histori.
-  const isInspectorSession=String(currentAdmin?.role||"").toLowerCase()==="inspector";
-  const ref=isInspectorSession
-    ? query(collection(db,"inspections"),where("inspectorId","==",currentAdmin.uid))
-    : collection(db,"inspections");
-  const snap=await getDocs(ref);
+  // V14.14.2.0:
+  // Active Inspector dan Admin membaca histori pemeriksaan global.
+  // UI "Riwayat Saya" tetap memfilter berdasarkan inspectorId.
+  // Ini memungkinkan sistem mengetahui pemeriksaan terakhir APAR secara global
+  // dan mencegah Inspector kedua mengira APAR belum pernah diperiksa.
+  const snap=await getDocs(collection(db,"inspections"));
   inspectionRows=[];
   snap.forEach(s=>inspectionRows.push({id:s.id,...(s.data()||{})}));
   inspectionRows.sort((a,b)=>dateValue(b.inspectionDate||b.createdAt)-dateValue(a.inspectionDate||a.createdAt));
@@ -2900,7 +2925,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.1.3 LOGIN CORE
+  V14.14.2.0 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2912,7 +2937,7 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // V14.14.1.3:
+  // V14.14.2.0:
   // In-memory persistence intentionally prevents a prior browser session
   // from being restored after a fresh page load. This keeps the Login screen
   // immediate and removes the previous boot signOut race/delay.
@@ -3780,6 +3805,60 @@ function initializeInspectionUi(){
   });
 }
 
+
+function latestInspectionForApar(item){
+  const key=String(item?.assetNumber||item?.id||"").trim().toUpperCase();
+  if(!key)return null;
+  const map=buildLatestInspectionMap();
+  return map.get(key)||null;
+}
+
+function formatInspectionActor(ins){
+  return String(ins?.inspectorName||ins?.inspectorPhone||ins?.inspectorId||"-").trim()||"-";
+}
+
+function sameCalendarDay(a,b){
+  const da=new Date(a), db=new Date(b);
+  if(Number.isNaN(da.getTime())||Number.isNaN(db.getTime()))return false;
+  return da.getFullYear()===db.getFullYear()
+    && da.getMonth()===db.getMonth()
+    && da.getDate()===db.getDate();
+}
+
+function renderGlobalInspectionAwareness(item){
+  const box=$("inspectionGlobalStatus");
+  const text=$("inspectionGlobalStatusText");
+  const meta=$("inspectionGlobalMeta");
+  if(!box||!text||!meta)return;
+
+  box.classList.remove("warn","safe");
+  if(!item){
+    text.textContent="Pilih APAR untuk melihat pemeriksaan terakhir secara keseluruhan.";
+    meta.textContent="";
+    return;
+  }
+
+  const latest=latestInspectionForApar(item);
+  if(!latest){
+    box.classList.add("safe");
+    text.textContent=`${item.assetNumber}: BELUM ADA RIWAYAT PEMERIKSAAN.`;
+    meta.textContent="APAR ini belum memiliki pemeriksaan yang tercatat.";
+    return;
+  }
+
+  const result=String(latest.result||"-").toUpperCase();
+  const when=formatDate(latest.inspectionDate||latest.createdAt);
+  const actor=formatInspectionActor(latest);
+
+  box.classList.add("warn");
+  text.textContent=`${item.assetNumber}: SUDAH DIPERIKSA.`;
+  meta.textContent=`Pemeriksaan terakhir: ${when} | Inspector: ${actor} | Hasil: ${result}`;
+
+  if(sameCalendarDay(latest.inspectionDate?.toDate?.()||latest.inspectionDate||latest.createdAt?.toDate?.()||latest.createdAt,new Date())){
+    meta.textContent += " | ⚠️ Sudah diperiksa HARI INI.";
+  }
+}
+
 function selectInspectionApar(item,source="manual"){
   if(!item)return false;
   const status=String(item.status||"").trim().toLowerCase();
@@ -3799,9 +3878,11 @@ function selectInspectionApar(item,source="manual"){
   $("inspectionLocation").textContent=item.location;
   $("inspectionSerial").textContent=item.serial;
   $("inspectionType").textContent=item.type;
+  const latest=latestInspectionForApar(item);
   $("inspectionStatus").textContent=source==="scan"?"APAR berhasil dipilih dari QR. Silakan lakukan pemeriksaan.":"APAR siap diperiksa.";
   $("inspectionStatus").className="status info";
   $("inspectionForm").classList.remove("hidden");
+  renderGlobalInspectionAwareness(item);
   renderInspectionEvaluation();
   if(source==="scan"){
     $("scanResult").textContent=`✓ QR valid: ${item.assetNumber} — APAR otomatis dipilih.`;
@@ -3839,6 +3920,42 @@ async function saveAdminInspection(){
       return;
     }
 
+    // V14.14.2.0: fresh global duplicate-awareness check.
+    // Data list di layar bisa stale; cek Firestore langsung sebelum membuat histori.
+    const latestSnap=await getDocs(
+      query(collection(db,"inspections"),where("aparAssetNumber","==",verified.assetNumber))
+    );
+    let latestFresh=null;
+    latestSnap.forEach(d=>{
+      const x={id:d.id,...(d.data()||{})};
+      const t=dateValue(x.inspectionDate||x.createdAt);
+      if(!latestFresh || t>dateValue(latestFresh.inspectionDate||latestFresh.createdAt)){
+        latestFresh=x;
+      }
+    });
+
+    if(latestFresh){
+      const freshDate=latestFresh.inspectionDate?.toDate?.()||latestFresh.inspectionDate||latestFresh.createdAt?.toDate?.()||latestFresh.createdAt;
+      const latestActor=formatInspectionActor(latestFresh);
+      const latestResult=String(latestFresh.result||"-").toUpperCase();
+      const latestWhen=formatDate(freshDate);
+
+      if(sameCalendarDay(freshDate,new Date())){
+        const proceed=confirm(
+          `APAR ${verified.assetNumber} sudah diperiksa HARI INI.\n\n`+
+          `Pemeriksaan terakhir: ${latestWhen}\n`+
+          `Inspector: ${latestActor}\n`+
+          `Hasil: ${latestResult}\n\n`+
+          `Pemeriksaan ulang sebaiknya dilakukan hanya jika memang diperlukan.\n\n`+
+          `Tetap lanjutkan pemeriksaan ulang?`
+        );
+        if(!proceed){
+          setInspectionStatus("Pemeriksaan dibatalkan untuk mencegah pemeriksaan ganda pada APAR yang sama di hari yang sama.","warning");
+          return;
+        }
+      }
+    }
+
     const data={
       aparId:verified.id,
       aparAssetNumber:verified.assetNumber,
@@ -3856,6 +3973,8 @@ async function saveAdminInspection(){
       signage:$("signage").value,
       result,
       notes:$("inspectionNotes").value.trim(),
+      isReinspection:Boolean(latestFresh),
+      reinspectionOfId:latestFresh?.id||null,
       createdAt:serverTimestamp(),
       updatedAt:serverTimestamp()
     };
