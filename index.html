@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.2.0-FINAL">
+<meta name="build-version" content="V14.14.2.1-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.2.0.3</title>
+<title>APAR - Admin Dashboard V14.14.2.1.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -456,20 +456,20 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.2.0 - LOGIN CLICK RECOVERY */
+/* V14.14.2.1 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.2.0 - Refill print readability */
+/* V14.14.2.1 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.2.0 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.2.1 UI cleanup: version markers are internal only, never visible. */
 
 
-/* V14.14.2.0 - Global Inspection Awareness */
+/* V14.14.2.1 - Global Inspection Awareness */
 .inspection-global-status{
   margin-top:12px;padding:14px 16px;border:1px solid #cbd5e1;border-radius:10px;
   background:#f8fafc
@@ -480,12 +480,54 @@ body.role-inspector .inspector-only{display:block!important}
 .inspection-global-text{font-weight:700;font-size:14px}
 .inspection-global-meta{margin-top:4px;color:#64748b;font-size:12px;line-height:1.5}
 
+
+/* V14.14.2.1 — Global Inspection Worklist */
+.inspection-worklist-summary{
+  display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-top:12px
+}
+.inspection-worklist-kpi{
+  border:1px solid #dbe3ee;border-radius:10px;background:#fff;padding:12px 13px
+}
+.inspection-worklist-kpi .wk-label{font-size:11px;font-weight:800;color:#64748b;text-transform:uppercase}
+.inspection-worklist-kpi .wk-value{font-size:24px;font-weight:900;color:#10233f;margin-top:3px}
+.inspection-worklist-kpi.warn .wk-value{color:#b45309}
+.inspection-worklist-kpi.danger .wk-value{color:#b91c1c}
+.inspection-worklist-toolbar{
+  display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:14px
+}
+.inspection-worklist-toolbar input,.inspection-worklist-toolbar select{
+  min-height:42px
+}
+.inspection-worklist-table{max-height:520px;overflow:auto;margin-top:12px}
+.inspection-worklist-table table{min-width:760px}
+.inspection-worklist-table tbody tr{cursor:pointer}
+.inspection-worklist-table tbody tr:hover{background:#f8fafc}
+.wk-status{font-weight:900;font-size:12px}
+.wk-status.done{color:#047857}
+.wk-status.pending{color:#b91c1c}
+.wk-status.fail{color:#b91c1c}
+.wk-meta{font-size:11px;color:#64748b;line-height:1.35}
+.admin-activity-toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.admin-activity-toolbar input,.admin-activity-toolbar select{min-height:42px}
+.admin-activity-table{max-height:500px;overflow:auto;margin-top:12px}
+.admin-activity-table table{min-width:900px}
+@media (max-width:900px){
+  .inspection-worklist-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media (max-width:640px){
+  .inspection-worklist-summary{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .inspection-worklist-kpi{padding:10px}
+  .inspection-worklist-kpi .wk-value{font-size:20px}
+  .inspection-worklist-toolbar input,.inspection-worklist-toolbar select,
+  .admin-activity-toolbar input,.admin-activity-toolbar select{width:100%}
+}
+
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.2.0</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.2.1</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -586,6 +628,36 @@ body.role-inspector .inspector-only{display:block!important}
 <section class="card dashboard-alert-card"><div class="toolbar"><div><h2>🔔 Lifecycle APAR</h2><div class="subtitle">Refill, Hydrotest, dan Masa Berlaku yang membutuhkan perhatian.</div></div><button id="dashboardLifecycleReloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div><div class="dashboard-alert-grid"><div class="dashboard-alert-item danger"><div class="alert-label">🔴 Terlambat / Hari Ini</div><div id="dashboardLifecycleOverdue" class="alert-value">0</div></div><div class="dashboard-alert-item warning"><div class="alert-label">🟠 ≤ 14 Hari</div><div id="dashboardLifecycle14" class="alert-value">0</div></div><div class="dashboard-alert-item warning"><div class="alert-label">🟡 15–30 Hari</div><div id="dashboardLifecycle30" class="alert-value">0</div></div><div class="dashboard-alert-item neutral"><div class="alert-label">⚪ Belum Ada Jadwal</div><div id="dashboardLifecycleNoSchedule" class="alert-value">0</div></div></div><div class="dashboard-alert-actions"><button id="dashboardLifecycleDetailBtn" class="action primary" type="button">🔍 Lihat Lifecycle</button></div></section>
 <section class="card"><div class="toolbar"><div><h2>Ringkasan Status APAR</h2><div class="subtitle">Data APAR yang tersimpan di Firestore.</div></div><button id="reloadBtn" class="action secondary" type="button">🔄 Muat Ulang</button></div><div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Brand</th><th>Capacity</th><th>Location</th><th>Serial Number</th><th>Status</th><th>Pemeriksaan Terakhir</th><th>Kondisi</th></tr></thead><tbody id="aparTableBody"><tr><td colspan="8" class="empty">Memuat data APAR...</td></tr></tbody></table></div></section>
 <section class="card"><div class="toolbar"><div><h2>Pemeriksaan Terbaru</h2><div class="subtitle">10 pemeriksaan terbaru dari collection <b>inspections</b>.</div></div></div><div class="table-wrap"><table><thead><tr><th>Asset Number</th><th>Inspector</th><th>Hasil</th><th>Tanggal</th><th>Catatan</th></tr></thead><tbody id="inspectionTableBody"><tr><td colspan="5" class="empty">Memuat pemeriksaan...</td></tr></tbody></table></div></section>
+<section class="card" id="adminInspectorActivityCard">
+  <div class="toolbar">
+    <div>
+      <h2>👥 Aktivitas Seluruh Inspector</h2>
+      <div class="subtitle">Admin dapat memantau seluruh aktivitas pemeriksaan Inspector dari Firestore.</div>
+    </div>
+    <button id="reloadAdminInspectorActivityBtn" class="action secondary" type="button">🔄 Muat Aktivitas</button>
+  </div>
+  <div class="admin-activity-toolbar">
+    <input id="adminActivitySearch" class="search" type="search" placeholder="Cari APAR, Inspector, hasil, catatan...">
+    <select id="adminActivityInspector" style="min-width:190px"><option value="">Semua Inspector</option></select>
+    <select id="adminActivityResult" style="min-width:150px">
+      <option value="">Semua Hasil</option>
+      <option value="pass">PASS</option>
+      <option value="fail">FAIL</option>
+    </select>
+    <input id="adminActivityFrom" type="date" title="Tanggal mulai">
+    <input id="adminActivityTo" type="date" title="Tanggal akhir">
+    <span id="adminActivityCount" class="history-count">0 data</span>
+  </div>
+  <div id="adminActivityStatus" class="status info hidden"></div>
+  <div class="table-wrap admin-activity-table">
+    <table>
+      <thead><tr>
+        <th>Tanggal</th><th>Inspector</th><th>APAR</th><th>Hasil</th><th>Catatan</th><th>Tipe Input</th>
+      </tr></thead>
+      <tbody id="adminActivityBody"><tr><td colspan="6" class="empty">Memuat aktivitas Inspector...</td></tr></tbody>
+    </table>
+  </div>
+</section>
 </section>
 
 <section id="dataAparView" class="hidden">
@@ -747,20 +819,68 @@ body.role-inspector .inspector-only{display:block!important}
         <div class="subtitle">Pilih APAR secara manual atau gunakan Scan QR Code untuk membuka form pemeriksaan.</div>
       </div>
     </div>
-    <div class="history-filters">
-      <div style="min-width:260px;flex:1">
+    <div class="history-filters" style="align-items:flex-end">
+      <div style="width:min(420px,100%)">
         <label for="inspectionAparSelect" style="display:block;margin-bottom:7px;font-size:13px;font-weight:800">Pilih APAR ACTIVE</label>
         <select id="inspectionAparSelect" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:11px 12px;font-size:14px;background:#fff">
           <option value="">Memuat data APAR...</option>
         </select>
       </div>
       <button id="startScanBtn" class="action primary" type="button">📷 Scan QR</button>
+      <button id="reloadInspectionWorklistBtn" class="action secondary" type="button">🔄 Muat Status</button>
     </div>
     <div id="scannerStatus" class="status info">Pilih APAR atau tekan Scan QR.</div>
-    <div id="inspectionGlobalStatus" class="inspection-global-status" aria-live="polite">
-      <div class="inspection-global-title">Status Pemeriksaan Global APAR</div>
-      <div id="inspectionGlobalStatusText" class="inspection-global-text">Pilih APAR untuk melihat pemeriksaan terakhir secara keseluruhan.</div>
-      <div id="inspectionGlobalMeta" class="inspection-global-meta"></div>
+
+    <div class="card" style="margin-top:12px;padding:16px;border-radius:12px;border:1px solid #dbe3ee;background:#f8fafc">
+      <div class="toolbar" style="margin-bottom:0">
+        <div>
+          <h2 style="margin:0">📋 Status Pemeriksaan Global APAR</h2>
+          <div class="subtitle">Status ini sama untuk semua Inspector dan Admin, berdasarkan data <b>inspections</b> di Firestore.</div>
+        </div>
+      </div>
+
+      <div class="inspection-worklist-summary">
+        <div class="inspection-worklist-kpi"><div class="wk-label">Total APAR Active</div><div id="worklistTotal" class="wk-value">0</div></div>
+        <div class="inspection-worklist-kpi"><div class="wk-label">Sudah Diperiksa</div><div id="worklistDone" class="wk-value">0</div></div>
+        <div class="inspection-worklist-kpi warn"><div class="wk-label">Belum Diperiksa</div><div id="worklistPending" class="wk-value">0</div></div>
+        <div class="inspection-worklist-kpi danger"><div class="wk-label">FAIL Terakhir</div><div id="worklistFail" class="wk-value">0</div></div>
+      </div>
+
+      <div class="inspection-worklist-toolbar">
+        <input id="inspectionWorklistSearch" class="search" type="search" placeholder="Cari Asset Number, Inspector, hasil...">
+        <select id="inspectionWorklistFilter" style="min-width:190px">
+          <option value="all">Semua Status</option>
+          <option value="pending">Belum Diperiksa</option>
+          <option value="done">Sudah Diperiksa</option>
+          <option value="pass">PASS Terakhir</option>
+          <option value="fail">FAIL Terakhir</option>
+        </select>
+      </div>
+
+      <div id="inspectionWorklistStatus" class="status info hidden" style="margin-top:12px"></div>
+
+      <div class="table-wrap inspection-worklist-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Asset Number</th>
+              <th>Status Global</th>
+              <th>Pemeriksaan Terakhir</th>
+              <th>Inspector Terakhir</th>
+              <th>Hasil</th>
+            </tr>
+          </thead>
+          <tbody id="inspectionWorklistBody">
+            <tr><td colspan="5" class="empty">Memuat status pemeriksaan...</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="inspectionGlobalStatus" class="inspection-global-status hidden" aria-live="polite" style="margin-top:12px">
+        <div class="inspection-global-title">Status APAR Terpilih</div>
+        <div id="inspectionGlobalStatusText" class="inspection-global-text">Pilih APAR untuk melihat pemeriksaan terakhir.</div>
+        <div id="inspectionGlobalMeta" class="inspection-global-meta"></div>
+      </div>
     </div>
     <div class="qr-scanner-box">
       <div id="qr-reader" class="hidden"></div>
@@ -921,7 +1041,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.0...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.1...</div>
 </section>
 </div>
 </main>
@@ -1233,7 +1353,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.2.0 boot diagnostics: never blocks UI. */
+/* V14.14.2.1 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1454,6 +1574,186 @@ async function loadInspectorDashboard(){
   }
 }
 
+
+function activeAparRows(){
+  return (aparRows||[]).filter(x=>String(x.status||"").trim().toLowerCase()==="active");
+}
+
+function globalInspectionWorklistRows(){
+  const latestMap=buildLatestInspectionMap();
+  return activeAparRows().map(item=>{
+    const key=String(item.assetNumber||item.id||"").trim();
+    const latest=latestMap.get(key.toUpperCase())||null;
+    return {
+      id:item.id,
+      assetNumber:key,
+      latest,
+      inspected:Boolean(latest),
+      result:String(latest?.result||"").toLowerCase(),
+      inspector:formatInspectionActor(latest),
+      date:latest?(latest.inspectionDate||latest.createdAt):null
+    };
+  }).sort((a,b)=>{
+    if(a.inspected!==b.inspected)return a.inspected?1:-1;
+    return String(a.assetNumber).localeCompare(String(b.assetNumber),undefined,{numeric:true,sensitivity:"base"});
+  });
+}
+
+function setWorklistStatus(message,type="info"){
+  const el=$("inspectionWorklistStatus");
+  if(!el)return;
+  el.textContent=message;
+  el.className="status "+type;
+  el.classList.remove("hidden");
+}
+
+function renderGlobalInspectionWorklist(){
+  const body=$("inspectionWorklistBody");
+  if(!body)return;
+
+  const rows=globalInspectionWorklistRows();
+  const total=rows.length;
+  const done=rows.filter(x=>x.inspected).length;
+  const pending=total-done;
+  const fail=rows.filter(x=>x.result==="fail").length;
+
+  $("worklistTotal") && ($("worklistTotal").textContent=total);
+  $("worklistDone") && ($("worklistDone").textContent=done);
+  $("worklistPending") && ($("worklistPending").textContent=pending);
+  $("worklistFail") && ($("worklistFail").textContent=fail);
+
+  const q=String($("inspectionWorklistSearch")?.value||"").trim().toLowerCase();
+  const filter=String($("inspectionWorklistFilter")?.value||"all").toLowerCase();
+
+  const filtered=rows.filter(x=>{
+    const hay=[x.assetNumber,x.inspector,x.result,x.latest?.notes||""].join(" ").toLowerCase();
+    if(q&&!hay.includes(q))return false;
+    if(filter==="pending"&&x.inspected)return false;
+    if(filter==="done"&&!x.inspected)return false;
+    if(filter==="pass"&&x.result!=="pass")return false;
+    if(filter==="fail"&&x.result!=="fail")return false;
+    return true;
+  });
+
+  if(!filtered.length){
+    body.innerHTML='<tr><td colspan="5" class="empty">Tidak ada APAR yang sesuai filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=filtered.map(x=>{
+    if(!x.latest){
+      return `<tr data-worklist-apar-id="${esc(x.id)}">
+        <td><strong>${esc(x.assetNumber)}</strong></td>
+        <td><span class="wk-status pending">🔴 BELUM DIPERIKSA</span></td>
+        <td>-</td>
+        <td>-</td>
+        <td>-</td>
+      </tr>`;
+    }
+    const result=x.result==="fail"
+      ? '<span class="wk-status fail">FAIL</span>'
+      : '<span class="wk-status done">PASS</span>';
+    return `<tr data-worklist-apar-id="${esc(x.id)}">
+      <td><strong>${esc(x.assetNumber)}</strong></td>
+      <td><span class="wk-status done">🟢 SUDAH DIPERIKSA</span></td>
+      <td>${formatDate(x.date)}</td>
+      <td>${esc(x.inspector)}</td>
+      <td>${result}</td>
+    </tr>`;
+  }).join("");
+
+  body.querySelectorAll("[data-worklist-apar-id]").forEach(tr=>{
+    tr.addEventListener("click",()=>{
+      const item=findAparItemById(tr.dataset.worklistAparId);
+      if(item){
+        selectInspectionApar(item,"worklist");
+        $("inspectionAparSelect").value=item.id;
+        $("inspectionForm")?.scrollIntoView({behavior:"smooth",block:"start"});
+      }
+    });
+  });
+}
+
+function getAdminInspectorActivityRows(){
+  const q=String($("adminActivitySearch")?.value||"").trim().toLowerCase();
+  const inspector=String($("adminActivityInspector")?.value||"").trim().toLowerCase();
+  const result=String($("adminActivityResult")?.value||"").trim().toLowerCase();
+  const from=$("adminActivityFrom")?.value||"";
+  const to=$("adminActivityTo")?.value||"";
+  const fromTime=from?new Date(from+"T00:00:00").getTime():null;
+  const toTime=to?new Date(to+"T23:59:59.999").getTime():null;
+
+  return (inspectionRows||[]).filter(x=>{
+    const role=String(x.inputByRole||"").toLowerCase();
+    // Admin card focuses on Inspector activity; Admin-entered inspections remain
+    // visible in the global worklist/history but are not mixed into this report.
+    if(role && role!=="inspector" && !String(x.inspectorName||"").toLowerCase().includes("admin"))return false;
+
+    const actor=String(x.inspectorName||x.inspectorPhone||x.inspectorId||"").trim();
+    if(inspector && actor.toLowerCase()!==inspector)return false;
+    const hay=[x.aparAssetNumber,x.aparId,actor,x.result,x.notes,x.inspectorPhone].join(" ").toLowerCase();
+    if(q&&!hay.includes(q))return false;
+    if(result&&String(x.result||"").toLowerCase()!==result)return false;
+    const t=dateValue(x.inspectionDate||x.createdAt);
+    if(fromTime!==null&&t<fromTime)return false;
+    if(toTime!==null&&t>toTime)return false;
+    return true;
+  });
+}
+
+function renderAdminInspectorActivity(){
+  const body=$("adminActivityBody");
+  if(!body)return;
+
+  const all=inspectionRows||[];
+  const inspectorNames=[...new Map(
+    all.filter(x=>String(x.inputByRole||"").toLowerCase()==="inspector")
+      .map(x=>{
+        const n=String(x.inspectorName||x.inspectorPhone||x.inspectorId||"-").trim();
+        return [n.toLowerCase(),n];
+      })
+  ).values()].sort((a,b)=>a.localeCompare(b,undefined,{sensitivity:"base"}));
+
+  const sel=$("adminActivityInspector");
+  if(sel){
+    const prev=sel.value;
+    sel.innerHTML='<option value="">Semua Inspector</option>'+inspectorNames.map(n=>`<option value="${esc(n.toLowerCase())}">${esc(n)}</option>`).join("");
+    if(inspectorNames.some(n=>n.toLowerCase()===prev))sel.value=prev;
+  }
+
+  const rows=getAdminInspectorActivityRows();
+  $("adminActivityCount") && ($("adminActivityCount").textContent=`${rows.length} data`);
+
+  if(!rows.length){
+    body.innerHTML='<tr><td colspan="6" class="empty">Belum ada aktivitas Inspector yang sesuai filter.</td></tr>';
+    return;
+  }
+
+  body.innerHTML=rows.slice(0,100).map(x=>`<tr>
+    <td>${formatDate(x.inspectionDate||x.createdAt)}</td>
+    <td>${esc(x.inspectorName||x.inspectorPhone||x.inspectorId||"-")}</td>
+    <td><strong>${esc(x.aparAssetNumber||x.aparId||"-")}</strong></td>
+    <td>${badge(x.result)}</td>
+    <td>${esc(x.notes||"-")}</td>
+    <td>${esc(String(x.inputByRole||"inspector").toUpperCase())}</td>
+  </tr>`).join("");
+
+  if(rows.length>100){
+    setAdminActivityStatus(`Menampilkan 100 aktivitas terbaru dari ${rows.length} hasil filter.`,"info");
+  }else{
+    const el=$("adminActivityStatus");
+    if(el)el.classList.add("hidden");
+  }
+}
+
+function setAdminActivityStatus(message,type="info"){
+  const el=$("adminActivityStatus");
+  if(!el)return;
+  el.textContent=message;
+  el.className="status "+type;
+  el.classList.remove("hidden");
+}
+
 function renderInspectorDashboard(){
   const uid=currentAdmin?.uid;
   const active=(aparRows||[]).filter(x=>String(x.status||"").toLowerCase()==="active").length;
@@ -1464,16 +1764,20 @@ function renderInspectorDashboard(){
   $("inspectorMyFail").textContent=fails;
   const body=$("inspectorRecentBody");
   const recent=mine.slice(0,10);
-  if(!recent.length){body.innerHTML='<tr><td colspan="5" class="empty">Belum ada pemeriksaan oleh akun ini.</td></tr>';return;}
-  const latestMap=buildLatestInspectionMap();
-  body.innerHTML=recent.map(x=>{
-    const key=String(x.aparAssetNumber||x.aparId||"-").trim();
-    const g=latestMap.get(key.toUpperCase());
-    const globalText=g
-      ? `${esc(formatInspectionActor(g))} · ${esc(String(g.result||"-").toUpperCase())}<br><span style="font-size:11px;color:#64748b">${formatDate(g.inspectionDate||g.createdAt)}</span>`
-      : "-";
-    return `<tr><td><strong>${esc(key)}</strong></td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${globalText}</td><td>${esc(x.notes||"-")}</td></tr>`;
-  }).join("");
+  if(!recent.length){
+    body.innerHTML='<tr><td colspan="5" class="empty">Belum ada pemeriksaan oleh akun ini.</td></tr>';
+  }else{
+    const latestMap=buildLatestInspectionMap();
+    body.innerHTML=recent.map(x=>{
+      const key=String(x.aparAssetNumber||x.aparId||"-").trim();
+      const g=latestMap.get(key.toUpperCase());
+      const globalText=g
+        ? `${esc(formatInspectionActor(g))} · ${esc(String(g.result||"-").toUpperCase())}<br><span style="font-size:11px;color:#64748b">${formatDate(g.inspectionDate||g.createdAt)}</span>`
+        : "-";
+      return `<tr><td><strong>${esc(key)}</strong></td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${globalText}</td><td>${esc(x.notes||"-")}</td></tr>`;
+    }).join("");
+  }
+  renderGlobalInspectionWorklist();
 }
 
 function getInspectorHistoryRows(){
@@ -1561,7 +1865,7 @@ function renderMasterApar(){
 
 async function loadInspections(){
   debug("Membaca collection inspections...");
-  // V14.14.2.0:
+  // V14.14.2.1:
   // Active Inspector dan Admin membaca histori pemeriksaan global.
   // UI "Riwayat Saya" tetap memfilter berdasarkan inspectorId.
   // Ini memungkinkan sistem mengetahui pemeriksaan terakhir APAR secara global
@@ -1572,7 +1876,9 @@ async function loadInspections(){
   inspectionRows.sort((a,b)=>dateValue(b.inspectionDate||b.createdAt)-dateValue(a.inspectionDate||a.createdAt));
   const b=$("inspectionTableBody");
   if(!inspectionRows.length){b.innerHTML='<tr><td colspan="5" class="empty">Belum ada data pemeriksaan.</td></tr>';return}
-  b.innerHTML=inspectionRows.slice(0,10).map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId)}</strong></td><td>${esc(x.inspectorPhone||x.inspectorId)}</td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes)}</td></tr>`).join("");
+  b.innerHTML=inspectionRows.slice(0,10).map(x=>`<tr><td><strong>${esc(x.aparAssetNumber||x.aparId)}</strong></td><td>${esc(x.inspectorName||x.inspectorPhone||x.inspectorId||"-")}</td><td>${badge(x.result)}</td><td>${formatDate(x.inspectionDate||x.createdAt)}</td><td>${esc(x.notes||"-")}</td></tr>`).join("");
+  renderGlobalInspectionWorklist();
+  renderAdminInspectorActivity();
   debug(`Pemeriksaan ditemukan: ${inspectionRows.length}`);
 }
 
@@ -1582,6 +1888,7 @@ async function loadAll(){
     setStatus("Memuat data Dashboard dari Firestore...","info");
     await Promise.all([loadApar(),loadInspections()]);
     renderDashboardInspectionKpis();renderDashboardApar();renderDashboardLifecycle();
+    renderAdminInspectorActivity();
     renderMonitoring();
     if(!$("historyView").classList.contains("hidden")) renderHistory();
     setStatus("Dashboard Admin berhasil dimuat dari Firestore.","success");
@@ -2864,6 +3171,36 @@ bindUiEvent("refillAssetSelect","change",updateRefillModalApar);
 bindUiEvent("saveRefillBtn","click",saveRefill);
 bindUiEvent("reloadRefillsBtn","click",loadRefills);
 bindUiEvent("printRefillsBtn","click",printRefills);
+bindUiEvent("reloadInspectionWorklistBtn","click",async()=>{
+  const btn=$("reloadInspectionWorklistBtn");
+  if(btn)btn.disabled=true;
+  try{
+    await loadApar();
+    await loadInspections();
+    renderGlobalInspectionWorklist();
+    setWorklistStatus("Status pemeriksaan global berhasil diperbarui dari Firestore.","success");
+  }catch(e){
+    console.error(e);
+    setWorklistStatus("Gagal memuat status global: "+(e.message||"Unknown error"),"error");
+  }finally{if(btn)btn.disabled=false;}
+});
+bindUiEvent("inspectionWorklistSearch","input",renderGlobalInspectionWorklist);
+bindUiEvent("inspectionWorklistFilter","change",renderGlobalInspectionWorklist);
+bindUiEvent("reloadAdminInspectorActivityBtn","click",async()=>{
+  try{
+    await loadInspections();
+    renderAdminInspectorActivity();
+    setAdminActivityStatus("Aktivitas Inspector berhasil diperbarui dari Firestore.","success");
+  }catch(e){
+    console.error(e);
+    setAdminActivityStatus("Gagal memuat aktivitas Inspector: "+(e.message||"Unknown error"),"error");
+  }
+});
+bindUiEvent("adminActivitySearch","input",renderAdminInspectorActivity);
+bindUiEvent("adminActivityInspector","change",renderAdminInspectorActivity);
+bindUiEvent("adminActivityResult","change",renderAdminInspectorActivity);
+bindUiEvent("adminActivityFrom","change",renderAdminInspectorActivity);
+bindUiEvent("adminActivityTo","change",renderAdminInspectorActivity);
 bindUiEvent("refillSearch","input",renderRefills);
 bindUiEvent("refillFrom","change",renderRefills);
 bindUiEvent("refillTo","change",renderRefills);
@@ -2925,7 +3262,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.2.0 LOGIN CORE
+  V14.14.2.1 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2937,7 +3274,7 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // V14.14.2.0:
+  // V14.14.2.1:
   // In-memory persistence intentionally prevents a prior browser session
   // from being restored after a fresh page load. This keeps the Login screen
   // immediate and removes the previous boot signOut race/delay.
@@ -3831,7 +4168,7 @@ function renderGlobalInspectionAwareness(item){
   const meta=$("inspectionGlobalMeta");
   if(!box||!text||!meta)return;
 
-  box.classList.remove("warn","safe");
+  box.classList.remove("warn","safe","hidden");
   if(!item){
     text.textContent="Pilih APAR untuk melihat pemeriksaan terakhir secara keseluruhan.";
     meta.textContent="";
@@ -3920,7 +4257,7 @@ async function saveAdminInspection(){
       return;
     }
 
-    // V14.14.2.0: fresh global duplicate-awareness check.
+    // V14.14.2.1: fresh global duplicate-awareness check.
     // Data list di layar bisa stale; cek Firestore langsung sebelum membuat histori.
     const latestSnap=await getDocs(
       query(collection(db,"inspections"),where("aparAssetNumber","==",verified.assetNumber))
