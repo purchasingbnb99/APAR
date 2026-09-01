@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.1.0-FINAL">
+<meta name="build-version" content="V14.14.1.2-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.1.0.3</title>
+<title>APAR - Admin Dashboard V14.14.1.2.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -443,7 +443,7 @@ body:not(.authenticated) .sidebar{
 }
 
 
-/* V14.14.1.0 - AUTH METHOD UI */
+/* V14.14.1.2 - AUTH METHOD UI */
 #loginMethod,#loginPhone,#loginOtp{font-size:15px}
 #recaptchaContainer{min-height:78px}
 
@@ -460,24 +460,24 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.1.0 - LOGIN CLICK RECOVERY */
+/* V14.14.1.2 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.1.0 - Refill print readability */
+/* V14.14.1.2 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.1.0 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.1.2 UI cleanup: version markers are internal only, never visible. */
 
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.1.0</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.1.2</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -914,7 +914,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.1.0...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.1.2...</div>
 </section>
 </div>
 </main>
@@ -1225,7 +1225,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.1.0 boot diagnostics: never blocks UI. */
+/* V14.14.1.2 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1237,6 +1237,48 @@ window.addEventListener("unhandledrejection",function(e){
     window.__aparBootErrors.push(String(e?.reason?.message||e?.reason||"Unhandled rejection"));
   }catch(_){}
 });
+</script>
+
+
+<script>
+/* V14.14.1.2 LOGIN BOOTSTRAP
+   This listener is installed synchronously by the browser before the Firebase
+   module finishes loading, so the Login button can never become a dead button
+   merely because a later UI binding fails. The real handler is supplied by
+   the module as window.__aparLoginHandler.
+*/
+(function(){
+  function bindLoginBootstrap(){
+    const btn=document.getElementById("loginBtn");
+    if(!btn || btn.dataset.bootstrapBound==="1")return;
+    btn.dataset.bootstrapBound="1";
+    btn.addEventListener("click",function(){
+      if(typeof window.__aparLoginHandler==="function"){
+        window.__aparLoginHandler();
+      }else{
+        const status=document.getElementById("loginStatus");
+        if(status){
+          status.textContent="Sistem sedang menyiapkan Login. Tunggu sebentar lalu coba lagi.";
+          status.className="status info";
+          status.classList.remove("hidden");
+        }
+      }
+    },false);
+    const password=document.getElementById("loginPassword");
+    if(password){
+      password.addEventListener("keydown",function(e){
+        if(e.key==="Enter"){
+          if(typeof window.__aparLoginHandler==="function")window.__aparLoginHandler();
+        }
+      },false);
+    }
+  }
+  if(document.readyState==="loading"){
+    document.addEventListener("DOMContentLoaded",bindLoginBootstrap,{once:true});
+  }else{
+    bindLoginBootstrap();
+  }
+})();
 </script>
 
 <script type="module">
@@ -2741,25 +2783,37 @@ function wireAllUi(){
 
 window.__aparLoginHandler = async ()=>{
   const method=$("loginMethod")?.value||"email";
+
   if(method==="phone"){
-    return sendInspectorOtp();
+    try{
+      await sendInspectorOtp();
+    }catch(e){
+      console.error("OTP handler error:",e);
+    }
+    return;
   }
 
-  const email=$("loginEmail").value.trim();
-  const password=$("loginPassword").value;
+  const email=String($("loginEmail")?.value||"").trim();
+  const password=String($("loginPassword")?.value||"");
   if(!email || !password){
     setLoginStatus("Email dan password wajib diisi.","warning");
     return;
   }
+
   const btn=$("loginBtn");
-  if(!btn || btn.disabled)return;
+  if(!btn || btn.dataset.busy==="1")return;
+  btn.dataset.busy="1";
   btn.disabled=true;
+
   try{
-    setLoginStatus("Login dengan Email + Password...","info");
-    await authReady;
+    // Firebase core is initialized before wireAllUi(). Do not block login on
+    // a persistence promise that is unrelated to the credential request.
     if(!auth)throw new Error("Firebase Authentication belum siap.");
+
+    setLoginStatus("Login...","info");
     await signInWithEmailAndPassword(auth,email,password);
     debug("Firebase Email/Password Authentication berhasil untuk: "+email);
+    setLoginStatus("Login berhasil. Memeriksa Role akun...","success");
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
@@ -2773,15 +2827,12 @@ window.__aparLoginHandler = async ()=>{
       setLoginStatus("Login gagal: "+(e.message||"akun tidak dapat digunakan."),"error");
     }
   }finally{
+    btn.dataset.busy="0";
     btn.disabled=false;
   }
 };
 
 bindUiEvent("loginMethod","change",switchLoginMethod);
-bindUiEvent("loginBtn","click",window.__aparLoginHandler);
-bindUiEvent("loginPassword","keydown",e=>{
-  if(e.key==="Enter")window.__aparLoginHandler();
-});
 bindUiEvent("loginPhone","keydown",e=>{
   if(e.key==="Enter")sendInspectorOtp();
 });
@@ -2790,19 +2841,7 @@ bindUiEvent("verifyOtpBtn","click",verifyInspectorOtp);
 bindUiEvent("loginOtp","keydown",e=>{
   if(e.key==="Enter")verifyInspectorOtp();
 });
-,"change",switchLoginMethod);
-bindUiEvent("loginBtn","click",window.__aparLoginHandler);
-bindUiEvent("loginPassword","keydown",e=>{
-  if(e.key==="Enter")window.__aparLoginHandler();
-});
-bindUiEvent("loginPhone","keydown",e=>{
-  if(e.key==="Enter")sendInspectorOtp();
-});
-bindUiEvent("sendOtpBtn","click",sendInspectorOtp);
-bindUiEvent("verifyOtpBtn","click",verifyInspectorOtp);
-bindUiEvent("loginOtp","keydown",e=>{
-  if(e.key==="Enter")verifyInspectorOtp();
-});
+
 
 /* ---------- GLOBAL / ADMIN NAV ---------- */
 bindUiEvent("logoutBtn","click",async()=>{try{await signOut(auth)}catch(e){debug("Logout gagal: "+e.message)}});
@@ -2905,7 +2944,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.1.0 LOGIN CORE
+  V14.14.1.2 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2917,7 +2956,7 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // V14.14.1.0:
+  // V14.14.1.2:
   // In-memory persistence intentionally prevents a prior browser session
   // from being restored after a fresh page load. This keeps the Login screen
   // immediate and removes the previous boot signOut race/delay.
