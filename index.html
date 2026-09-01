@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.2.3-FINAL">
+<meta name="build-version" content="V14.14.2.4-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -2760,7 +2760,7 @@ function firebaseAuthErrorMessage(e){
 }
 
 
-async async function resetUserPassword(id){
+async function resetUserPassword(id){
   const x=userRows.find(u=>u.id===id);
   if(!x)return;
 
