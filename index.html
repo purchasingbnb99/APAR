@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.0.10-FINAL">
+<meta name="build-version" content="V14.14.1.0-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.0.10.3</title>
+<title>APAR - Admin Dashboard V14.14.1.0.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -443,6 +443,10 @@ body:not(.authenticated) .sidebar{
 }
 
 
+/* V14.14.1.0 - AUTH METHOD UI */
+#loginMethod,#loginPhone,#loginOtp{font-size:15px}
+#recaptchaContainer{min-height:78px}
+
 /* V14.14.0 MULTI-ROLE ACCESS */
 .admin-only,.inspector-only{display:none!important}
 body.role-admin .admin-only{display:block!important}
@@ -456,24 +460,24 @@ body.role-inspector .inspector-only{display:block!important}
 @media(max-width:800px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.inspector-dashboard-grid{grid-template-columns:1fr 1fr;gap:10px}.inspector-kpi{padding:14px;min-height:100px}.inspector-kpi .kpi-value{font-size:25px}}
 
-/* V14.14.0.10 - LOGIN CLICK RECOVERY */
+/* V14.14.1.0 - LOGIN CLICK RECOVERY */
 .login-card{position:relative!important;z-index:30!important;pointer-events:auto!important}
 #loginBtn{position:relative!important;z-index:31!important;pointer-events:auto!important;touch-action:manipulation;cursor:pointer!important}
 
-/* V14.14.0.10 - Refill print readability */
+/* V14.14.1.0 - Refill print readability */
 @media print{
   .refill-late{font-weight:800;color:#b91c1c}
 }
 
 
-/* V14.14.0.10 UI cleanup: version markers are internal only, never visible. */
+/* V14.14.1.0 UI cleanup: version markers are internal only, never visible. */
 
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.0.10</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.1.0</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -493,12 +497,53 @@ body.role-inspector .inspector-only{display:block!important}
 <main class="main">
 <section id="loginCard" class="login-card">
   <h2>Login Aplikasi APAR</h2>
-  <div class="subtitle">Masuk menggunakan akun yang terdaftar di Firebase. Sistem akan otomatis membuka Dashboard sesuai Role: Admin atau Inspector.</div>
+  <div class="subtitle">Admin menggunakan Email + Password. Inspector dapat menggunakan Email + Password atau Nomor HP + OTP sesuai akun Firebase.</div>
   <div id="loginStatus" class="status info hidden"></div>
-  <div class="field"><label for="loginEmail">Email</label><input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test / inspector@apar.test"></div>
-  <div class="field"><label for="loginPassword">Password</label><input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password"></div>
-  <div class="login-actions"><button id="loginBtn" class="action primary" type="button">Login</button></div>
-  <div class="login-note">Admin masuk ke Admin Dashboard. Inspector masuk ke Inspector Dashboard. Setelah logout, form login akan muncul kembali.</div>
+
+  <div class="field">
+    <label for="loginMethod">Metode Login</label>
+    <select id="loginMethod">
+      <option value="email">Email + Password</option>
+      <option value="phone">Nomor HP + OTP</option>
+    </select>
+  </div>
+
+  <div id="emailLoginFields">
+    <div class="field">
+      <label for="loginEmail">Email</label>
+      <input id="loginEmail" type="email" autocomplete="username" placeholder="admin@apar.test / inspector@apar.test">
+    </div>
+    <div class="field">
+      <label for="loginPassword">Password</label>
+      <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Masukkan password">
+    </div>
+    <div class="login-actions">
+      <button id="loginBtn" class="action primary" type="button">Login</button>
+    </div>
+  </div>
+
+  <div id="phoneLoginFields" class="hidden">
+    <div class="field">
+      <label for="loginPhone">Nomor HP Inspector</label>
+      <input id="loginPhone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+6281234567890">
+      <div class="login-note">Gunakan format internasional, contoh: +6281234567890.</div>
+    </div>
+    <div id="recaptchaContainer" style="margin:10px 0;"></div>
+    <div class="login-actions">
+      <button id="sendOtpBtn" class="action primary" type="button">📲 Kirim OTP</button>
+    </div>
+    <div id="otpFields" class="hidden">
+      <div class="field">
+        <label for="loginOtp">Kode OTP</label>
+        <input id="loginOtp" type="text" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6 digit kode SMS">
+      </div>
+      <div class="login-actions">
+        <button id="verifyOtpBtn" class="action primary" type="button">✅ Verifikasi OTP</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-note">Inspector tanpa email menggunakan Nomor HP + OTP Firebase. Setelah login, sistem membuka Dashboard sesuai Role dan status akun.</div>
 </section>
 
 <div id="dashboardContent" class="hidden">
@@ -869,7 +914,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.0.10...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.1.0...</div>
 </section>
 </div>
 </main>
@@ -1180,7 +1225,7 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
 
 
 <script>
-/* V14.14.0.10 boot diagnostics: never blocks UI. */
+/* V14.14.1.0 boot diagnostics: never blocks UI. */
 window.__aparBootErrors=[];
 window.addEventListener("error",function(e){
   try{
@@ -1196,7 +1241,7 @@ window.addEventListener("unhandledrejection",function(e){
 
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,inMemoryPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signInWithPhoneNumber,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,inMemoryPersistence,RecaptchaVerifier} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 import {getFirestore,collection,getDocs,query,where,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
@@ -1224,6 +1269,8 @@ function getUserCreationAuth(){
 
 let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
 let changingPasswordUserId=null;
+let phoneRecaptchaVerifier=null;
+let phoneConfirmationResult=null;
 
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -1282,6 +1329,11 @@ function showLogin(){
   $("dashboardContent").classList.add("hidden");
   const main=document.querySelector(".main");
   if(main) main.classList.add("login-mode");
+  cleanupPhoneRecaptcha();
+  if($("loginMethod")) $("loginMethod").value="email";
+  $("emailLoginFields")?.classList.remove("hidden");
+  $("phoneLoginFields")?.classList.add("hidden");
+  $("otpFields")?.classList.add("hidden");
 }
 function showDashboard(){
   document.body.classList.add("authenticated");
@@ -2563,6 +2615,118 @@ function placeholder(title,text,id){
 
 function closeMobileDrawer(){$("mobileOverlay")?.classList.add("hidden");$("sidebar")?.classList.remove("mobile-open");}function openMobileDrawer(){$("mobileOverlay")?.classList.remove("hidden");$("sidebar")?.classList.add("mobile-open");}$("mobileMenuBtn")?.addEventListener("click",openMobileDrawer);$("mobileOverlay")?.addEventListener("click",closeMobileDrawer);document.querySelectorAll(".nav button").forEach(btn=>{if(btn.id!=="logoutBtn")btn.addEventListener("click",()=>setTimeout(closeMobileDrawer,60));});$("dashboardLifecycleReloadBtn")?.addEventListener("click",async()=>{const b=$("dashboardLifecycleReloadBtn");b.disabled=true;try{await loadApar();renderDashboardLifecycle();setStatus("Ringkasan lifecycle Dashboard berhasil diperbarui.","success");}catch(e){console.error(e);setStatus("Gagal memperbarui lifecycle Dashboard.","error");}finally{b.disabled=false;}});$("dashboardLifecycleDetailBtn")?.addEventListener("click",()=>{setView("monitoring");setTimeout(()=>$("lifecycleReminderPanel")?.scrollIntoView({behavior:"smooth",block:"start"}),60);});
 
+
+function switchLoginMethod(){
+  const method=$("loginMethod")?.value||"email";
+  $("emailLoginFields")?.classList.toggle("hidden",method!=="email");
+  $("phoneLoginFields")?.classList.toggle("hidden",method!=="phone");
+  if(method==="email"){
+    cleanupPhoneRecaptcha();
+  }
+  setLoginStatus(
+    method==="phone"
+      ? "Mode Inspector: Nomor HP + OTP Firebase."
+      : "Mode login: Email + Password.",
+    "info"
+  );
+}
+
+function cleanupPhoneRecaptcha(){
+  try{
+    if(phoneRecaptchaVerifier){
+      phoneRecaptchaVerifier.clear();
+    }
+  }catch(_){}
+  phoneRecaptchaVerifier=null;
+  phoneConfirmationResult=null;
+}
+
+async function sendInspectorOtp(){
+  const phone=String($("loginPhone")?.value||"").trim();
+  if(!phone){
+    setLoginStatus("Nomor HP Inspector wajib diisi.","warning");
+    return;
+  }
+  if(!/^\+\d{8,15}$/.test(phone)){
+    setLoginStatus("Format nomor HP tidak valid. Gunakan format internasional, contoh +6281234567890.","error");
+    return;
+  }
+  const btn=$("sendOtpBtn");
+  if(btn)btn.disabled=true;
+  try{
+    await authReady;
+    if(!auth)throw new Error("Firebase Authentication belum siap.");
+
+    cleanupPhoneRecaptcha();
+
+    phoneRecaptchaVerifier=new RecaptchaVerifier(auth,"recaptchaContainer",{
+      size:"normal",
+      callback:()=>{
+        debug("reCAPTCHA berhasil diverifikasi.");
+      },
+      "expired-callback":()=>{
+        setLoginStatus("reCAPTCHA kedaluwarsa. Silakan centang kembali.","warning");
+      }
+    });
+
+    setLoginStatus("Mengirim OTP ke "+phone+"...","info");
+    phoneConfirmationResult=await signInWithPhoneNumber(auth,phone,phoneRecaptchaVerifier);
+    $("otpFields")?.classList.remove("hidden");
+    setLoginStatus("OTP berhasil dikirim. Periksa SMS pada nomor Inspector.","success");
+    debug("OTP dikirim ke nomor Inspector: "+phone);
+  }catch(e){
+    console.error(e);
+    cleanupPhoneRecaptcha();
+    const code=String(e?.code||"");
+    if(code==="auth/invalid-phone-number"){
+      setLoginStatus("Nomor HP tidak valid. Gunakan format internasional, contoh +6281234567890.","error");
+    }else if(code==="auth/operation-not-allowed"){
+      setLoginStatus("Firebase Phone Authentication belum diaktifkan. Aktifkan provider Phone di Firebase Authentication.","error");
+    }else if(code==="auth/quota-exceeded"){
+      setLoginStatus("Kuota SMS Firebase tercapai. Coba lagi nanti.","error");
+    }else if(code==="auth/captcha-check-failed"){
+      setLoginStatus("Verifikasi reCAPTCHA gagal. Muat ulang halaman lalu coba lagi.","error");
+    }else{
+      setLoginStatus("Gagal mengirim OTP: "+(e.message||"Unknown error"),"error");
+    }
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
+
+async function verifyInspectorOtp(){
+  const code=String($("loginOtp")?.value||"").trim();
+  if(!phoneConfirmationResult){
+    setLoginStatus("Silakan kirim OTP terlebih dahulu.","warning");
+    return;
+  }
+  if(!/^\d{6}$/.test(code)){
+    setLoginStatus("Kode OTP harus 6 digit.","warning");
+    return;
+  }
+
+  const btn=$("verifyOtpBtn");
+  if(btn)btn.disabled=true;
+  try{
+    setLoginStatus("Memverifikasi OTP Inspector...","info");
+    await phoneConfirmationResult.confirm(code);
+    debug("Phone Authentication berhasil. Role akan diverifikasi melalui Firestore.");
+    setLoginStatus("OTP benar. Memeriksa Role dan Status Inspector...","info");
+  }catch(e){
+    console.error(e);
+    const ec=String(e?.code||"");
+    if(ec==="auth/invalid-verification-code"){
+      setLoginStatus("Kode OTP salah.","error");
+    }else if(ec==="auth/code-expired"){
+      setLoginStatus("Kode OTP sudah kedaluwarsa. Kirim OTP baru.","error");
+    }else{
+      setLoginStatus("Verifikasi OTP gagal: "+(e.message||"Unknown error"),"error");
+    }
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
+
 function bindUiEvent(id,event,handler){
   const el=$(id);
   if(!el)return false;
@@ -2576,6 +2740,11 @@ function bindUiEvent(id,event,handler){
 function wireAllUi(){
 
 window.__aparLoginHandler = async ()=>{
+  const method=$("loginMethod")?.value||"email";
+  if(method==="phone"){
+    return sendInspectorOtp();
+  }
+
   const email=$("loginEmail").value.trim();
   const password=$("loginPassword").value;
   if(!email || !password){
@@ -2586,12 +2755,11 @@ window.__aparLoginHandler = async ()=>{
   if(!btn || btn.disabled)return;
   btn.disabled=true;
   try{
-    setLoginStatus("Login...","info");
+    setLoginStatus("Login dengan Email + Password...","info");
     await authReady;
     if(!auth)throw new Error("Firebase Authentication belum siap.");
     await signInWithEmailAndPassword(auth,email,password);
-    debug("Firebase Authentication berhasil untuk: "+email);
-    setLoginStatus("Login berhasil. Memeriksa Role akun...","info");
+    debug("Firebase Email/Password Authentication berhasil untuk: "+email);
   }catch(e){
     console.error(e);
     const code=String(e?.code||"");
@@ -2602,16 +2770,38 @@ window.__aparLoginHandler = async ()=>{
     }else if(code==="auth/network-request-failed"){
       setLoginStatus("Jaringan bermasalah. Periksa koneksi internet.","error");
     }else{
-      setLoginStatus("Login gagal: "+(e.message||"periksa email dan password."),"error");
+      setLoginStatus("Login gagal: "+(e.message||"akun tidak dapat digunakan."),"error");
     }
   }finally{
     btn.disabled=false;
   }
 };
 
+bindUiEvent("loginMethod","change",switchLoginMethod);
 bindUiEvent("loginBtn","click",window.__aparLoginHandler);
 bindUiEvent("loginPassword","keydown",e=>{
   if(e.key==="Enter")window.__aparLoginHandler();
+});
+bindUiEvent("loginPhone","keydown",e=>{
+  if(e.key==="Enter")sendInspectorOtp();
+});
+bindUiEvent("sendOtpBtn","click",sendInspectorOtp);
+bindUiEvent("verifyOtpBtn","click",verifyInspectorOtp);
+bindUiEvent("loginOtp","keydown",e=>{
+  if(e.key==="Enter")verifyInspectorOtp();
+});
+,"change",switchLoginMethod);
+bindUiEvent("loginBtn","click",window.__aparLoginHandler);
+bindUiEvent("loginPassword","keydown",e=>{
+  if(e.key==="Enter")window.__aparLoginHandler();
+});
+bindUiEvent("loginPhone","keydown",e=>{
+  if(e.key==="Enter")sendInspectorOtp();
+});
+bindUiEvent("sendOtpBtn","click",sendInspectorOtp);
+bindUiEvent("verifyOtpBtn","click",verifyInspectorOtp);
+bindUiEvent("loginOtp","keydown",e=>{
+  if(e.key==="Enter")verifyInspectorOtp();
 });
 
 /* ---------- GLOBAL / ADMIN NAV ---------- */
@@ -2715,7 +2905,7 @@ window.__verifyCurrentAdminForWrite = async function(){
 };
 }
 /*
-  V14.14.0.10 LOGIN CORE
+  V14.14.1.0 LOGIN CORE
   Firebase utama diinisialisasi sinkron sebelum listener UI bekerja.
 */
 let authReady=Promise.resolve();
@@ -2727,7 +2917,7 @@ try{
   db=getFirestore(app);
   debug("Firebase berhasil diinisialisasi. Project ID: apar-7a343");
 
-  // V14.14.0.10:
+  // V14.14.1.0:
   // In-memory persistence intentionally prevents a prior browser session
   // from being restored after a fresh page load. This keeps the Login screen
   // immediate and removes the previous boot signOut race/delay.
