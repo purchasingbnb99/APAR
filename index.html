@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-<meta name="build-version" content="V14.14.2.4-FINAL">
+<meta name="build-version" content="V14.14.2.5-FINAL">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -2541,6 +2541,9 @@ function renderUsers(){
       ${String(x.status||"").toLowerCase()==="active"
         ? `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔒 Nonaktifkan</button>`
         : `<button class="small-btn" data-toggle-status="${esc(x.id)}" type="button">🔓 Aktifkan</button>`}
+      ${x.id!==currentAdmin?.uid
+        ? `<button class="small-btn danger-btn" data-delete-user="${esc(x.id)}" type="button">🗑️ Hapus User</button>`
+        : ""}
     </td>
   </tr>`).join("");
 
@@ -2558,6 +2561,9 @@ function renderUsers(){
   });
   body.querySelectorAll("[data-toggle-status]").forEach(btn=>{
     btn.addEventListener("click",()=>toggleUserStatus(btn.dataset.toggleStatus));
+  });
+  body.querySelectorAll("[data-delete-user]").forEach(btn=>{
+    btn.addEventListener("click",()=>deleteUserAccount(btn.dataset.deleteUser));
   });
 }
 
@@ -2720,6 +2726,88 @@ async function toggleUserStatus(id){
   }
 }
 
+
+
+async function deleteUserAccount(id){
+  const target=userRows.find(u=>u.id===id);
+  if(!target){
+    setUsersStatus("User tidak ditemukan.","error");
+    return;
+  }
+
+  if(id===currentAdmin?.uid){
+    setUsersStatus("Admin yang sedang login tidak boleh menghapus dirinya sendiri.","warning");
+    return;
+  }
+
+  try{
+    await window.__verifyCurrentAdminForWrite();
+  }catch(adminCheckError){
+    setUsersStatus(adminCheckError.message||"Sesi Admin tidak valid.","error");
+    debug("DELETE USER PREFLIGHT GAGAL: "+(adminCheckError.code||"-")+" | "+(adminCheckError.message||""));
+    return;
+  }
+
+  const label=target.name||target.email||target.phone||target.loginId||id;
+  const historyCount=(inspectionRows||[]).filter(x=>String(x.inspectorId||"")===String(id)).length;
+
+  const confirmText=
+    `HAPUS PERMANEN user ${label}?\\n\\n`+
+    `Akun Firebase Authentication dan profile users/{UID} akan dihapus.\\n`+
+    `Riwayat pemeriksaan TIDAK akan dihapus.\\n`+
+    `Riwayat pemeriksaan yang terdeteksi: ${historyCount} data.\\n\\n`+
+    `Tindakan ini tidak dapat dibatalkan dari aplikasi. Lanjutkan?`;
+
+  if(!confirm(confirmText))return;
+
+  const secondConfirm=
+    `Konfirmasi terakhir:\\n\\nHapus user "${label}" secara permanen?`;
+  if(!confirm(secondConfirm))return;
+
+  const btn=document.querySelector(`[data-delete-user="${CSS.escape(String(id))}"]`);
+  if(btn)btn.disabled=true;
+
+  try{
+    const token=await auth.currentUser.getIdToken();
+    const response=await fetch("/api/admin-user-delete",{
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer "+token
+      },
+      body:JSON.stringify({uid:id})
+    });
+
+    let data={};
+    try{data=await response.json()}catch(_){}
+
+    if(!response.ok){
+      throw new Error(data.message||`Server error (${response.status})`);
+    }
+
+    userRows=userRows.filter(u=>String(u.id)!==String(id));
+    renderUsers();
+
+    const preserved=Number(data.preservedInspectionHistoryCount||historyCount);
+    setUsersStatus(
+      `User ${label} berhasil dihapus. ${preserved} histori pemeriksaan tetap dipertahankan.`,
+      "success"
+    );
+    debug(`USER DIHAPUS: ${id} | HISTORI DIPERTAHANKAN: ${preserved}`);
+
+    // Refresh activity/user-related data without touching APAR master data.
+    try{ await loadUsers(); }catch(_){}
+  }catch(e){
+    console.error(e);
+    setUsersStatus(
+      "Gagal menghapus user: "+(e.message||"Unknown error"),
+      "error"
+    );
+    debug("DELETE USER ERROR: "+(e.code||"-")+" | "+(e.message||""));
+  }finally{
+    if(btn)btn.disabled=false;
+  }
+}
 
 function setUserAddStatus(message,type="info"){
   const e=$("userAddStatus");
