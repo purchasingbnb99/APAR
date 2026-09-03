@@ -7,7 +7,7 @@
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
-<title>APAR - Admin Dashboard V14.14.2.3.3</title>
+<title>APAR - Admin Dashboard V14.14.2.7.3</title>
 <style>
 *{box-sizing:border-box}
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f1f3f5;color:#10233f}
@@ -550,12 +550,32 @@ body.role-inspector .inspector-only{display:block!important}
 .dashboard-alert-item.danger .alert-value{color:#b91c1c}
 
 .danger-btn{background:#dc2626!important;color:#fff!important}.danger-btn:hover{background:#b91c1c!important}
+
+/* V14.14.2.7 - RIWAYAT PEMBELIAN ADMIN ONLY */
+.purchase-summary-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:14px}
+.purchase-summary-card{padding:14px;border:1px solid #dbe2ea;border-radius:12px;background:#f8fafc}
+.purchase-summary-card .label{font-size:12px;font-weight:800;color:#64748b}
+.purchase-summary-card .value{font-size:22px;font-weight:900;color:#0f2747;margin-top:6px}
+.purchase-items-box{margin-top:16px;border:1px solid #dbe2ea;border-radius:12px;background:#f8fafc;padding:14px}
+.purchase-items-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px auto;gap:10px;align-items:end}
+.purchase-items-list{margin-top:12px}
+.purchase-item-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 160px auto;gap:10px;align-items:center;padding:10px 0;border-bottom:1px solid #e5e7eb}
+.purchase-item-row:last-child{border-bottom:0}
+.purchase-item-meta{font-size:12px;color:#64748b;margin-top:3px}
+.purchase-total-line{display:flex;justify-content:flex-end;gap:16px;align-items:center;margin-top:14px;font-size:16px;font-weight:800}
+.purchase-filter-grid{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr) 150px 150px;gap:10px;align-items:end}
+.purchase-detail-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:14px 0}
+.purchase-detail-card{padding:12px;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+.purchase-detail-card .label{font-size:11px;color:#64748b;font-weight:800}
+.purchase-detail-card .value{font-size:14px;font-weight:800;margin-top:4px}
+@media(max-width:900px){.purchase-summary-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.purchase-filter-grid{grid-template-columns:1fr 1fr}.purchase-detail-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.purchase-summary-grid{grid-template-columns:1fr}.purchase-filter-grid{grid-template-columns:1fr}.purchase-items-grid{grid-template-columns:1fr}.purchase-item-row{grid-template-columns:1fr}.purchase-total-line{justify-content:space-between}}
 </style>
 <meta name="v141403-build" content="multi-role-login-final-fix"></head>
 <body class="unauthenticated">
 <div class="mobile-topbar"><button id="mobileMenuBtn" class="mobile-menu-btn" type="button" aria-label="Buka menu">☰</button><div class="mobile-brand">APAR <span>Admin Dashboard</span></div></div><div id="mobileOverlay" class="mobile-overlay hidden"></div><div class="app">
 <aside id="sidebar" class="sidebar">
-  <div class="brand">APAR<small>Admin Dashboard V14.14.2.3</small></div>
+  <div class="brand">APAR<small>Admin Dashboard V14.14.2.7</small></div>
   <div class="nav">
     <button id="navDashboard" class="active admin-only" type="button">📊 Dashboard</button>
     <button id="navDataApar" class="admin-only" type="button">🧯 Data APAR</button>
@@ -563,6 +583,7 @@ body.role-inspector .inspector-only{display:block!important}
     <button id="navInspection" class="admin-only" type="button">📋 Pemeriksaan</button>
     <button id="navHistory" class="admin-only" type="button">📜 Riwayat</button>
     <button id="navRefills" class="admin-only" type="button">🧯 Riwayat Refill</button>
+    <button id="navPurchases" class="admin-only" type="button">📦 Riwayat Pembelian</button>
     <button id="navUsers" class="admin-only" type="button">👥 User Management</button>
     <button id="navInspectorDashboard" class="inspector-only" type="button">📊 Dashboard Inspector</button>
     <button id="navInspectorInspection" class="inspector-only" type="button">📋 Pemeriksaan</button>
@@ -987,6 +1008,48 @@ body.role-inspector .inspector-only{display:block!important}
 </section>
 
 
+<section id="purchasesView" class="hidden">
+  <section class="card">
+    <div class="toolbar">
+      <div>
+        <h2>📦 Riwayat Pembelian APAR</h2>
+        <div class="subtitle">Histori pembelian, supplier, tanggal, invoice, dan harga APAR. Modul ini khusus Admin.</div>
+      </div>
+      <div class="toolbar-left">
+        <button id="addPurchaseBtn" class="action primary" type="button">➕ Tambah Pembelian</button>
+        <button id="reloadPurchasesBtn" class="action secondary" type="button">🔄 Muat Ulang</button>
+        <button id="exportPurchasesBtn" class="action secondary" type="button">📊 Export Excel</button>
+        <button id="printPurchasesBtn" class="action secondary" type="button">🖨️ Print</button>
+      </div>
+    </div>
+
+    <div class="purchase-summary-grid">
+      <div class="purchase-summary-card"><div class="label">TRANSAKSI</div><div id="purchaseTxnCount" class="value">0</div></div>
+      <div class="purchase-summary-card"><div class="label">TOTAL APAR DIBELI</div><div id="purchaseItemCount" class="value">0</div></div>
+      <div class="purchase-summary-card"><div class="label">TOTAL NILAI</div><div id="purchaseTotalAmount" class="value">Rp0</div></div>
+      <div class="purchase-summary-card"><div class="label">SUPPLIER</div><div id="purchaseSupplierCount" class="value">0</div></div>
+    </div>
+
+    <div class="purchase-filter-grid" style="margin-top:16px">
+      <input id="purchaseSearch" type="search" placeholder="Cari No Pembelian, Supplier, Invoice, Asset Number...">
+      <input id="purchaseSupplierFilter" type="search" placeholder="Filter supplier">
+      <div class="field" style="margin:0"><label for="purchaseFrom">Dari tanggal</label><input id="purchaseFrom" type="date"></div>
+      <div class="field" style="margin:0"><label for="purchaseTo">Sampai tanggal</label><input id="purchaseTo" type="date"></div>
+    </div>
+
+    <div id="purchasesStatus" class="status info hidden" style="margin-top:12px"></div>
+
+    <div class="table-wrap" style="margin-top:14px">
+      <table>
+        <thead><tr>
+          <th>No Pembelian</th><th>Tanggal</th><th>Supplier</th><th>No Invoice</th><th>Jumlah APAR</th><th>Total</th><th>Dibuat Oleh</th><th>Aksi</th>
+        </tr></thead>
+        <tbody id="purchasesBody"><tr><td colspan="8" class="empty">Belum ada data pembelian.</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+</section>
+
 <section id="usersView" class="hidden">
   <section class="card">
     <div class="toolbar">
@@ -1045,7 +1108,7 @@ body.role-inspector .inspector-only{display:block!important}
 
 <section class="card">
   <h2>Debug Information</h2>
-  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.3...</div>
+  <div id="debugBox" class="debug">Memulai Admin Dashboard V14.14.2.7...</div>
 </section>
 </div>
 </main>
@@ -1214,6 +1277,79 @@ window.addEventListener("error",e=>{try{debug("RUNTIME ERROR: "+(e.error?.messag
   </div>
 </div>
 
+<div id="purchaseModal" class="modal hidden">
+  <div class="modal-box" style="max-width:1000px">
+    <div class="modal-head">
+      <h2 id="purchaseModalTitle">Tambah Pembelian</h2>
+      <button id="closePurchaseModal" class="close" type="button">✕ Tutup</button>
+    </div>
+
+    <div id="purchaseFormStatus" class="status info hidden"></div>
+
+    <div class="form-grid">
+      <div class="form-field">
+        <label for="purchaseNumber">No Pembelian *</label>
+        <input id="purchaseNumber" type="text" placeholder="Contoh: PUR-2026-0001">
+      </div>
+      <div class="form-field">
+        <label for="purchaseDate">Tanggal Pembelian *</label>
+        <input id="purchaseDate" type="date">
+      </div>
+      <div class="form-field">
+        <label for="purchaseSupplier">Nama Supplier *</label>
+        <input id="purchaseSupplier" type="text" placeholder="Contoh: PT ABC Safety">
+      </div>
+      <div class="form-field">
+        <label for="purchaseInvoice">No Invoice</label>
+        <input id="purchaseInvoice" type="text" placeholder="Boleh kosong jika tidak ada invoice">
+      </div>
+      <div class="form-field full">
+        <label for="purchaseNotes">Keterangan</label>
+        <textarea id="purchaseNotes" rows="2" placeholder="Catatan pembelian (opsional)"></textarea>
+      </div>
+    </div>
+
+    <div class="purchase-items-box">
+      <div style="font-weight:800">Detail APAR</div>
+      <div class="subtitle" style="margin-top:4px">Satu baris mewakili satu APAR. Harga disimpan sebagai harga satuan; total transaksi dihitung otomatis.</div>
+      <div class="purchase-items-grid" style="margin-top:12px">
+        <div class="form-field" style="margin:0">
+          <label for="purchaseAparSelect">Pilih APAR *</label>
+          <select id="purchaseAparSelect" style="width:100%;border:1px solid #cbd5e1;border-radius:9px;padding:12px;font-size:14px;background:#fff"><option value="">-- Pilih APAR --</option></select>
+        </div>
+        <div class="form-field" style="margin:0">
+          <label for="purchaseUnitPrice">Harga Satuan *</label>
+          <input id="purchaseUnitPrice" type="number" min="0" step="1" placeholder="Contoh: 1250000">
+        </div>
+        <button id="addPurchaseItemBtn" class="action secondary" type="button">➕ Tambah APAR</button>
+      </div>
+      <div id="purchaseItemsList" class="purchase-items-list"></div>
+      <div class="purchase-total-line"><span>Total Nilai Pembelian</span><span id="purchaseFormTotal">Rp0</span></div>
+    </div>
+
+    <div class="modal-actions" style="margin-top:16px">
+      <button id="cancelPurchaseBtn" class="action secondary" type="button">Batal</button>
+      <button id="savePurchaseBtn" class="action primary" type="button">💾 Simpan Pembelian</button>
+    </div>
+  </div>
+</div>
+
+<div id="purchaseDetailModal" class="modal hidden">
+  <div class="modal-box" style="max-width:1050px">
+    <div class="modal-head">
+      <h2>Detail Pembelian</h2>
+      <button id="closePurchaseDetail" class="close" type="button">✕ Tutup</button>
+    </div>
+    <div id="purchaseDetailStatus" class="status info hidden"></div>
+    <div id="purchaseDetailHeader" class="purchase-detail-grid"></div>
+    <div class="table-wrap">
+      <table><thead><tr><th>Asset Number</th><th>Harga Satuan</th><th>Total</th></tr></thead>
+      <tbody id="purchaseDetailBody"><tr><td colspan="3" class="empty">Memuat detail...</td></tr></tbody></table>
+    </div>
+    <div class="purchase-total-line"><span>Total Transaksi</span><span id="purchaseDetailTotal">Rp0</span></div>
+  </div>
+</div>
+
 <div id="userEditModal" class="modal hidden">
   <div class="modal-box">
     <div class="modal-head">
@@ -1374,7 +1510,7 @@ window.addEventListener("unhandledrejection",function(e){
 <script type="module">
 import {initializeApp} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {getAuth,onAuthStateChanged,signInWithEmailAndPassword,signOut,createUserWithEmailAndPassword,deleteUser,sendPasswordResetEmail,setPersistence,inMemoryPersistence} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {getFirestore,collection,getDocs,query,where,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {getFirestore,collection,getDocs,query,where,doc,getDoc,setDoc,updateDoc,addDoc,serverTimestamp,runTransaction,writeBatch} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const firebaseConfig={
   apiKey:"AIzaSyCQoBalyFKPAa7oahpXMkSBlW_PLFdn6fo",
@@ -1401,6 +1537,7 @@ function getUserCreationAuth(){
 
 let auth,db,currentAdmin=null,aparRows=[],inspectionRows=[],userRows=[],editingUserId=null,monitorRows=[],aparFormMode="create",aparEditId=null;
 let changingPasswordUserId=null;
+let purchaseRows=[],purchaseItemRows=[],editingPurchaseId=null;
 
 const $=id=>document.getElementById(id);
 function esc(v){return String(v??"-").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;")}
@@ -3168,14 +3305,24 @@ async function createNewUser(){
 }
 
 
+
+document.addEventListener("click",e=>{
+  const viewBtn=e.target.closest("[data-view-purchase]");
+  if(viewBtn){openPurchaseDetail(viewBtn.dataset.viewPurchase);return;}
+  const editBtn=e.target.closest("[data-edit-purchase]");
+  if(editBtn){openPurchaseModal(editBtn.dataset.editPurchase);return;}
+  const rmBtn=e.target.closest("[data-remove-purchase-item]");
+  if(rmBtn){removePurchaseItem(Number(rmBtn.dataset.removePurchaseItem));return;}
+});
+
 function setView(view){
-  const views={dashboard:$("dashboardView"),inspectorDashboard:$("inspectorDashboardView"),data:$("dataAparView"),monitoring:$("monitoringView"),history:$("historyView"),inspection:$("inspectionView"),refills:$("refillsView"),users:$("usersView"),placeholder:$("placeholderView")};
+  const views={dashboard:$("dashboardView"),inspectorDashboard:$("inspectorDashboardView"),data:$("dataAparView"),monitoring:$("monitoringView"),history:$("historyView"),inspection:$("inspectionView"),refills:$("refillsView"),purchases:$("purchasesView"),users:$("usersView"),placeholder:$("placeholderView")};
   const role=String(currentAdmin?.role||"").toLowerCase();
   if(role==="inspector" && !["inspectorDashboard","inspection","history"].includes(view)) view="inspectorDashboard";
   if(role==="admin" && view==="inspectorDashboard") view="dashboard";
   Object.values(views).forEach(v=>v.classList.add("hidden"));
   if(views[view])views[view].classList.remove("hidden");
-  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navRefills","navUsers","navInspectorDashboard","navInspectorInspection","navInspectorHistory"].forEach(id=>$(id)?.classList.remove("active"));
+  ["navDashboard","navDataApar","navMonitoring","navInspection","navHistory","navRefills","navPurchases","navUsers","navInspectorDashboard","navInspectorInspection","navInspectorHistory"].forEach(id=>$(id)?.classList.remove("active"));
   if(view==="dashboard"){ $("navDashboard")?.classList.add("active");renderDashboardInspectionKpis();renderDashboardApar();renderDashboardLifecycle();$("pageTitle").textContent="Admin Dashboard";$("pageSubtitle").textContent="Monitoring data APAR dan pemeriksaan terbaru"; }
   if(view==="inspectorDashboard"){ $("navInspectorDashboard")?.classList.add("active");renderInspectorDashboard();$("pageTitle").textContent="Inspector Dashboard";$("pageSubtitle").textContent="Pemeriksaan APAR untuk akun Inspector"; }
   if(view==="data"){ $("navDataApar")?.classList.add("active");$("pageTitle").textContent="Data APAR";$("pageSubtitle").textContent="Master data APAR + Tambah/Edit dari Firestore"; }
@@ -3183,6 +3330,12 @@ function setView(view){
   if(view==="inspection"){ $(role==="inspector"?"navInspectorInspection":"navInspection")?.classList.add("active");$("pageTitle").textContent="Pemeriksaan APAR";$("pageSubtitle").textContent=role==="inspector"?"Pemeriksaan APAR oleh Inspector":"Generate/Scan QR dan input pemeriksaan APAR";initializeInspectionUi(); }
   if(view==="history"){ $(role==="inspector"?"navInspectorHistory":"navHistory")?.classList.add("active");$("pageTitle").textContent=role==="inspector"?"Riwayat Pemeriksaan Saya":"Riwayat Pemeriksaan";$("pageSubtitle").textContent=role==="inspector"?"Riwayat pemeriksaan yang dibuat oleh akun Inspector ini":"Riwayat pemeriksaan APAR dari Firestore";role==="inspector"?renderInspectorHistory():renderHistory(); }
   if(view==="refills"){ $("navRefills")?.classList.add("active");$("pageTitle").textContent="Riwayat Refill APAR";$("pageSubtitle").textContent="Histori pengisian ulang APAR dari Firestore";loadRefills(); }
+  if(view==="purchases"){
+    $("navPurchases")?.classList.add("active");
+    $("pageTitle").textContent="Riwayat Pembelian APAR";
+    $("pageSubtitle").textContent="Histori pembelian, supplier, invoice, dan harga APAR (Admin Only)";
+    loadPurchases();
+  }
   if(view==="users"){ $("navUsers")?.classList.add("active");$("pageTitle").textContent="User Management";$("pageSubtitle").textContent="Kelola profil dan hak akses pengguna";loadUsers(); }
 }
 function placeholder(title,text,id){
@@ -3348,7 +3501,227 @@ bindUiEvent("navMonitoring","click",()=>setView("monitoring"));
 bindUiEvent("navInspection","click",()=>setView("inspection"));
 bindUiEvent("navHistory","click",()=>setView("history"));
 bindUiEvent("navRefills","click",()=>setView("refills"));
+bindUiEvent("navPurchases","click",()=>setView("purchases"));
 bindUiEvent("navUsers","click",()=>setView("users"));
+
+/* ---------- PURCHASE HISTORY ---------- */
+bindUiEvent("addPurchaseBtn","click",()=>openPurchaseModal());
+bindUiEvent("reloadPurchasesBtn","click",loadPurchases);
+bindUiEvent("exportPurchasesBtn","click",exportPurchases);
+bindUiEvent("printPurchasesBtn","click",printPurchases);
+bindUiEvent("closePurchaseModal","click",closePurchaseModal);
+bindUiEvent("cancelPurchaseBtn","click",closePurchaseModal);
+bindUiEvent("purchaseModal","click",e=>{if(e.target===$("purchaseModal"))closePurchaseModal()});
+bindUiEvent("addPurchaseItemBtn","click",addPurchaseItem);
+bindUiEvent("savePurchaseBtn","click",savePurchase);
+bindUiEvent("closePurchaseDetail","click",closePurchaseDetail);
+bindUiEvent("purchaseDetailModal","click",e=>{if(e.target===$("purchaseDetailModal"))closePurchaseDetail()});
+bindUiEvent("purchaseSearch","input",renderPurchases);
+bindUiEvent("purchaseSupplierFilter","input",renderPurchases);
+bindUiEvent("purchaseFrom","change",renderPurchases);
+bindUiEvent("purchaseTo","change",renderPurchases);
+$("usersBody")?.addEventListener("click",()=>{});
+
+/* ---------- PURCHASE HISTORY V14.14.2.7 ---------- */
+function rupiah(v){
+  const n=Number(v||0);
+  if(!Number.isFinite(n)) return "Rp0";
+  return "Rp"+Math.round(n).toLocaleString("id-ID");
+}
+function setPurchasesStatus(message,type="info"){
+  const e=$("purchasesStatus"); if(!e)return; e.textContent=message; e.className=`status ${type}`; e.classList.remove("hidden");
+}
+function setPurchaseFormStatus(message,type="info"){
+  const e=$("purchaseFormStatus"); if(!e)return; e.textContent=message; e.className=`status ${type}`; e.classList.remove("hidden");
+}
+function setPurchaseDetailStatus(message,type="info"){
+  const e=$("purchaseDetailStatus"); if(!e)return; e.textContent=message; e.className=`status ${type}`; e.classList.remove("hidden");
+}
+function resetPurchaseForm(){
+  $("purchaseNumber").value="";
+  $("purchaseDate").value=new Date().toISOString().slice(0,10);
+  $("purchaseSupplier").value="";
+  $("purchaseInvoice").value="";
+  $("purchaseNotes").value="";
+  $("purchaseUnitPrice").value="";
+  purchaseItemRows=[]; editingPurchaseId=null;
+  $("purchaseModalTitle").textContent="Tambah Pembelian";
+  $("savePurchaseBtn").textContent="💾 Simpan Pembelian";
+  $("purchaseFormStatus").className="status info hidden";
+  renderPurchaseFormItems(); populatePurchaseAparSelect();
+}
+async function openPurchaseModal(id=null){
+  resetPurchaseForm();
+  $("purchaseModal").classList.remove("hidden");
+  if(id){
+    const p=purchaseRows.find(x=>x.id===id); if(!p)return;
+    editingPurchaseId=id;
+    $("purchaseModalTitle").textContent="Edit Pembelian";
+    $("savePurchaseBtn").textContent="💾 Simpan Perubahan";
+    $("purchaseNumber").value=p.purchaseNumber||"";
+    $("purchaseDate").value=p.purchaseDate||"";
+    $("purchaseSupplier").value=p.supplier||"";
+    $("purchaseInvoice").value=p.invoiceNumber||"";
+    $("purchaseNotes").value=p.notes||"";
+    $("savePurchaseBtn").disabled=true;
+    setPurchaseFormStatus("Memuat detail APAR untuk transaksi ini...","info");
+    try{
+      await loadPurchaseItemsForEdit(id);
+      renderPurchaseFormItems();
+      populatePurchaseAparSelect();
+      setPurchaseFormStatus("Detail transaksi siap diedit.","success");
+    }catch(e){
+      setPurchaseFormStatus("Gagal memuat detail pembelian: "+(e.message||"Unknown error"),"error");
+      return;
+    }finally{
+      $("savePurchaseBtn").disabled=false;
+    }
+  }
+}
+function closePurchaseModal(){ $("purchaseModal").classList.add("hidden"); editingPurchaseId=null; }
+function populatePurchaseAparSelect(){
+  const sel=$("purchaseAparSelect"); if(!sel)return;
+  sel.innerHTML="";
+  const ph=document.createElement("option"); ph.value=""; ph.textContent=aparRows.length?"-- Pilih APAR --":"Belum ada data APAR"; sel.appendChild(ph);
+  const used=new Set((purchaseItemRows||[]).map(x=>String(x.assetNumber||"").toUpperCase()));
+  (aparRows||[]).filter(x=>String(x.status||"active").toLowerCase()==="active").forEach(item=>{
+    const asset=String(item.assetNumber||item.id||"").toUpperCase(); if(!asset||used.has(asset))return;
+    const o=document.createElement("option"); o.value=item.id||asset; o.textContent=asset+(item.brand?` — ${item.brand}`:""); sel.appendChild(o);
+  });
+}
+function renderPurchaseFormItems(){
+  const box=$("purchaseItemsList"); if(!box)return;
+  if(!purchaseItemRows.length){ box.innerHTML='<div class="empty" style="padding:12px">Belum ada APAR ditambahkan ke transaksi.</div>'; $("purchaseFormTotal").textContent="Rp0"; return; }
+  box.innerHTML=purchaseItemRows.map((x,i)=>`<div class="purchase-item-row">
+    <div><strong>${esc(x.assetNumber||"-")}</strong><div class="purchase-item-meta">APAR ${esc(x.brand||"")}${x.capacity?` • ${esc(x.capacity)}`:""}</div></div>
+    <div>${esc(x.serialNumber||"-")}</div>
+    <div><strong>${rupiah(x.unitPrice)}</strong></div>
+    <button class="small-btn" data-remove-purchase-item="${i}" type="button">Hapus</button>
+  </div>`).join("");
+  const total=purchaseItemRows.reduce((sum,x)=>sum+Number(x.unitPrice||0),0);
+  $("purchaseFormTotal").textContent=rupiah(total);
+}
+function addPurchaseItem(){
+  const id=$("purchaseAparSelect").value; const price=Number($("purchaseUnitPrice").value);
+  const x=(aparRows||[]).find(r=>r.id===id);
+  if(!x){setPurchaseFormStatus("Pilih APAR terlebih dahulu.","warning");return;}
+  if(!Number.isFinite(price)||price<0){setPurchaseFormStatus("Harga satuan wajib diisi dan tidak boleh negatif.","warning");return;}
+  const asset=String(x.assetNumber||x.id||"").trim().toUpperCase();
+  if(purchaseItemRows.some(r=>String(r.assetNumber||"").toUpperCase()===asset)){setPurchaseFormStatus(`APAR ${asset} sudah ada di transaksi.`,"warning");return;}
+  purchaseItemRows.push({assetNumber:asset,brand:x.brand||"",capacity:x.capacity||"",serialNumber:x.serialNumber||"",typeId:x.typeId||"",unitPrice:Math.round(price),totalPrice:Math.round(price)});
+  $("purchaseUnitPrice").value=""; $("purchaseAparSelect").value="";
+  setPurchaseFormStatus("APAR ditambahkan ke transaksi.","success");
+  renderPurchaseFormItems(); populatePurchaseAparSelect();
+}
+function removePurchaseItem(index){ purchaseItemRows.splice(Number(index),1); renderPurchaseFormItems(); populatePurchaseAparSelect(); }
+async function loadPurchaseItemsForEdit(purchaseId){
+  const snap=await getDocs(query(collection(db,"purchase_items"),where("purchaseId","==",purchaseId)));
+  purchaseItemRows=[]; snap.forEach(s=>purchaseItemRows.push({id:s.id,...(s.data()||{})}));
+  purchaseItemRows.sort((a,b)=>String(a.assetNumber||"").localeCompare(String(b.assetNumber||""),undefined,{sensitivity:"base"}));
+}
+function getFilteredPurchaseRows(){
+  const q=String($("purchaseSearch")?.value||"").trim().toLowerCase();
+  const sf=String($("purchaseSupplierFilter")?.value||"").trim().toLowerCase();
+  const from=String($("purchaseFrom")?.value||""); const to=String($("purchaseTo")?.value||"");
+  return purchaseRows.filter(x=>{
+    const hay=[x.purchaseNumber,x.supplier,x.invoiceNumber,x.notes,...(x.assetNumbers||[])].map(v=>String(v||"").toLowerCase()).join(" ");
+    if(q&&!hay.includes(q))return false;
+    if(sf&&!String(x.supplier||"").toLowerCase().includes(sf))return false;
+    if(from&&String(x.purchaseDate||"")<from)return false;
+    if(to&&String(x.purchaseDate||"")>to)return false;
+    return true;
+  });
+}
+function renderPurchases(){
+  const rows=getFilteredPurchaseRows(); const body=$("purchasesBody");
+  if(!rows.length){body.innerHTML='<tr><td colspan="8" class="empty">Tidak ada data pembelian yang sesuai filter.</td></tr>';}
+  else body.innerHTML=rows.map(x=>`<tr>
+    <td><strong>${esc(x.purchaseNumber||"-")}</strong></td>
+    <td>${esc(x.purchaseDate||"-")}</td>
+    <td>${esc(x.supplier||"-")}</td>
+    <td>${esc(x.invoiceNumber||"-")}</td>
+    <td>${esc(x.itemCount??0)}</td>
+    <td><strong>${rupiah(x.totalAmount)}</strong></td>
+    <td>${esc(x.createdBy||"-")}</td>
+    <td><button class="small-btn" data-view-purchase="${esc(x.id)}" type="button">Detail</button> <button class="small-btn" data-edit-purchase="${esc(x.id)}" type="button">Edit</button></td>
+  </tr>`).join("");
+  $("purchaseTxnCount").textContent=rows.length;
+  $("purchaseItemCount").textContent=rows.reduce((n,x)=>n+Number(x.itemCount||0),0);
+  $("purchaseTotalAmount").textContent=rupiah(rows.reduce((n,x)=>n+Number(x.totalAmount||0),0));
+  $("purchaseSupplierCount").textContent=new Set(rows.map(x=>String(x.supplier||"").trim().toLowerCase()).filter(Boolean)).size;
+}
+async function loadPurchases(){
+  if(!db)return;
+  setPurchasesStatus("Memuat histori pembelian dari Firestore...","info");
+  try{
+    const snap=await getDocs(collection(db,"purchases")); purchaseRows=[];
+    snap.forEach(s=>purchaseRows.push({id:s.id,...(s.data()||{})}));
+    purchaseRows.sort((a,b)=>String(b.purchaseDate||"").localeCompare(String(a.purchaseDate||""))||String(b.purchaseNumber||"").localeCompare(String(a.purchaseNumber||"")));
+    renderPurchases(); setPurchasesStatus(`Histori pembelian berhasil dimuat. ${purchaseRows.length} transaksi.`,"success");
+    debug(`Riwayat pembelian ditemukan: ${purchaseRows.length}`);
+  }catch(e){console.error(e);setPurchasesStatus("Gagal memuat histori pembelian: "+(e.message||"Unknown error"),"error");debug("LOAD PURCHASES ERROR: "+(e.code||"-")+" | "+(e.message||""));}
+}
+async function savePurchase(){
+  if(!currentAdmin || String(currentAdmin.role||"").toLowerCase()!=="admin"){setPurchaseFormStatus("Hanya Admin yang dapat mengelola histori pembelian.","error");return;}
+  const purchaseNumber=$("purchaseNumber").value.trim().toUpperCase(); const purchaseDate=$("purchaseDate").value; const supplier=$("purchaseSupplier").value.trim(); const invoiceNumber=$("purchaseInvoice").value.trim(); const notes=$("purchaseNotes").value.trim();
+  if(!purchaseNumber||!purchaseDate||!supplier){setPurchaseFormStatus("No Pembelian, Tanggal Pembelian, dan Supplier wajib diisi.","warning");return;}
+  if(!purchaseItemRows.length){setPurchaseFormStatus("Tambahkan minimal satu APAR ke transaksi.","warning");return;}
+  const duplicate=await getDocs(query(collection(db,"purchases"),where("purchaseNumber","==",purchaseNumber)));
+  if(duplicate.docs.some(d=>d.id!==editingPurchaseId)){setPurchaseFormStatus(`No Pembelian ${purchaseNumber} sudah digunakan.`,"warning");return;}
+  const totalAmount=purchaseItemRows.reduce((n,x)=>n+Number(x.unitPrice||0),0);
+  const btn=$("savePurchaseBtn"); btn.disabled=true; setPurchaseFormStatus("Menyimpan transaksi pembelian...","info");
+  try{
+    await window.__verifyCurrentAdminForWrite();
+    const batch=writeBatch(db); let purchaseId=editingPurchaseId;
+    if(purchaseId){
+      const purchaseRef=doc(db,"purchases",purchaseId); batch.update(purchaseRef,{purchaseNumber,purchaseDate,supplier,invoiceNumber,notes,totalAmount,itemCount:purchaseItemRows.length,assetNumbers:purchaseItemRows.map(x=>x.assetNumber),updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin"});
+      const oldSnap=await getDocs(query(collection(db,"purchase_items"),where("purchaseId","==",purchaseId))); oldSnap.docs.forEach(d=>batch.delete(d.ref));
+    }else{
+      const purchaseRef=doc(collection(db,"purchases")); purchaseId=purchaseRef.id;
+      batch.set(purchaseRef,{purchaseNumber,purchaseDate,supplier,invoiceNumber,notes,totalAmount,itemCount:purchaseItemRows.length,assetNumbers:purchaseItemRows.map(x=>x.assetNumber),createdAt:serverTimestamp(),createdBy:currentAdmin.email||currentAdmin.uid||"admin",updatedAt:serverTimestamp(),updatedBy:currentAdmin.email||currentAdmin.uid||"admin"});
+    }
+    purchaseItemRows.forEach(x=>{const ref=doc(collection(db,"purchase_items")); batch.set(ref,{purchaseId,assetNumber:x.assetNumber,brand:x.brand||"",capacity:x.capacity||"",serialNumber:x.serialNumber||"",typeId:x.typeId||"",unitPrice:Number(x.unitPrice||0),totalPrice:Number(x.unitPrice||0),createdAt:serverTimestamp(),createdBy:currentAdmin.email||currentAdmin.uid||"admin"});});
+    await batch.commit();
+    const wasEdit=!!editingPurchaseId;
+    closePurchaseModal();
+    await loadPurchases();
+    setPurchasesStatus(wasEdit?"Perubahan pembelian berhasil disimpan.":"Pembelian berhasil disimpan.","success");
+    debug((wasEdit?"PURCHASE UPDATED: ":"PURCHASE CREATED: ")+purchaseNumber);
+  }catch(e){console.error(e);setPurchaseFormStatus("Gagal menyimpan pembelian: "+(e.message||"Unknown error"),"error");debug("SAVE PURCHASE ERROR: "+(e.code||"-")+" | "+(e.message||""));}
+  finally{btn.disabled=false;}
+}
+async function openPurchaseDetail(id){
+  const p=purchaseRows.find(x=>x.id===id); if(!p)return;
+  $("purchaseDetailModal").classList.remove("hidden"); setPurchaseDetailStatus("Memuat detail transaksi...","info");
+  $("purchaseDetailHeader").innerHTML=[
+    ["No Pembelian",p.purchaseNumber||"-"],["Tanggal",p.purchaseDate||"-"],["Supplier",p.supplier||"-"],["No Invoice",p.invoiceNumber||"-"],["Jumlah APAR",p.itemCount??0],["Total",rupiah(p.totalAmount)],["Dibuat Oleh",p.createdBy||"-"],["Keterangan",p.notes||"-"]
+  ].map(x=>`<div class="purchase-detail-card"><div class="label">${esc(x[0])}</div><div class="value">${esc(x[1])}</div></div>`).join("");
+  try{
+    const snap=await getDocs(query(collection(db,"purchase_items"),where("purchaseId","==",id))); const rows=[]; snap.forEach(s=>rows.push({id:s.id,...(s.data()||{})})); rows.sort((a,b)=>String(a.assetNumber||"").localeCompare(String(b.assetNumber||"")));
+    $("purchaseDetailBody").innerHTML=rows.length?rows.map(x=>`<tr><td><strong>${esc(x.assetNumber||"-")}</strong></td><td>${rupiah(x.unitPrice)}</td><td>${rupiah(x.totalPrice)}</td></tr>`).join(""):'<tr><td colspan="3" class="empty">Tidak ada detail APAR.</td></tr>';
+    $("purchaseDetailTotal").textContent=rupiah(p.totalAmount); setPurchaseDetailStatus("Detail transaksi berhasil dimuat.","success");
+  }catch(e){console.error(e);setPurchaseDetailStatus("Gagal memuat detail: "+(e.message||"Unknown error"),"error");}
+}
+function closePurchaseDetail(){$("purchaseDetailModal").classList.add("hidden");}
+async function exportPurchases(){
+  if(!window.XLSX){setPurchasesStatus("Library Excel belum termuat. Muat ulang halaman.","error");return;}
+  const rows=getFilteredPurchaseRows(); if(!rows.length){setPurchasesStatus("Tidak ada data pembelian untuk diexport.","warning");return;}
+  try{
+    const out=[];
+    for(const p of rows){
+      const snap=await getDocs(query(collection(db,"purchase_items"),where("purchaseId","==",p.id)));
+      if(snap.empty){out.push({"No Pembelian":p.purchaseNumber||"","Tanggal Pembelian":p.purchaseDate||"","Supplier":p.supplier||"","No Invoice":p.invoiceNumber||"","Asset Number":"","Harga Satuan":0,"Total":0,"Keterangan":p.notes||""});continue;}
+      snap.forEach(d=>{const x=d.data()||{};out.push({"No Pembelian":p.purchaseNumber||"","Tanggal Pembelian":p.purchaseDate||"","Supplier":p.supplier||"","No Invoice":p.invoiceNumber||"","Asset Number":x.assetNumber||"","Harga Satuan":Number(x.unitPrice||0),"Total":Number(x.totalPrice||0),"Keterangan":p.notes||""});});
+    }
+    const ws=XLSX.utils.json_to_sheet(out); const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Riwayat Pembelian"); XLSX.writeFile(wb,`Riwayat_Pembelian_APAR_${new Date().toISOString().slice(0,10)}.xlsx`); setPurchasesStatus(`${out.length} baris detail berhasil diexport ke Excel.`,"success");
+  }catch(e){console.error(e);setPurchasesStatus("Gagal export Excel: "+(e.message||"Unknown error"),"error");}
+}
+async function printPurchases(){
+  const rows=getFilteredPurchaseRows(); if(!rows.length){setPurchasesStatus("Tidak ada data pembelian untuk dicetak.","warning");return;}
+  const win=window.open("","_blank","width=1200,height=800"); if(!win){setPurchasesStatus("Popup diblokir browser. Izinkan popup untuk mencetak.","error");return;}
+  const body=rows.map(p=>`<tr><td>${esc(p.purchaseNumber||"-")}</td><td>${esc(p.purchaseDate||"-")}</td><td>${esc(p.supplier||"-")}</td><td>${esc(p.invoiceNumber||"-")}</td><td>${esc(p.itemCount??0)}</td><td>${esc(rupiah(p.totalAmount))}</td><td>${esc(p.createdBy||"-")}</td></tr>`).join("");
+  win.document.write(`<!doctype html><html lang="id"><head><meta charset="utf-8"><title>Riwayat Pembelian APAR</title><style>@page{size:A4 landscape;margin:12mm}body{font-family:Arial,sans-serif;color:#111827}h1{font-size:22px;margin:0 0 6px}.meta{font-size:11px;color:#64748b;margin-bottom:14px}table{width:100%;border-collapse:collapse}th,td{border:1px solid #cbd5e1;padding:7px 8px;font-size:10px;text-align:left;vertical-align:top}th{background:#f1f5f9}</style></head><body><h1>Riwayat Pembelian APAR</h1><div class="meta">Dicetak: ${esc(new Date().toLocaleString("id-ID"))} | Jumlah transaksi: ${rows.length}</div><table><thead><tr><th>No Pembelian</th><th>Tanggal</th><th>Supplier</th><th>No Invoice</th><th>Jumlah APAR</th><th>Total</th><th>Dibuat Oleh</th></tr></thead><tbody>${body}</tbody></table><script>window.onload=function(){window.print()}<\/script></body></html>`); win.document.close();
+}
 
 /* ---------- USER MANAGEMENT ---------- */
 bindUiEvent("reloadUsersBtn","click",loadUsers);
