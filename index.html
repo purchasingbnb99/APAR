@@ -2504,6 +2504,7 @@ async function loadUsers(){
 }
 
 function renderUsers(){
+  // V14.14.2.6: tampilkan Nomor HP / ID dari field phone/loginId; Nama tetap dari field name.
   const q=String($("userSearch").value||"").trim().toLowerCase();
   const role=String($("userRoleFilter").value||"").toLowerCase();
   const status=String($("userStatusFilter").value||"").toLowerCase();
@@ -2519,12 +2520,13 @@ function renderUsers(){
   const body=$("usersBody");
 
   if(!rows.length){
-    body.innerHTML='<tr><td colspan="6" class="empty">Tidak ada user yang sesuai filter.</td></tr>';
+    body.innerHTML='<tr><td colspan="7" class="empty">Tidak ada user yang sesuai filter.</td></tr>';
     return;
   }
 
   body.innerHTML=rows.map(x=>`<tr>
     <td><strong>${esc(x.email||"-")}</strong></td>
+    <td>${esc(x.phone||x.loginId||"-")}</td>
     <td>${esc(x.name||"-")}</td>
     <td>${esc(String(x.role||"-").toUpperCase())}</td>
     <td>${badge(x.status)}</td>
